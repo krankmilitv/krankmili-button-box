@@ -316,27 +316,27 @@
       ]
     },
     {
-      "title": "Dorse dingili",
+      "title": "Dorse süspansiyonu",
       "page": 2,
       "column": 2,
       "columns": 2,
       "weight": 2,
       "buttons": [
         {
-          "id": "trailer_axle_up",
-          "label": "Kaldır",
-          "sub": "Num 9",
-          "icon": "axle_up",
-          "key": "num9",
-          "mode": "tap"
+          "id": "susp_trailer_up",
+          "label": "Yükselt",
+          "sub": "Num 8",
+          "icon": "susp_up",
+          "key": "num8",
+          "mode": "hold"
         },
         {
-          "id": "trailer_axle_down",
-          "label": "İndir",
-          "sub": "Num 3",
-          "icon": "axle_down",
-          "key": "num3",
-          "mode": "tap"
+          "id": "susp_trailer_down",
+          "label": "Alçalt",
+          "sub": "Num 2",
+          "icon": "susp_down",
+          "key": "num2",
+          "mode": "hold"
         }
       ]
     },

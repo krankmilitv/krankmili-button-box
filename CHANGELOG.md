@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.5.2
+- Sayfa 2: "Dorse dingili" yerine "Dorse süspansiyonu" (Num 8 / Num 2); dorse dingili tuşları sayfa 1'de.
+
 ## 1.5.1
 - Sayfa 1: çekici ve dorse dingili indir/kaldır tuşlarının hepsi bir arada.
 - "SELEKTÖR" gibi tek kelimelik etiketler artık ortadan bölünmez, sığacak şekilde küçülür.
