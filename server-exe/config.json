@@ -1,0 +1,574 @@
+{
+  "host": "0.0.0.0",
+  "port": 5555,
+  "token": "",
+  "tap_ms": 60,
+  "groups": [
+    {
+      "title": "Camlar",
+      "column": 1,
+      "columns": 2,
+      "weight": 3,
+      "buttons": [
+        {
+          "id": "window_left_up",
+          "label": "Kapat",
+          "sub": "Sol cam",
+          "icon": "arrow_up",
+          "key": "insert",
+          "mode": "hold"
+        },
+        {
+          "id": "window_right_up",
+          "label": "Kapat",
+          "sub": "Sağ cam",
+          "icon": "arrow_up",
+          "key": "pageup",
+          "mode": "hold"
+        },
+        {
+          "id": "window_left_down",
+          "label": "Aç",
+          "sub": "Sol cam",
+          "icon": "arrow_down",
+          "key": "delete",
+          "mode": "hold"
+        },
+        {
+          "id": "window_right_down",
+          "label": "Aç",
+          "sub": "Sağ cam",
+          "icon": "arrow_down",
+          "key": "pagedown",
+          "mode": "hold"
+        }
+      ]
+    },
+    {
+      "title": "Kapı",
+      "column": 1,
+      "columns": 1,
+      "weight": 1,
+      "buttons": [
+        {
+          "id": "bus_door",
+          "label": "Otobüs kapısı",
+          "icon": "bus",
+          "key": "f9",
+          "mode": "tap"
+        }
+      ]
+    },
+    {
+      "title": "Kontak",
+      "column": 2,
+      "columns": 1,
+      "weight": 1,
+      "buttons": [
+        {
+          "id": "engine_toggle",
+          "label": "Kontak / Motor",
+          "icon": "power",
+          "accent": true,
+          "key": "e",
+          "mode": "tap"
+        }
+      ]
+    },
+    {
+      "title": "Araç durumu",
+      "kind": "status",
+      "column": 2,
+      "weight": 1.8
+    },
+    {
+      "title": "Işık / Fren",
+      "column": 3,
+      "columns": 2,
+      "weight": 1,
+      "buttons": [
+        {
+          "id": "flash",
+          "label": "Selektör",
+          "icon": "flash",
+          "key": "j",
+          "mode": "hold",
+          "sub": "J"
+        },
+        {
+          "id": "high_beam",
+          "label": "Uzun far",
+          "sub": "K",
+          "icon": "headlight",
+          "key": "k",
+          "mode": "tap"
+        },
+        {
+          "id": "light_mode",
+          "label": "Kısa far / park",
+          "icon": "headlight",
+          "key": "l",
+          "mode": "tap",
+          "span": 2
+        },
+        {
+          "id": "indicator_l",
+          "label": "Sol sinyal",
+          "icon": "left",
+          "key": "[",
+          "mode": "tap"
+        },
+        {
+          "id": "indicator_r",
+          "label": "Sağ sinyal",
+          "icon": "right",
+          "key": "]",
+          "mode": "tap"
+        },
+        {
+          "id": "hazard",
+          "label": "Dörtlü",
+          "sub": "F",
+          "icon": "hazard",
+          "key": "f",
+          "mode": "tap",
+          "span": 2
+        },
+        {
+          "id": "parking",
+          "label": "El freni",
+          "icon": "parking",
+          "key": "space",
+          "mode": "tap",
+          "span": 2
+        }
+      ]
+    },
+    {
+      "title": "Dorse / Dingil",
+      "column": 4,
+      "columns": 2,
+      "weight": 1,
+      "buttons": [
+        {
+          "id": "trailer_attach",
+          "label": "Dorse bağla",
+          "icon": "link",
+          "key": "t",
+          "mode": "tap"
+        },
+        {
+          "id": "trailer_detach",
+          "label": "Dorse bırak",
+          "icon": "unlink",
+          "key": "t",
+          "mode": "tap"
+        },
+        {
+          "id": "axle_lower",
+          "label": "Dingil indir",
+          "icon": "axle_down",
+          "key": "end",
+          "mode": "tap"
+        },
+        {
+          "id": "axle_raise",
+          "label": "Dingil kaldır",
+          "icon": "axle_up",
+          "key": "home",
+          "mode": "tap"
+        }
+      ]
+    },
+    {
+      "title": "Kamera",
+      "column": 4,
+      "columns": 2,
+      "weight": 1.5,
+      "buttons": [
+        {
+          "id": "cam_1",
+          "label": "İç",
+          "sub": "Kamera 1",
+          "key": "1",
+          "mode": "tap"
+        },
+        {
+          "id": "cam_2",
+          "label": "Takip",
+          "sub": "Kamera 2",
+          "key": "2",
+          "mode": "tap"
+        },
+        {
+          "id": "cam_3",
+          "label": "Dikey",
+          "sub": "Kamera 3",
+          "key": "3",
+          "mode": "tap"
+        },
+        {
+          "id": "cam_4",
+          "label": "Çatı",
+          "sub": "Kamera 4",
+          "key": "4",
+          "mode": "tap"
+        },
+        {
+          "id": "cam_5",
+          "label": "Pencere",
+          "sub": "Kamera 5",
+          "key": "5",
+          "mode": "tap"
+        },
+        {
+          "id": "cam_6",
+          "label": "Tampon",
+          "sub": "Kamera 6",
+          "key": "6",
+          "mode": "tap"
+        }
+      ]
+    },
+    {
+      "title": "Ön süspansiyon",
+      "page": 2,
+      "column": 1,
+      "columns": 2,
+      "weight": 2,
+      "buttons": [
+        {
+          "id": "susp_front_up",
+          "label": "Yükselt",
+          "sub": "Num 7",
+          "icon": "susp_up",
+          "key": "num7",
+          "mode": "hold"
+        },
+        {
+          "id": "susp_front_down",
+          "label": "Alçalt",
+          "sub": "Num 1",
+          "icon": "susp_down",
+          "key": "num1",
+          "mode": "hold"
+        }
+      ]
+    },
+    {
+      "title": "Süspansiyon",
+      "page": 2,
+      "column": 1,
+      "columns": 1,
+      "weight": 1,
+      "buttons": [
+        {
+          "id": "susp_reset",
+          "label": "Sıfırla",
+          "sub": "Num *",
+          "icon": "reset",
+          "key": "num*",
+          "mode": "tap"
+        }
+      ]
+    },
+    {
+      "title": "Arka süspansiyon",
+      "page": 2,
+      "column": 2,
+      "columns": 2,
+      "weight": 2,
+      "buttons": [
+        {
+          "id": "susp_rear_up",
+          "label": "Yükselt",
+          "sub": "Num +",
+          "icon": "susp_up",
+          "key": "num+",
+          "mode": "hold"
+        },
+        {
+          "id": "susp_rear_down",
+          "label": "Alçalt",
+          "sub": "Num -",
+          "icon": "susp_down",
+          "key": "num-",
+          "mode": "hold"
+        }
+      ]
+    },
+    {
+      "title": "Dorse dingili",
+      "page": 2,
+      "column": 2,
+      "columns": 2,
+      "weight": 2,
+      "buttons": [
+        {
+          "id": "trailer_axle_up",
+          "label": "Kaldır",
+          "sub": "Num 9",
+          "icon": "axle_up",
+          "key": "num9",
+          "mode": "tap"
+        },
+        {
+          "id": "trailer_axle_down",
+          "label": "İndir",
+          "sub": "Num 3",
+          "icon": "axle_down",
+          "key": "num3",
+          "mode": "tap"
+        }
+      ]
+    },
+    {
+      "title": "Kabin / Çakar",
+      "page": 2,
+      "column": 3,
+      "columns": 2,
+      "weight": 2,
+      "buttons": [
+        {
+          "id": "cabin_light",
+          "label": "Kabin ışığı",
+          "sub": "Num 0",
+          "icon": "bulb",
+          "key": "num0",
+          "mode": "tap"
+        },
+        {
+          "id": "beacon",
+          "label": "Çakar lamba",
+          "sub": "O",
+          "icon": "beacon",
+          "key": "o",
+          "mode": "tap"
+        }
+      ]
+    },
+    {
+      "title": "Silecek",
+      "page": 2,
+      "column": 3,
+      "columns": 1,
+      "weight": 1,
+      "buttons": [
+        {
+          "id": "wipers",
+          "label": "Silecek",
+          "sub": "P · modlar arası",
+          "icon": "wiper",
+          "key": "p",
+          "mode": "tap"
+        }
+      ]
+    },
+    {
+      "title": "Servis",
+      "page": 2,
+      "column": 4,
+      "columns": 1,
+      "weight": 1,
+      "buttons": [
+        {
+          "id": "service_go",
+          "label": "Servise git",
+          "sub": "F7 → 1",
+          "icon": "service",
+          "seq": [
+            "f7",
+            "1"
+          ],
+          "seq_ms": 350,
+          "mode": "tap",
+          "prompt": {
+            "text": "Servise gidilsin mi?\n(Evet = oyunda Enter, Hayır = Esc)",
+            "yes": "confirm_enter",
+            "no": "confirm_esc"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Oyun onayı",
+      "page": 2,
+      "column": 4,
+      "columns": 2,
+      "weight": 2,
+      "buttons": [
+        {
+          "id": "confirm_enter",
+          "label": "Evet / Onayla",
+          "sub": "Enter",
+          "icon": "check",
+          "key": "enter",
+          "mode": "tap"
+        },
+        {
+          "id": "confirm_esc",
+          "label": "İptal",
+          "sub": "Esc",
+          "icon": "close",
+          "key": "esc",
+          "mode": "tap"
+        }
+      ]
+    },
+    {
+      "title": "Numpad",
+      "page": 3,
+      "column": 1,
+      "columns": 1,
+      "weight": 1,
+      "buttons": [
+        {
+          "id": "np_lock",
+          "label": "Num Lock",
+          "icon": "",
+          "key": "numlock",
+          "mode": "tap"
+        },
+        {
+          "id": "np7",
+          "label": "7",
+          "icon": "",
+          "key": "num7",
+          "mode": "hold"
+        },
+        {
+          "id": "np4",
+          "label": "4",
+          "icon": "",
+          "key": "num4",
+          "mode": "hold"
+        },
+        {
+          "id": "np1",
+          "label": "1",
+          "icon": "",
+          "key": "num1",
+          "mode": "hold"
+        },
+        {
+          "id": "np0",
+          "label": "0",
+          "icon": "",
+          "key": "num0",
+          "mode": "hold"
+        }
+      ]
+    },
+    {
+      "title": "",
+      "page": 3,
+      "column": 2,
+      "columns": 1,
+      "weight": 1,
+      "buttons": [
+        {
+          "id": "np_div",
+          "label": "/",
+          "icon": "",
+          "key": "num/",
+          "mode": "hold"
+        },
+        {
+          "id": "np8",
+          "label": "8",
+          "icon": "",
+          "key": "num8",
+          "mode": "hold"
+        },
+        {
+          "id": "np5",
+          "label": "5",
+          "icon": "",
+          "key": "num5",
+          "mode": "hold"
+        },
+        {
+          "id": "np2",
+          "label": "2",
+          "icon": "",
+          "key": "num2",
+          "mode": "hold"
+        },
+        {
+          "id": "np_dot",
+          "label": ".",
+          "icon": "",
+          "key": "num.",
+          "mode": "hold"
+        }
+      ]
+    },
+    {
+      "title": "",
+      "page": 3,
+      "column": 3,
+      "columns": 1,
+      "weight": 1,
+      "buttons": [
+        {
+          "id": "np_mul",
+          "label": "*",
+          "icon": "",
+          "key": "num*",
+          "mode": "hold"
+        },
+        {
+          "id": "np9",
+          "label": "9",
+          "icon": "",
+          "key": "num9",
+          "mode": "hold"
+        },
+        {
+          "id": "np6",
+          "label": "6",
+          "icon": "",
+          "key": "num6",
+          "mode": "hold"
+        },
+        {
+          "id": "np3",
+          "label": "3",
+          "icon": "",
+          "key": "num3",
+          "mode": "hold"
+        },
+        {
+          "id": "np_enter",
+          "label": "Enter",
+          "icon": "",
+          "key": "numenter",
+          "mode": "hold"
+        }
+      ]
+    },
+    {
+      "title": "",
+      "page": 3,
+      "column": 4,
+      "columns": 1,
+      "weight": 1,
+      "buttons": [
+        {
+          "id": "np_sub",
+          "label": "-",
+          "icon": "",
+          "key": "num-",
+          "mode": "hold"
+        },
+        {
+          "id": "np_add",
+          "label": "+",
+          "icon": "",
+          "key": "num+",
+          "mode": "hold"
+        }
+      ]
+    }
+  ]
+}

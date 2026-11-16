@@ -1,0 +1,4 @@
+Arac durumu (telemetri) paneli icin istege bagli olarak su acik kaynak eklenti kurulabilir:
+RenCloud/scs-sdk-plugin (SCS Software Telemetry SDK plugin), MIT lisansi
+https://github.com/RenCloud/scs-sdk-plugin
+Eklenti sunucu tarafindan GitHub'dan indirilir; bu pakete dahil degildir.

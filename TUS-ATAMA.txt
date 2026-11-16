@@ -1,0 +1,54 @@
+VARSAYILAN TUS HARITASI
+Panel      Buton             Tus
+Isik/Fren  Selektor          J (basili tut)
+Isik/Fren  Uzun far          K
+Isik/Fren  Kisa far / park   L
+Isik/Fren  Sol sinyal        [
+Isik/Fren  Sag sinyal        ]
+Isik/Fren  Dortlu            F
+Isik/Fren  El freni          Bosluk
+Sayfa 2    Silecek           P (modlar arasi gecer)
+Sayfa 2    Cakar lamba       O
+Sayfa 2    Servise git       F7 sonra 1 (makro, otomatik; ETS2'de atama gerekmez)
+Sayfa 2    Evet/Onayla       Enter
+Sayfa 2    Iptal             Esc
+Kontak     Kontak / Motor    E
+Dorse      Dorse bagla/birak T
+Kamera     Ic/Takip/Dikey/Cati/Pencere/Tampon  1 2 3 4 5 6
+
+OYUNDA ATAMA GEREKENLER (ETS2'de varsayilan tus yok)
+Not: Silecek (P) ve cakar (O) ETS2 varsayilanidir; surumune gore farkliysa oyunda atamayi kontrol et.
+Buton             Gonderdigi tus
+Cam kapat (sol/sag) Insert / Page Up
+Cam ac (sol/sag)    Delete / Page Down
+Dingil indir        End
+Dingil kaldir       Home
+On suspansiyon yukselt  Num 7 (basili tut)
+On suspansiyon alcalt   Num 1 (basili tut)
+Arka suspansiyon yukselt Num + (basili tut)
+Arka suspansiyon alcalt  Num - (basili tut)
+Suspansiyon sifirla     Num *
+Dorse dingili kaldir Num 9
+Dorse dingili indir  Num 3
+Kabin isigi         Num 0
+Otobus kapisi       F9
+
+NASIL ATANIR
+ETS2 -> Ayarlar -> Klavye ve fare -> ilgili satiri sec -> telefondaki butona bas.
+(Oyun tusu algilar ve atar.) Ayni tus baska bir islevde kullaniliyorsa cakisma uyarisi verir.
+
+TUSLARI DEGISTIRMEK
+KrankmiliServer.exe ile ayni klasore config.json koy (config-ornek.json'u kopyalayip adini degistir),
+"key" degerlerini duzenle, sunucuyu yeniden baslat.
+
+SERVISE GIT VE ONAY PENCERESI
+"Servise git" butonu F7'ye, kisa sure sonra 1'e basar. Ardindan tablette "Servise gidilsin mi?" sorusu cikar:
+Evet -> oyunda Enter, Hayir -> Esc gonderilir. Ayni Enter/Esc "Oyun onayi" panelinde dogrudan butondur.
+config.json'da bir butona "seq": ["f7","1"] (adimlar sirayla) ve "prompt": {...} (soru penceresi) eklenerek
+kendi makrolarini ve onay sorularini yapabilirsin; ornek: config-ornek.json.
+
+
+SAYFA 3 - NUMPAD (%75 klavye kullananlar icin)
+Sayfa 3'teki tuslar oyuna NUMPAD tus kodlari olarak gider (Windows'taki NumLock durumundan bagimsiz).
+Oyunda Ayarlar > Klavye ve fare bolumunde ilgili eylemi sec, tableti tikla; Num 0-9, Num / * - + . , Num Enter ve Num Lock algilanir.
+Not: Sayfa 2'deki suspansiyon/kabin isigi tuslari da Num tuslaridir; ayni tusu iki eyleme atamayin.
