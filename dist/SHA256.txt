@@ -1,0 +1,2 @@
+702cfcd11c6155935f24b9154168dfe332b986d98a6ddb7b3111476ac17f63e5  KrankmiliServer.exe
+a8f4e3ff051e9107b9aed4e1b9168e58b4cc335fa41b16a02d450b09651ba626  KrankmiliButtonBox.apk

@@ -14,7 +14,9 @@
 .cxx
 local.properties
 *.apk
+!dist/*.apk
 *.exe
+!dist/*.exe
 *.jks
 *.keystore
 server-exe/build.log

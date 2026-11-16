@@ -12,6 +12,13 @@ Euro Truck Simulator 2 için tablet/telefon button box. Android uygulaması (Kot
 - Sayfa 2: ön/arka süspansiyon, dorse dingili, kabin ışığı, çakar, silecek, "Servise git" makrosu (F7 → 1) ve oyun onayı (Enter/Esc).
 - Sayfa 3: numpad (Num 0–9, / * - + . , Num Enter, Num Lock). Telefonda tek ekran.
 
+## İndir (v1.5)
+- [KrankmiliButtonBox.apk](dist/KrankmiliButtonBox.apk) — tablet/telefon uygulaması
+- [KrankmiliServer.exe](dist/KrankmiliServer.exe) — PC sunucusu
+- [SHA256.txt](dist/SHA256.txt) — dosya doğrulama
+
+Dosyayı indirmek için sayfada "Download raw file" düğmesini kullan. Tarayıcı exe için uyarı verirse dosyanın SHA256 değerini `SHA256.txt` ile karşılaştır.
+
 ## Derleme
 1. Android Studio ile aç, `Build → Assemble Project`. Gradle, sunucu exe'sini de derler (`server-exe/build.log` içinde `exitcode 0` görünmeli).
 2. APK: `app/build/outputs/apk/debug/app-debug.apk`. Sunucu: `server-exe/KrankmiliServer.exe`.
