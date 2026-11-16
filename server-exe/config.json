@@ -148,7 +148,7 @@
       "title": "Dorse / Dingil",
       "column": 4,
       "columns": 2,
-      "weight": 1,
+      "weight": 2,
       "buttons": [
         {
           "id": "trailer_attach",
@@ -166,16 +166,34 @@
         },
         {
           "id": "axle_lower",
-          "label": "Dingil indir",
+          "label": "Çekici dingil indir",
           "icon": "axle_down",
           "key": "end",
-          "mode": "tap"
+          "mode": "tap",
+          "sub": "Çekici"
         },
         {
           "id": "axle_raise",
-          "label": "Dingil kaldır",
+          "label": "Çekici dingil kaldır",
           "icon": "axle_up",
           "key": "home",
+          "mode": "tap",
+          "sub": "Çekici"
+        },
+        {
+          "id": "trailer_axle_down_p1",
+          "label": "Dorse dingil indir",
+          "sub": "Num 3",
+          "icon": "axle_down",
+          "key": "num3",
+          "mode": "tap"
+        },
+        {
+          "id": "trailer_axle_up_p1",
+          "label": "Dorse dingil kaldır",
+          "sub": "Num 9",
+          "icon": "axle_up",
+          "key": "num9",
           "mode": "tap"
         }
       ]

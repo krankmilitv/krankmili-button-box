@@ -424,14 +424,22 @@ private fun KeyButton(
                         SvgIcon(button.icon, if (compact) (if (roomy) 40.dp else 28.dp) else if (roomy) 64.dp else 32.dp, iconColor)
                     }
                 }
+                // A single long word (SELEKTÖR) must never break mid-word: keep it on one line and
+                // shrink the font until it fits the button width.
+                val singleWord = !button.label.trim().contains(' ')
+                var shrink by remember(button.label, compact, roomy) { mutableStateOf(1f) }
+                val baseSize = if (compact) (if (roomy) 18f else 15f) else if (roomy) 24f else 20f
                 Text(
                     button.label.uppercase(),
                     modifier = Modifier.layoutId("label"),
                     color = foreground,
-                    fontSize = if (compact) (if (roomy) 18.sp else 15.sp) else if (roomy) 24.sp else 20.sp,
+                    fontSize = (baseSize * shrink).sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
-                    lineHeight = if (compact) (if (roomy) 20.sp else 17.sp) else if (roomy) 26.sp else 22.sp,
+                    lineHeight = ((if (compact) (if (roomy) 20f else 17f) else if (roomy) 26f else 22f) * shrink).sp,
+                    softWrap = !singleWord,
+                    maxLines = if (singleWord) 1 else Int.MAX_VALUE,
+                    onTextLayout = { if (singleWord && it.didOverflowWidth && shrink > 0.5f) shrink *= 0.92f },
                 )
                 if (button.sub.isNotEmpty() && !compact) {
                     Text(

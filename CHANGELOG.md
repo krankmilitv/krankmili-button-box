@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.1
+- Sayfa 1: çekici ve dorse dingili indir/kaldır tuşlarının hepsi bir arada.
+- "SELEKTÖR" gibi tek kelimelik etiketler artık ortadan bölünmez, sığacak şekilde küçülür.
+
 ## 1.5
 - Çoklu sayfa desteği (sayfa seçici başlıkta), vJoy/gamepad modu kaldırıldı (klavye modu).
 - Sayfa 2: süspansiyon, dorse dingili, kabin ışığı, çakar, silecek, servis makrosu, oyun onayı.
