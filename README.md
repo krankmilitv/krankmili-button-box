@@ -32,4 +32,4 @@ Dosyayı indirmek için sayfada "Download raw file" düğmesini kullan. Tarayıc
 Test edildi: ETS2, Windows 11. Oyun sürümü güncellemelerinde tuş atamaları değişebilir.
 
 ## Lisans
-Henüz lisans seçilmedi (tüm hakları saklıdır).
+MIT. Kodu kullanabilir, değiştirebilir ve dağıtabilirsin; telif satırını (`LICENSE`) korumak zorundasın. Kod dışındaki adlar ve görseller ("Krankmili TV", anma yazısı) lisansa dahil değildir.
