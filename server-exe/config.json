@@ -635,7 +635,16 @@
             "ön süspansiyonu yükselt",
             "ön süspansiyon yükselt",
             "ön süspansiyonu kaldır",
-            "ön yüksekliği artır"
+            "ön yüksekliği artır",
+            "ön süspansiyon kaldır",
+            "ön süspansiyonu yukarı al",
+            "ön süspansiyonu yukarı çıkar",
+            "ön süspansiyonu yukarı kaldır",
+            "ön süspansiyonu yüksel",
+            "öne süspansiyonu kaldır",
+            "ön yükselt",
+            "önü kaldır",
+            "önü yükselt"
           ]
         },
         {
@@ -648,7 +657,12 @@
           "voice": [
             "ön süspansiyonu alçalt",
             "ön süspansiyon alçalt",
-            "ön süspansiyonu indir"
+            "ön süspansiyonu indir",
+            "ön süspansiyon indir",
+            "ön süspansiyonu aşağı al",
+            "ön süspansiyonu aşağı indir",
+            "önü indir",
+            "önü alçalt"
           ]
         }
       ]
@@ -670,7 +684,11 @@
           "voice": [
             "süspansiyonu sıfırla",
             "süspansiyon sıfırla",
-            "süspansiyonları sıfırla"
+            "süspansiyonları sıfırla",
+            "süspansiyonu eski haline getir",
+            "süspansiyonu normale al",
+            "süspansiyonu düzelt",
+            "süspansiyon düzelt"
           ]
         }
       ]
@@ -692,7 +710,15 @@
           "voice": [
             "arka süspansiyonu yükselt",
             "arka süspansiyon yükselt",
-            "arka süspansiyonu kaldır"
+            "arka süspansiyonu kaldır",
+            "arka süspansiyon kaldır",
+            "arka süspansiyonu yukarı al",
+            "arka süspansiyonu yukarı çıkar",
+            "arka süspansiyonu yukarı kaldır",
+            "arka süspansiyonu yüksel",
+            "arka yükselt",
+            "arkayı kaldır",
+            "arkayı yükselt"
           ]
         },
         {
@@ -705,7 +731,12 @@
           "voice": [
             "arka süspansiyonu alçalt",
             "arka süspansiyon alçalt",
-            "arka süspansiyonu indir"
+            "arka süspansiyonu indir",
+            "arka süspansiyon indir",
+            "arka süspansiyonu aşağı al",
+            "arka süspansiyonu aşağı indir",
+            "arkayı indir",
+            "arkayı alçalt"
           ]
         }
       ]
@@ -727,7 +758,13 @@
           "voice": [
             "dorse süspansiyonu yükselt",
             "dorse süspansiyonunu yükselt",
-            "dorse süspansiyonu kaldır"
+            "dorse süspansiyonu kaldır",
+            "dorse süspansiyon kaldır",
+            "dorse süspansiyonunu kaldır",
+            "dorse süspansiyonu yukarı al",
+            "dorse süspansiyonu yukarı çıkar",
+            "dorseyi yükselt",
+            "dorseyi kaldır"
           ]
         },
         {
@@ -740,7 +777,11 @@
           "voice": [
             "dorse süspansiyonu alçalt",
             "dorse süspansiyonunu alçalt",
-            "dorse süspansiyonu indir"
+            "dorse süspansiyonu indir",
+            "dorse süspansiyon indir",
+            "dorse süspansiyonunu indir",
+            "dorse süspansiyonu aşağı al",
+            "dorse süspansiyonu aşağı indir"
           ]
         }
       ]
