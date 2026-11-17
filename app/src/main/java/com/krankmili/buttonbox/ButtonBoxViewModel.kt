@@ -25,6 +25,12 @@ class ButtonBoxViewModel : ViewModel() {
     val layout: StateFlow<List<BoxGroup>> = client.layout
     val truck: StateFlow<TruckStatus?> = client.truck
 
+    private val _update = MutableStateFlow<com.krankmili.buttonbox.data.UpdateInfo?>(null)
+    val update: StateFlow<com.krankmili.buttonbox.data.UpdateInfo?> = _update
+
+    fun checkUpdate() { scope.launch { _update.value = com.krankmili.buttonbox.data.UpdateCheck.fetch() } }
+    fun clearUpdate() { _update.value = null }
+
     private val _searching = MutableStateFlow(false)
     val searching: StateFlow<Boolean> = _searching
     private val _found = MutableStateFlow<FoundServer?>(null)

@@ -27,8 +27,8 @@ using Microsoft.Win32;
 [assembly: AssemblyCompany("Krankmili TV")]
 [assembly: AssemblyProduct("Krankmili Button Box")]
 [assembly: AssemblyCopyright("Copyright (c) Krankmili TV")]
-[assembly: AssemblyVersion("1.6.0.0")]
-[assembly: AssemblyFileVersion("1.6.0.0")]
+[assembly: AssemblyVersion("1.7.0.0")]
+[assembly: AssemblyFileVersion("1.7.0.0")]
 
 namespace Krankmili
 {
@@ -40,6 +40,49 @@ namespace Krankmili
         public const int DiscoveryPort = 48765;
         public const string DiscoveryQuery = "KRANKMILI_BB_DISCOVER";
         public const string AppName = "Krankmili Button Box";
+        public const string Version = "1.7.0";
+        public const string UpdateSource = "https://raw.githubusercontent.com/krankmilitv/krankmili-button-box/main/version.json";
+    }
+
+    // Looks at version.json in the project's GitHub repo; only notifies, never downloads or installs anything.
+    static class UpdateCheck
+    {
+        public static string OffFile(string dir) { return Path.Combine(dir, "update-check.off"); }
+
+        public static bool IsNewer(string a, string b)
+        {
+            string[] x = a.Split('.'), y = b.Split('.');
+            for (int i = 0; i < Math.Max(x.Length, y.Length); i++)
+            {
+                int p = 0, q = 0;
+                if (i < x.Length) int.TryParse(x[i], out p);
+                if (i < y.Length) int.TryParse(y[i], out q);
+                if (p != q) return p > q;
+            }
+            return false;
+        }
+
+        // Returns true and fills version/url/notes when a newer release exists; false on any failure.
+        public static bool Fetch(out string version, out string url, out string notes)
+        {
+            version = url = notes = "";
+            try
+            {
+                ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;   // TLS 1.2 (not in the .NET 4.0 enum)
+                HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(Const.UpdateSource);
+                rq.Timeout = 6000; rq.ReadWriteTimeout = 6000; rq.UserAgent = "KrankmiliButtonBox/" + Const.Version;
+                using (WebResponse rs = rq.GetResponse())
+                using (StreamReader r = new StreamReader(rs.GetResponseStream(), Encoding.UTF8))
+                {
+                    var d = (IDictionary)new JavaScriptSerializer().DeserializeObject(r.ReadToEnd());
+                    version = d.Contains("version") ? Convert.ToString(d["version"]) : "";
+                    url = d.Contains("url") ? Convert.ToString(d["url"]) : "";
+                    notes = d.Contains("notes") ? Convert.ToString(d["notes"]) : "";
+                }
+                return version.Length > 0 && IsNewer(version, Const.Version);
+            }
+            catch (Exception) { return false; }
+        }
     }
 
     static class Log
@@ -855,6 +898,43 @@ namespace Krankmili
             menu.Items.Add("config.json'u aç", null, delegate { Process.Start("notepad.exe", "\"" + cfgPath + "\""); });
             menu.Items.Add("Kayıt dosyasını aç", null, delegate { if (File.Exists(Log.Path)) Process.Start("notepad.exe", "\"" + Log.Path + "\""); });
             menu.Items.Add(new ToolStripSeparator());
+            // Update notice: checked once at start (can be switched off; nothing else is ever sent to GitHub).
+            ToolStripMenuItem updItem = new ToolStripMenuItem("Yeni sürüm var"); updItem.Visible = false;
+            string updUrl = "";
+            updItem.Click += delegate { try { if (updUrl.StartsWith("https://")) Process.Start(updUrl); } catch (Exception) { } };
+            menu.Items.Add(updItem);
+            ToolStripMenuItem updCheck = new ToolStripMenuItem("Açılışta yeni sürümü kontrol et (GitHub'a bağlanır)");
+            updCheck.Checked = !File.Exists(UpdateCheck.OffFile(dir)); updCheck.CheckOnClick = true;
+            updCheck.CheckedChanged += delegate
+            {
+                try
+                {
+                    if (updCheck.Checked) File.Delete(UpdateCheck.OffFile(dir));
+                    else File.WriteAllText(UpdateCheck.OffFile(dir), "update check disabled");
+                }
+                catch (Exception) { }
+            };
+            menu.Items.Add(updCheck);
+            if (updCheck.Checked)
+            {
+                string foundV = null, foundN = "";
+                System.Windows.Forms.Timer ut2 = new System.Windows.Forms.Timer(); ut2.Interval = 1000;
+                ut2.Tick += delegate
+                {
+                    if (foundV == null) return;
+                    ut2.Stop();
+                    updItem.Text = "Yeni sürüm var: " + foundV + " (indir)"; updItem.Visible = true;
+                    tray.ShowBalloonTip(8000, Const.AppName, "Yeni sürüm: " + foundV + (foundN.Length > 0 ? "\n" + foundN : "") + "\nİndirmek için tepsi menüsüne bak.", ToolTipIcon.Info);
+                };
+                ut2.Start();
+                Thread ut = new Thread(delegate ()
+                {
+                    string v, u, n;
+                    if (!UpdateCheck.Fetch(out v, out u, out n)) return;
+                    updUrl = u; foundN = n; foundV = v;   // picked up by the UI timer (the menu has no window handle yet)
+                });
+                ut.IsBackground = true; ut.Start();
+            }
             menu.Items.Add("Çıkış", null, delegate { tray.Visible = false; server.Stop(); Application.Exit(); });
             tray.ContextMenuStrip = menu;
             tray.DoubleClick += delegate { tray.ShowBalloonTip(5000, Const.AppName, ipHidden ? "IP gizli (menüden göster)" : "IP: " + ipText + "  Port: " + cfg.Port, ToolTipIcon.Info); };

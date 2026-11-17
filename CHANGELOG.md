@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.0
+- New: update notice. App and server read `version.json` from this repo at start and tell the user when a newer release exists (notification only, nothing is downloaded). Can be switched off in both (tablet connect screen, server tray menu). Only the GitHub request is made.
+- To announce a release: publish the Release, then bump `version`/`notes` in `version.json`.
+
 ## 1.6.0
 - New: swipe between pages with the page following the finger (swipe right = next page, left = previous). Tap keys now fire when the finger lifts, so a swipe that starts on a button does not press it; hold keys (windows, selektör) still act on touch.
 - New: eye button hides/shows the PC address on the tablet header and in the server tray menu.

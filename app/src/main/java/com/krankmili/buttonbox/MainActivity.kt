@@ -76,6 +76,8 @@ class MainActivity : ComponentActivity() {
                         initialHost = prefs.getString("host", "") ?: "",
                         initialPort = prefs.getString("port", "5555") ?: "5555",
                         initialToken = prefs.getString("token", "") ?: "",
+                        initialUpdateCheck = prefs.getBoolean("update_check", true),
+                        onUpdateCheck = { prefs.edit().putBoolean("update_check", it).apply() },
                         onSave = { host, port, token ->
                             prefs.edit()
                                 .putString("host", host)
@@ -116,6 +118,8 @@ private fun AppRoot(
     initialHost: String,
     initialPort: String,
     initialToken: String,
+    initialUpdateCheck: Boolean,
+    onUpdateCheck: (Boolean) -> Unit,
     onSave: (host: String, port: String, token: String) -> Unit,
 ) {
     val state by vm.state.collectAsState()
@@ -125,6 +129,23 @@ private fun AppRoot(
     var host by remember { mutableStateOf(initialHost) }
     var port by remember { mutableStateOf(initialPort) }
     var token by remember { mutableStateOf(initialToken) }
+    val update by vm.update.collectAsState()
+    var updateCheck by remember { mutableStateOf(initialUpdateCheck) }
+    var updateDismissed by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(updateCheck) { if (updateCheck) vm.checkUpdate() else vm.clearUpdate() }
+    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+    update?.let { u ->
+        if (!updateDismissed) AlertDialog(
+            onDismissRequest = { updateDismissed = true },
+            containerColor = Palette.Panel,
+            title = { Text("Yeni sürüm: ${u.version}", color = Palette.Text) },
+            text = { Text((if (u.notes.isNotBlank()) u.notes + "\n\n" else "") + "Şu anki sürüm: ${com.krankmili.buttonbox.data.UpdateCheck.CURRENT}", color = Palette.Text) },
+            confirmButton = {
+                TextButton(onClick = { updateDismissed = true; if (u.url.isNotBlank()) uriHandler.openUri(u.url) }) { Text("İndir", color = Palette.Accent) }
+            },
+            dismissButton = { TextButton(onClick = { updateDismissed = true }) { Text("Sonra", color = Palette.Muted) } },
+        )
+    }
     val searching by vm.searching.collectAsState()
     val found by vm.found.collectAsState()
     val searchFailed by vm.searchFailed.collectAsState()
@@ -182,6 +203,8 @@ private fun AppRoot(
                 }
             },
             onCancel = vm::disconnect,
+            updateCheck = updateCheck,
+            onUpdateCheck = { updateCheck = it; onUpdateCheck(it) },
         )
     }
 }

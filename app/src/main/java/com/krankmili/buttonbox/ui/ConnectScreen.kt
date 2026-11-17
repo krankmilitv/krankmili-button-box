@@ -48,6 +48,8 @@ fun ConnectScreen(
     onToken: (String) -> Unit,
     onConnect: () -> Unit,
     onCancel: () -> Unit,
+    updateCheck: Boolean = true,
+    onUpdateCheck: (Boolean) -> Unit = {},
 ) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         val shape = RoundedCornerShape(26.dp)
@@ -123,6 +125,10 @@ fun ConnectScreen(
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Box(Modifier.size(10.dp).clip(CircleShape).background(if (busy) Palette.Accent else Palette.Bad))
                 Text(statusText, color = Palette.Muted, fontSize = 14.sp)
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                androidx.compose.material3.Checkbox(checked = updateCheck, onCheckedChange = onUpdateCheck)
+                Text("Açılışta yeni sürümü kontrol et (GitHub'a bağlanır)", color = Palette.Muted, fontSize = 13.sp)
             }
         }
     }

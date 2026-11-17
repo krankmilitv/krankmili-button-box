@@ -33,3 +33,7 @@ Test edildi: ETS2, Windows 11. Oyun sürümü güncellemelerinde tuş atamaları
 
 ## Lisans
 MIT. Kodu kullanabilir, değiştirebilir ve dağıtabilirsin; telif satırını (`LICENSE`) korumak zorundasın. Kod dışındaki adlar ve görseller ("Krankmili TV", anma yazısı) lisansa dahil değildir.
+
+## Update notice
+Starting with 1.7, the app and the server check `version.json` in this repository once at start-up (an HTTPS request to raw.githubusercontent.com, so GitHub sees the IP) and show a notice when a newer version exists. Nothing is downloaded or installed automatically. Turn it off with the checkbox on the tablet's connect screen or in the server's tray menu. Maintainers: after publishing a release, update `version.json`.
+
