@@ -38,7 +38,10 @@
             "tüm camları kapat",
             "iki camı kapat",
             "camları yukarı çıkar",
-            "camları kaldır"
+            "camları kaldır",
+            "sol camı biraz kapat",
+            "sol cam biraz kapat",
+            "soldaki camı biraz kapat"
           ]
         },
         {
@@ -69,7 +72,10 @@
             "tüm camları kapat",
             "iki camı kapat",
             "camları yukarı çıkar",
-            "camları kaldır"
+            "camları kaldır",
+            "sağ camı biraz kapat",
+            "sağ cam biraz kapat",
+            "sağdaki camı biraz kapat"
           ]
         },
         {
@@ -100,7 +106,10 @@
             "tüm camları aç",
             "iki camı aç",
             "camları indir",
-            "camları aşağı indir"
+            "camları aşağı indir",
+            "sol camı biraz aç",
+            "sol cam biraz aç",
+            "soldaki camı biraz aç"
           ]
         },
         {
@@ -131,7 +140,10 @@
             "tüm camları aç",
             "iki camı aç",
             "camları indir",
-            "camları aşağı indir"
+            "camları aşağı indir",
+            "sağ camı biraz aç",
+            "sağ cam biraz aç",
+            "sağdaki camı biraz aç"
           ]
         }
       ]
@@ -790,7 +802,7 @@
       "title": "Kabin / Çakar",
       "page": 2,
       "column": 3,
-      "columns": 2,
+      "columns": 3,
       "weight": 2,
       "buttons": [
         {
@@ -849,6 +861,26 @@
             "çakar kapat",
             "çakar söndür",
             "çakar"
+          ]
+        },
+        {
+          "id": "roof_lights",
+          "label": "Tepe lambası",
+          "sub": ",",
+          "icon": "roof",
+          "key": ",",
+          "mode": "tap",
+          "voice": [
+            "tepeleri aç",
+            "tepeleri kapat",
+            "tepe lambalarını aç",
+            "tepe lambalarını kapat",
+            "tepe lambasını aç",
+            "tepe lambasını kapat",
+            "tepe lambalarını yak",
+            "tepe lambalarını söndür",
+            "tepe aç",
+            "tepe kapat"
           ]
         }
       ]

@@ -76,7 +76,8 @@ class ButtonBoxViewModel : ViewModel() {
                 for (id in r.ids) {
                     val hold = buttons.firstOrNull { it.id == id }?.mode == "hold"
                     // Windows need the key held for their whole travel so they open/close fully.
-                    val holdMs = if (hold) (if (id.startsWith("window_")) 5000L else 1500L) else 80L
+                    // "biraz" (a little) holds a window about 20% of its travel.
+                    val holdMs = if (hold) (if (id.startsWith("window_")) (if (r.phrase.contains("biraz")) 1000L else 5000L) else 1500L) else 80L
                     // A repeated command extends the running hold instead of releasing the key early;
                     // the opposite window direction is released first so both keys are never down together.
                     val opposite = when {
