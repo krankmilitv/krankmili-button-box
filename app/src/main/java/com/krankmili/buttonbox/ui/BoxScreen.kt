@@ -27,6 +27,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -152,48 +159,64 @@ fun BoxScreen(
             verticalArrangement = Arrangement.spacedBy(gap),
         ) {
             Header(connected, statusText, onDisconnect, compact, pages, activePage) { page = it; tab = 1 }
-            if (compact && !padPage) {
-                val columns = (1..SCREEN_COLUMNS).filter { c -> layout.any { it.column == c } }
-                val active = if (tab in columns) tab else columns.firstOrNull() ?: 1
-                TabRow(columns, active, layout) { tab = it }
-                Row(
-                    Modifier.weight(1f).fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(gap),
-                ) {
-                    val tabGroups = layout.filter { it.column == active }
-                    tabGroups.forEach { group ->
-                        Panel(
-                            group = group,
-                            truck = truck,
-                            connected = connected,
-                            onPress = press,
-                            onRelease = onRelease,
-                            compact = true,
-                            wide = tabGroups.size == 1,
-                            modifier = Modifier.weight(group.weight.coerceAtLeast(0.1f)).fillMaxHeight(),
-                        )
-                    }
-                }
-            } else {
-                Row(
-                    Modifier.weight(1f).fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(gap),
-                ) {
-                    for (col in 1..SCREEN_COLUMNS) {
-                        Column(
-                            Modifier.weight(1f).fillMaxHeight(),
-                            verticalArrangement = Arrangement.spacedBy(gap),
+            // Pages slide in the swipe direction: a higher page enters from the left (finger moves right).
+            AnimatedContent(
+                targetState = activePage,
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                transitionSpec = {
+                    val forward = targetState > initialState
+                    (slideInHorizontally(tween(260)) { w -> if (forward) -w else w } + fadeIn(tween(260)))
+                        .togetherWith(slideOutHorizontally(tween(260)) { w -> if (forward) w else -w } + fadeOut(tween(200)))
+                },
+                label = "page",
+            ) { shownPage ->
+                val layout = allGroups.filter { it.page == shownPage }
+                val padPage = compact && layout.count { it.columns == 1 && it.buttons.size >= 4 } >= 3 && layout.all { it.columns == 1 }
+                Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(gap)) {
+                    if (compact && !padPage) {
+                        val columns = (1..SCREEN_COLUMNS).filter { c -> layout.any { it.column == c } }
+                        val active = if (tab in columns) tab else columns.firstOrNull() ?: 1
+                        TabRow(columns, active, layout) { tab = it }
+                        Row(
+                            Modifier.weight(1f).fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(gap),
                         ) {
-                            layout.filter { it.column == col }.forEach { group ->
+                            val tabGroups = layout.filter { it.column == active }
+                            tabGroups.forEach { group ->
                                 Panel(
                                     group = group,
                                     truck = truck,
                                     connected = connected,
                                     onPress = press,
                                     onRelease = onRelease,
-                                    compact = compact,
-                                    modifier = Modifier.weight(group.weight.coerceAtLeast(0.1f)).fillMaxWidth(),
+                                    compact = true,
+                                    wide = tabGroups.size == 1,
+                                    modifier = Modifier.weight(group.weight.coerceAtLeast(0.1f)).fillMaxHeight(),
                                 )
+                            }
+                        }
+                    } else {
+                        Row(
+                            Modifier.weight(1f).fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(gap),
+                        ) {
+                            for (col in 1..SCREEN_COLUMNS) {
+                                Column(
+                                    Modifier.weight(1f).fillMaxHeight(),
+                                    verticalArrangement = Arrangement.spacedBy(gap),
+                                ) {
+                                    layout.filter { it.column == col }.forEach { group ->
+                                        Panel(
+                                            group = group,
+                                            truck = truck,
+                                            connected = connected,
+                                            onPress = press,
+                                            onRelease = onRelease,
+                                            compact = compact,
+                                            modifier = Modifier.weight(group.weight.coerceAtLeast(0.1f)).fillMaxWidth(),
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
