@@ -24,6 +24,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +34,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clipToBounds
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -638,16 +640,30 @@ private fun StatusPanel(t: TruckStatus?, compact: Boolean, modifier: Modifier = 
                 .padding(if (compact) 8.dp else 12.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
-            Text("YÜK", color = Palette.Muted, fontSize = 13.sp, letterSpacing = 2.sp)
             val cargoText = when {
                 !live || t == null -> "—"
                 t.cargoLoaded && t.cargo.isNotBlank() -> "${t.cargo} · ${(t.cargoKg / 1000f).let { "%.1f".format(it) }} t"
                 else -> "Yük yok"
             }
-            Text(cargoText, color = Palette.Text, fontSize = if (compact) 15.sp else 20.sp, fontWeight = FontWeight.SemiBold)
-            if (live && t != null && t.cargoLoaded && t.destination.isNotBlank()) {
-                Text("${t.destination} · ${(t.routeKm / 1000f).toInt()} km kaldı", color = Palette.Muted, fontSize = 13.sp)
+            val hasRoute = live && t != null && t.cargoLoaded && t.destination.isNotBlank()
+            // alternate cargo / destination every 3 s; only this small block recomposes
+            var showRoute by remember { mutableStateOf(false) }
+            LaunchedEffect(hasRoute) {
+                showRoute = false
+                while (hasRoute) {
+                    delay(3000)
+                    showRoute = !showRoute
+                }
             }
+            val routeShown = hasRoute && showRoute && t != null
+            Text(if (routeShown) "VARIŞ" else "YÜK", color = Palette.Muted, fontSize = 13.sp, letterSpacing = 2.sp)
+            Text(
+                if (routeShown && t != null) "${t.destination} · ${(t.routeKm / 1000f).toInt()} km kaldı" else cargoText,
+                color = Palette.Text,
+                fontSize = if (compact) 15.sp else 20.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+            )
         }
         if (!live) {
             Text(
