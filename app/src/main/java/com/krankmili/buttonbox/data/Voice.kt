@@ -140,13 +140,14 @@ class VoiceControl(
                         if (preferOffline) { preferOffline = false; onState("çevrimiçi dinliyor"); restart(300) }
                         else { stop(); onState("Türkçe ses tanıma yok (hata $error)") }
                     }
-                    SpeechRecognizer.ERROR_NO_MATCH, SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> restart(200)
+                    SpeechRecognizer.ERROR_NO_MATCH -> { onState("anlaşılmadı"); restart(200) }
+                    SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> { onState("dinliyor"); restart(200) }
                     else -> { onState("hata $error"); restart(1500) }
                 }
             }
 
-            override fun onReadyForSpeech(params: Bundle?) {}
-            override fun onBeginningOfSpeech() {}
+            override fun onReadyForSpeech(params: Bundle?) { onState("dinliyor") }
+            override fun onBeginningOfSpeech() { onState("ses alıyor…") }
             override fun onRmsChanged(rmsdB: Float) {}
             override fun onBufferReceived(buffer: ByteArray?) {}
             override fun onEndOfSpeech() {}

@@ -83,7 +83,8 @@ class ButtonBoxViewModel : ViewModel() {
                 _voiceStatus.value = "söyle…"
             }
             is com.krankmili.buttonbox.data.VoiceMatcher.Result.NoMatch -> _voiceStatus.value = "? ${r.heard}"
-            is com.krankmili.buttonbox.data.VoiceMatcher.Result.Ignored -> {}
+            is com.krankmili.buttonbox.data.VoiceMatcher.Result.Ignored ->
+                _voiceStatus.value = "duydum: ${alternatives.firstOrNull().orEmpty()}"
         }
     }
 
