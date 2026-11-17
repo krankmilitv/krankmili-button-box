@@ -34,10 +34,14 @@ object VoiceMatcher {
         return sb.toString().trim().replace(Regex("\\s+"), " ")
     }
 
-    // Recognizers spell "krank" in many ways; "hey" is required so ordinary speech never triggers a button.
+    // "hey krank" is optional now; recognizers spell it in many ways, so it is only stripped when present.
     private val wake = Regex("^(?:hey|hay|ay|ey)\\s*(?:krank|crank|kronk|krenk|kreyk|kranc|krunk|kraynk|kreng|cronk|kranch)\\s*(.*)$")
 
-    /** phrases: normalized phrase -> ids of the buttons it presses (several buttons may share a phrase). */
+    /**
+     * phrases: normalized phrase -> ids of the buttons it presses (several buttons may share a phrase).
+     * Without a wake word, ordinary talk must not press buttons: a phrase only counts when it is (nearly) the whole
+     * utterance — the heard text may have at most 2 extra words ("lütfen sol camı aç").
+     */
     fun match(alternatives: List<String>, phrases: Map<String, List<String>>, armed: Boolean): Result {
         var wakeSeen = false
         var firstHeard = ""
@@ -45,21 +49,19 @@ object VoiceMatcher {
             val n = norm(alt)
             if (n.isEmpty()) continue
             val m = wake.find(n)
-            val cmd = when {
-                m != null -> { wakeSeen = true; m.groupValues[1].trim() }
-                armed -> n
-                else -> continue
-            }
+            val cmd = if (m != null) { wakeSeen = true; m.groupValues[1].trim() } else n
             if (firstHeard.isEmpty()) firstHeard = cmd
             if (cmd.isEmpty()) continue
             phrases[cmd]?.let { return Result.Matched(it, cmd) }
-            // longest phrase contained in what was heard ("hey krank lütfen servise git")
-            val hit = phrases.keys.filter { it.length >= 4 && cmd.contains(it) }.maxByOrNull { it.length }
+            val words = cmd.split(' ').size
+            val hit = phrases.keys
+                .filter { it.length >= 4 && cmd.contains(it) && words <= it.split(' ').size + 2 }
+                .maxByOrNull { it.length }
             if (hit != null) return Result.Matched(phrases.getValue(hit), hit)
         }
         return when {
             wakeSeen && firstHeard.isEmpty() -> Result.WakeOnly
-            wakeSeen || (armed && firstHeard.isNotEmpty()) -> Result.NoMatch(firstHeard)
+            wakeSeen -> Result.NoMatch(firstHeard)
             else -> Result.Ignored
         }
     }
