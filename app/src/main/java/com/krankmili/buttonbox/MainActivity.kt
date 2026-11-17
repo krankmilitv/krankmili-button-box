@@ -226,7 +226,8 @@ private fun AppRoot(
     val showBox = layout.isNotEmpty() && state !is ConnectionState.Disconnected
     if (showBox) {
         BoxScreen(
-            allGroups = layout,
+            // voice-only buttons stay in the layout (their phrases are used) but are not drawn
+            allGroups = layout.map { g -> g.copy(buttons = g.buttons.filter { !it.hidden }) }.filter { it.buttons.isNotEmpty() },
             truck = truck,
             connected = state is ConnectionState.Connected,
             statusText = statusText,

@@ -285,7 +285,7 @@ namespace Krankmili
     // ---------------------------------------------------------------- config
     class Btn
     {
-        public string Id, Label, Mode, Icon, Sub; public List<string> Keys; public List<string> Voice = new List<string>(); public int Span; public bool Accent;
+        public string Id, Label, Mode, Icon, Sub; public List<string> Keys; public List<string> Voice = new List<string>(); public int Span; public bool Accent, Hidden;   // Hidden: voice-only button (not drawn on the tablet)
         public List<List<string>> Steps; public int StepMs = 350;          // optional macro: key steps pressed one after another
         public string PromptText, PromptYes, PromptNo;                      // optional on-tablet confirm dialog shown after the press
     }
@@ -345,7 +345,7 @@ namespace Krankmili
                                 btn.PromptText = S(pr, "text", ""); btn.PromptYes = S(pr, "yes", ""); btn.PromptNo = S(pr, "no", "");
                             }
                             btn.Label = S(b, "label", btn.Id); btn.Icon = S(b, "icon", ""); btn.Sub = S(b, "sub", "");
-                            btn.Span = I(b, "span", 1); btn.Accent = B(b, "accent");
+                            btn.Span = I(b, "span", 1); btn.Accent = B(b, "accent"); btn.Hidden = B(b, "hidden");
                             if (b.Contains("voice") && b["voice"] is System.Collections.IEnumerable && !(b["voice"] is string))
                                 foreach (object v in (System.Collections.IEnumerable)b["voice"]) if (v != null) btn.Voice.Add(Convert.ToString(v, CultureInfo.InvariantCulture));
                             c.Buttons[btn.Id] = btn; grp.Buttons.Add(btn);
@@ -370,6 +370,7 @@ namespace Krankmili
                         {"id", b.Id}, {"label", b.Label}, {"mode", b.Mode}, {"icon", b.Icon},
                         {"sub", b.Sub}, {"span", b.Span}, {"accent", b.Accent} };
                     if (b.Voice.Count > 0) bd["voice"] = b.Voice;
+                    if (b.Hidden) bd["hidden"] = true;
                     if (b.PromptText != null)
                         bd["prompt"] = new Dictionary<string, object> { {"text", b.PromptText}, {"yes", b.PromptYes}, {"no", b.PromptNo} };
                     bl.Add(bd);

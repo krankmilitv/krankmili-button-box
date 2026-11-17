@@ -802,7 +802,7 @@
       "title": "Kabin / Çakar",
       "page": 2,
       "column": 3,
-      "columns": 3,
+      "columns": 2,
       "weight": 2,
       "buttons": [
         {
@@ -881,7 +881,8 @@
             "tepe lambalarını söndür",
             "tepe aç",
             "tepe kapat"
-          ]
+          ],
+          "hidden": true
         }
       ]
     },
