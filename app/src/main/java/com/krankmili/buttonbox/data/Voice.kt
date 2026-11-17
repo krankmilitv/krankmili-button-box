@@ -125,13 +125,28 @@ class VoiceControl(
         onState("")
     }
 
+    // The recognizer's start beep plays on a different stream depending on the engine/ROM, so silence all likely ones.
+    private val beepStreams = intArrayOf(AudioManager.STREAM_MUSIC, AudioManager.STREAM_NOTIFICATION, AudioManager.STREAM_SYSTEM)
+    private val mutedStreams = HashSet<Int>()
+
     private fun muteBeep(on: Boolean) {
-        if (on == muted) return
-        try {
-            audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, if (on) AudioManager.ADJUST_MUTE else AudioManager.ADJUST_UNMUTE, 0)
-            muted = on
-        } catch (_: Exception) {
+        if (on) {
+            for (st in beepStreams) {
+                if (st in mutedStreams) continue
+                try {
+                    audio.adjustStreamVolume(st, AudioManager.ADJUST_MUTE, 0)
+                    mutedStreams.add(st)
+                } catch (_: Exception) {
+                    // e.g. Do Not Disturb policy forbids touching the notification stream; skip it
+                }
+            }
+        } else {
+            for (st in mutedStreams.toList()) {
+                try { audio.adjustStreamVolume(st, AudioManager.ADJUST_UNMUTE, 0) } catch (_: Exception) {}
+            }
+            mutedStreams.clear()
         }
+        muted = on
     }
 
     private fun restart(delayMs: Long) {
