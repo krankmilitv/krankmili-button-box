@@ -10,6 +10,7 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import java.util.Locale
+import kotlin.math.abs
 
 /** Matches what the recognizer heard against the `voice` phrases of the buttons. */
 object VoiceMatcher {
@@ -34,6 +35,19 @@ object VoiceMatcher {
         return sb.toString().trim().replace(Regex("\\s+"), " ")
     }
 
+    private fun editDistance(a: String, b: String): Int {
+        var prev = IntArray(b.length + 1) { it }
+        for (i in 1..a.length) {
+            val cur = IntArray(b.length + 1)
+            cur[0] = i
+            for (j in 1..b.length) {
+                cur[j] = minOf(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + if (a[i - 1] == b[j - 1]) 0 else 1)
+            }
+            prev = cur
+        }
+        return prev[b.length]
+    }
+
     // "hey krank" is optional now; recognizers spell it in many ways, so it is only stripped when present.
     private val wake = Regex("^(?:hey|hay|ay|ey)\\s*(?:krank|crank|kronk|krenk|kreyk|kranc|krunk|kraynk|kreng|cronk|kranch)\\s*(.*)$")
 
@@ -53,6 +67,9 @@ object VoiceMatcher {
             if (firstHeard.isEmpty()) firstHeard = cmd
             if (cmd.isEmpty()) continue
             phrases[cmd]?.let { return Result.Matched(it, cmd) }
+            // Recognizers drop or add a letter ("sağ cam aç" / "sağ camı aç"): accept a tiny edit distance.
+            val near = phrases.keys.filter { it.length >= 8 && abs(it.length - cmd.length) <= 2 && editDistance(it, cmd) <= (if (it.length >= 16) 2 else 1) }
+            if (near.size == 1) return Result.Matched(phrases.getValue(near[0]), near[0])
             val words = cmd.split(' ').size
             val hit = phrases.keys
                 .filter { it.length >= 4 && cmd.contains(it) && words <= it.split(' ').size + 2 }

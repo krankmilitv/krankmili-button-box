@@ -59,6 +59,8 @@ class ButtonBoxViewModel : ViewModel() {
 
     fun setVoiceState(text: String) { _voiceStatus.value = text }
 
+    private val voiceJobs = HashMap<String, kotlinx.coroutines.Job>()
+
     fun onVoiceHeard(alternatives: List<String>) {
         val buttons = layout.value.flatMap { it.buttons }
         val phrases = HashMap<String, MutableList<String>>()
@@ -71,13 +73,31 @@ class ButtonBoxViewModel : ViewModel() {
             is com.krankmili.buttonbox.data.VoiceMatcher.Result.Matched -> {
                 armedUntil = 0
                 _voiceStatus.value = "✓ ${r.phrase}"
-                for (id in r.ids) scope.launch {
+                for (id in r.ids) {
                     val hold = buttons.firstOrNull { it.id == id }?.mode == "hold"
                     // Windows need the key held for their whole travel so they open/close fully.
-                    val holdMs = if (id.startsWith("window_")) 5000L else 1500L
-                    client.press(id)
-                    kotlinx.coroutines.delay(if (hold) holdMs else 80L)
-                    client.release(id)
+                    val holdMs = if (hold) (if (id.startsWith("window_")) 5000L else 1500L) else 80L
+                    // A repeated command extends the running hold instead of releasing the key early;
+                    // the opposite window direction is released first so both keys are never down together.
+                    val opposite = when {
+                        id.endsWith("_up") -> id.removeSuffix("_up") + "_down"
+                        id.endsWith("_down") -> id.removeSuffix("_down") + "_up"
+                        else -> null
+                    }
+                    if (opposite != null && id.startsWith("window_")) voiceJobs.remove(opposite)?.let { it.cancel(); client.release(opposite) }
+                    val running = voiceJobs.remove(id)
+                    running?.cancel()
+                    voiceJobs[id] = scope.launch {
+                        try {
+                            if (running == null) client.press(id)
+                            kotlinx.coroutines.delay(holdMs)
+                        } finally {
+                            if (voiceJobs[id] === kotlinx.coroutines.currentCoroutineContext()[kotlinx.coroutines.Job]) {
+                                voiceJobs.remove(id)
+                                client.release(id)
+                            }
+                        }
+                    }
                 }
             }
             is com.krankmili.buttonbox.data.VoiceMatcher.Result.WakeOnly -> {
