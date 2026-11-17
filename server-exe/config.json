@@ -595,6 +595,25 @@
             "ön tampon kamerası",
             "ön tampon kamera"
           ]
+        },
+        {
+          "id": "park_cam",
+          "label": "Park modu",
+          "sub": "Park kamerası",
+          "icon": "parking",
+          "key": "\\",
+          "mode": "tap",
+          "span": 2,
+          "voice": [
+            "park kamerasını aç",
+            "park kamerayı aç",
+            "park modu kamerasını aç",
+            "park kamerasına geç",
+            "park moduna geç",
+            "park modu",
+            "park kamerası",
+            "park kamera"
+          ]
         }
       ]
     },
@@ -821,6 +840,45 @@
             "silecek kapat",
             "silecek durdur",
             "silecek"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Güneşlik",
+      "page": 2,
+      "column": 3,
+      "columns": 2,
+      "weight": 2,
+      "buttons": [
+        {
+          "id": "sunvisor_lower",
+          "label": "İndir",
+          "sub": "Güneşlik",
+          "icon": "susp_down",
+          "key": ";",
+          "mode": "tap",
+          "voice": [
+            "güneşliği indir",
+            "güneşlik indir",
+            "güneşlikleri indir",
+            "güneşliği aşağı al",
+            "güneşliği aşağı indir"
+          ]
+        },
+        {
+          "id": "sunvisor_raise",
+          "label": "Kaldır",
+          "sub": "Güneşlik",
+          "icon": "susp_up",
+          "key": "'",
+          "mode": "tap",
+          "voice": [
+            "güneşliği kaldır",
+            "güneşlik kaldır",
+            "güneşlikleri kaldır",
+            "güneşliği yukarı al",
+            "güneşliği yukarı kaldır"
           ]
         }
       ]

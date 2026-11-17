@@ -87,6 +87,15 @@ class ButtonBoxViewModel : ViewModel() {
                     if (opposite != null && id.startsWith("window_")) voiceJobs.remove(opposite)?.let { it.cancel(); client.release(opposite) }
                     val running = voiceJobs.remove(id)
                     running?.cancel()
+                    // Voice answers the in-game confirmation itself (e.g. "servise git" -> Enter), no prompt on the tablet.
+                    buttons.firstOrNull { it.id == id }?.prompt?.let { pr ->
+                        scope.launch {
+                            kotlinx.coroutines.delay(1500L)
+                            client.press(pr.yesId)
+                            kotlinx.coroutines.delay(80L)
+                            client.release(pr.yesId)
+                        }
+                    }
                     voiceJobs[id] = scope.launch {
                         try {
                             if (running == null) client.press(id)

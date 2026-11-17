@@ -52,3 +52,10 @@ SAYFA 3 - NUMPAD (%75 klavye kullananlar icin)
 Sayfa 3'teki tuslar oyuna NUMPAD tus kodlari olarak gider (Windows'taki NumLock durumundan bagimsiz).
 Oyunda Ayarlar > Klavye ve fare bolumunde ilgili eylemi sec, tableti tikla; Num 0-9, Num / * - + . , Num Enter ve Num Lock algilanir.
 Not: Sayfa 2'deki suspansiyon/kabin isigi tuslari da Num tuslaridir; ayni tusu iki eyleme atamayin.
+
+YENI TUSLAR (1.8.1) - oyunda atama gerekir
+Buton              Gonderdigi tus
+Park modu kamerasi \ (ters bolu)
+Gunesluk indir     ; (noktalivirgul)
+Gunesluk kaldir    ' (tek tirnak)
+Sesli komutla "servise git" dendiginde onay (Enter) otomatik gonderilir.
