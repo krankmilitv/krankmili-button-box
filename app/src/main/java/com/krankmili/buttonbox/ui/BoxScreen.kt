@@ -27,13 +27,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.platform.LocalViewConfiguration
+import kotlin.math.abs
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
@@ -78,41 +84,7 @@ fun BoxScreen(
     onDisconnect: () -> Unit,
     onPress: (String) -> Unit,
     onRelease: (String) -> Unit,
-    rearOn: Boolean = false,
-    rearFrame: android.graphics.Bitmap? = null,
 ) {
-    if (rearOn) {
-        // Reverse camera: full-screen window that the PC opens/closes by itself (or via the "Göster/Gizle" key).
-        androidx.compose.ui.window.Dialog(
-            onDismissRequest = { onPress("rear_hide") },
-            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false),
-        ) {
-            Box(Modifier.fillMaxSize().background(Color.Black).clickable { onPress("rear_hide") }) {
-                if (rearFrame != null) {
-                    androidx.compose.foundation.Image(
-                        bitmap = rearFrame.asImageBitmap(),
-                        contentDescription = "Geri kamera",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = androidx.compose.ui.layout.ContentScale.Fit,
-                    )
-                } else {
-                    Text("Görüntü bekleniyor…", color = Palette.Muted, modifier = Modifier.align(Alignment.Center))
-                }
-                Text(
-                    "GERİ KAMERA",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.TopStart).padding(16.dp)
-                        .background(Color(0xCCB3261E), RoundedCornerShape(8.dp)).padding(horizontal = 12.dp, vertical = 6.dp),
-                )
-                Text(
-                    "Kapatmak için dokun",
-                    color = Palette.Muted,
-                    modifier = Modifier.align(Alignment.BottomCenter).padding(12.dp),
-                )
-            }
-        }
-    }
     val pages = allGroups.map { it.page }.distinct().sorted()
     var page by remember { mutableStateOf(1) }
     val activePage = if (page in pages) page else pages.firstOrNull() ?: 1
@@ -144,8 +116,39 @@ fun BoxScreen(
         var tab by remember { mutableStateOf(1) }
         // A numpad-style page (several one-column panels of keys) stays one screen even on phones.
         val padPage = compact && layout.count { it.columns == 1 && it.buttons.size >= 4 } >= 3 && layout.all { it.columns == 1 }
+        val slop = LocalViewConfiguration.current.touchSlop
         Column(
-            Modifier.fillMaxSize().padding(pad),
+            Modifier.fillMaxSize()
+                // Swipe right = next page, swipe left = previous page. Watched in the Initial pass so it also
+                // works when the finger starts on a button; once it is clearly horizontal the touch is consumed,
+                // which cancels the button under the finger (tap buttons only fire on release).
+                .pointerInput(pages, activePage) {
+                    if (pages.size < 2) return@pointerInput
+                    val threshold = 80.dp.toPx()
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                        var dx = 0f
+                        var dy = 0f
+                        var switched = false
+                        while (true) {
+                            val ev = awaitPointerEvent(PointerEventPass.Initial)
+                            val ch = ev.changes.firstOrNull { it.id == down.id } ?: break
+                            if (!ch.pressed) break
+                            val d = ch.positionChange()
+                            dx += d.x
+                            dy += d.y
+                            val horizontal = abs(dx) > abs(dy) * 1.5f
+                            if (!switched && horizontal && abs(dx) > threshold) {
+                                val i = pages.indexOf(activePage)
+                                val n = if (dx > 0) i + 1 else i - 1
+                                if (n in pages.indices) { page = pages[n]; tab = 1 }
+                                switched = true
+                            }
+                            if (switched || (horizontal && abs(dx) > slop)) ev.changes.forEach { it.consume() }
+                        }
+                    }
+                }
+                .padding(pad),
             verticalArrangement = Arrangement.spacedBy(gap),
         ) {
             Header(connected, statusText, onDisconnect, compact, pages, activePage) { page = it; tab = 1 }
@@ -239,6 +242,11 @@ private fun Header(
     activePage: Int,
     onPage: (Int) -> Unit,
 ) {
+    // Eye button hides the PC address (e.g. while streaming); the part after " · " is masked.
+    var showIp by rememberSaveable { mutableStateOf(true) }
+    val shownText = if (showIp) statusText else statusText.substringBefore(" · ", statusText).let {
+        if (it == statusText) statusText else "$it · •••"
+    }
     Row(
         Modifier.fillMaxWidth().height(if (compact) 36.dp else 48.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -291,7 +299,13 @@ private fun Header(
                     Modifier.size(10.dp).clip(CircleShape)
                         .background(if (connected) Palette.Good else Palette.Bad),
                 )
-                Text(statusText, color = Palette.Text, fontSize = if (compact) 12.sp else 15.sp)
+                Text(shownText, color = Palette.Text, fontSize = if (compact) 12.sp else 15.sp)
+                SvgIcon(
+                    if (showIp) "eye" else "eye_off",
+                    if (compact) 18.dp else 22.dp,
+                    Palette.Muted,
+                    Modifier.clickable { showIp = !showIp },
+                )
             }
             OutlinedButton(
                 onClick = onDisconnect,
@@ -438,12 +452,22 @@ private fun KeyButton(
                 detectTapGestures(onPress = {
                     pressed = true
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onPress(button.id)
-                    // false = gesture cancelled (finger slid off); release is sent either way
-                    // so a "hold" key (windows, selektör) can never stay stuck down.
-                    tryAwaitRelease()
-                    pressed = false
-                    onRelease(button.id)
+                    if (button.mode == "hold") {
+                        onPress(button.id)
+                        // false = gesture cancelled (finger slid off); release is sent either way
+                        // so a "hold" key (windows, selektör) can never stay stuck down.
+                        tryAwaitRelease()
+                        pressed = false
+                        onRelease(button.id)
+                    } else {
+                        // Tap keys fire when the finger lifts, so a page swipe that starts on a button does not press it.
+                        val completed = tryAwaitRelease()
+                        pressed = false
+                        if (completed) {
+                            onPress(button.id)
+                            onRelease(button.id)
+                        }
+                    }
                 })
             },
         contentAlignment = Alignment.Center,

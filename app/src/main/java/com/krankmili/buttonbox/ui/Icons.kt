@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.Dp
  * The server picks an icon by name via the "icon" field of a button.
  */
 private val ICON_PATHS = mapOf(
-    "camera" to "M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8",
     "arrow_up" to "M12 19V5M5 12l7-7 7 7",
     "arrow_down" to "M12 5v14M19 12l-7 7-7-7",
     "power" to "M12 3v9M6.3 6.6a8 8 0 1 0 11.4 0",
@@ -43,6 +42,8 @@ private val ICON_PATHS = mapOf(
     "wiper" to "M3 17a9 9 0 0 1 18 0M12 17l6-9",
     "bulb" to "M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z",
     "beacon" to "M12 3v2M5 6l1.5 1.5M19 6l-1.5 1.5M7 17v-3a5 5 0 0 1 10 0v3M5 17h14M6 21h12",
+    "eye" to "M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6",
+    "eye_off" to "M17.94 17.94A10.07 10.07 0 0 1 12 19c-7 0-11-7-11-7a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22",
     "hazard" to "M12 3L2 21h20L12 3zM12 10v5M12 18v.01",
 )
 

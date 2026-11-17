@@ -25,9 +25,6 @@ class ButtonBoxViewModel : ViewModel() {
     val layout: StateFlow<List<BoxGroup>> = client.layout
     val truck: StateFlow<TruckStatus?> = client.truck
 
-    val rearOn: StateFlow<Boolean> = client.rear.on
-    val rearFrame: StateFlow<android.graphics.Bitmap?> = client.rear.frame
-
     private val _searching = MutableStateFlow(false)
     val searching: StateFlow<Boolean> = _searching
     private val _found = MutableStateFlow<FoundServer?>(null)

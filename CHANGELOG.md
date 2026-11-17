@@ -1,9 +1,9 @@
 # Changelog
 
 ## 1.6.0
-- New: reverse camera. The server captures the screen region where ETS2 draws the bus reverse-camera display and streams it as JPEG over TCP 5556; the tablet shows it full screen when reversing (auto, from signed truck speed) or via the "Geri kamera" keys on page 2. Region is picked from the tray ("Geri kamera bölgesini seç…"), settings in rear.json.
-- Protocol (additive): server -> client `{"t":"rear","on":bool,"port":5556}`; client keys `rear_auto_on`, `rear_auto_off`, `rear_toggle`, `rear_hide`.
-- Experimental: bus vs truck is not detected, capture of exclusive fullscreen may be black.
+- New: swipe between pages (swipe right = next page, left = previous). Tap keys now fire when the finger lifts, so a swipe that starts on a button does not press it; hold keys (windows, selektör) still act on touch.
+- New: eye button hides/shows the PC address on the tablet header and in the server tray menu.
+- The experimental reverse camera was removed again before release.
 
 ## 1.5.2
 - Sayfa 2: "Dorse dingili" yerine "Dorse süspansiyonu" (Num 8 / Num 2); dorse dingili tuşları sayfa 1'de.

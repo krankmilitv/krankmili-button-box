@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -286,8 +285,7 @@ namespace Krankmili
                             if (btn.Mode != "tap" && btn.Mode != "hold") throw new Exception("button '" + btn.Id + "': mode must be tap/hold");
                             try
                             {
-                                if (Rear.IsAction(btn.Id)) btn.Keys = new List<string>();
-                                else if (b.Contains("seq") && b["seq"] is IEnumerable && !(b["seq"] is string))
+                                if (b.Contains("seq") && b["seq"] is IEnumerable && !(b["seq"] is string))
                                 {
                                     btn.Steps = new List<List<string>>();
                                     foreach (object step in (IEnumerable)b["seq"]) btn.Steps.Add(KeyTable.Parse(Convert.ToString(step, CultureInfo.InvariantCulture)));
@@ -352,7 +350,6 @@ namespace Krankmili
 
         public void Press(string id)
         {
-            if (Rear.Handle(id)) return;
             Btn b;
             if (!cfg.Buttons.TryGetValue(id, out b)) { Log.Info("press for unknown button '{0}'", id); return; }
             if (b.Steps != null)
@@ -513,7 +510,6 @@ namespace Krankmili
                 Send(writer, cfg.LayoutJson());
                 lock (Subs) { Subs.Add(writer); }
                 subWriter = writer;
-                if (Rear.On) Send(writer, Rear.StateJson());
                 while (true)
                 {
                     IDictionary m = ReadMsg(reader, ns, Const.IdleTimeoutMs);
@@ -537,272 +533,6 @@ namespace Krankmili
         }
     }
 
-
-    // ---------------------------------------------------------------- reverse camera
-    // The game only draws the reverse-camera picture on its own dashboard screen, so the server grabs that
-    // screen region and streams it to the tablet as JPEG frames: [int32 big-endian length][jpeg bytes] over TCP.
-    // rear.json (next to the exe): auto, x, y, w, h, fps, max_width, quality, port.
-    static class Rear
-    {
-        static readonly string[] Actions = { "rear_auto_on", "rear_auto_off", "rear_toggle", "rear_hide" };
-        public static bool IsAction(string id) { return Array.IndexOf(Actions, id) >= 0; }
-
-        public static volatile bool On;
-        static volatile bool auto, manual, suppressed;
-        static bool hasBack; static int lastBack;
-        static string file, token = "";
-        static Rectangle region = Rectangle.Empty;
-        static int fps = 12, maxW = 640, quality = 60, port = 5556;
-        static readonly List<NetworkStream> clients = new List<NetworkStream>();
-        static readonly object gate = new object();
-        public static Action<string> Notify;
-
-        public static string StateJson()
-        {
-            return new JavaScriptSerializer().Serialize(new Dictionary<string, object> { {"t", "rear"}, {"on", On}, {"port", port} });
-        }
-
-        public static void Init(string dir, string tok)
-        {
-            file = Path.Combine(dir, "rear.json"); token = tok ?? "";
-            try
-            {
-                if (File.Exists(file))
-                {
-                    var d = (IDictionary)new JavaScriptSerializer().DeserializeObject(File.ReadAllText(file, Encoding.UTF8));
-                    auto = d.Contains("auto") && d["auto"] is bool && (bool)d["auto"];
-                    int x = Num(d, "x", 0), y = Num(d, "y", 0), w = Num(d, "w", 0), h = Num(d, "h", 0);
-                    if (w > 0 && h > 0) region = new Rectangle(x, y, w, h);
-                    fps = Math.Max(2, Math.Min(30, Num(d, "fps", 12)));
-                    maxW = Math.Max(160, Math.Min(1920, Num(d, "max_width", 640)));
-                    quality = Math.Max(20, Math.Min(95, Num(d, "quality", 60)));
-                    port = Num(d, "port", 5556);
-                }
-            }
-            catch (Exception ex) { Log.Info("rear.json unreadable: {0}", ex.Message); }
-        }
-
-        static int Num(IDictionary d, string k, int def) { return d.Contains(k) && d[k] != null ? Convert.ToInt32(d[k], CultureInfo.InvariantCulture) : def; }
-
-        static void Save()
-        {
-            try
-            {
-                var d = new Dictionary<string, object> {
-                    {"auto", auto}, {"x", region.X}, {"y", region.Y}, {"w", region.Width}, {"h", region.Height},
-                    {"fps", fps}, {"max_width", maxW}, {"quality", quality}, {"port", port} };
-                File.WriteAllText(file, new JavaScriptSerializer().Serialize(d), new UTF8Encoding(false));
-            }
-            catch (Exception ex) { Log.Info("rear.json not saved: {0}", ex.Message); }
-        }
-
-        public static bool Auto { get { return auto; } }
-        public static void SetAuto(bool v)
-        {
-            auto = v; suppressed = false; Save();
-            Log.Info("rear camera auto: {0}", v);
-            if (Notify != null) Notify("Geri kamera otomatik: " + (v ? "AÇIK" : "KAPALI"));
-            Evaluate();
-        }
-
-        public static void ToggleManual()
-        {
-            if (On) { manual = false; suppressed = true; } else { manual = true; suppressed = false; }
-            Evaluate();
-        }
-
-        // Returns true when the id is a reverse-camera action (handled here, no key is sent).
-        public static bool Handle(string id)
-        {
-            switch (id)
-            {
-                case "rear_auto_on": SetAuto(true); return true;
-                case "rear_auto_off": SetAuto(false); return true;
-                case "rear_toggle": ToggleManual(); return true;
-                case "rear_hide": manual = false; suppressed = true; Evaluate(); return true;
-            }
-            return false;
-        }
-
-        static void Evaluate()
-        {
-            bool recent = hasBack && unchecked(Environment.TickCount - lastBack) < 3000;
-            bool want = manual || (auto && !suppressed && recent);
-            if (want == On) return;
-            On = want;
-            Log.Info("rear camera window: {0}", want ? "open" : "closed");
-            string json = StateJson();
-            StreamWriter[] subs; lock (Server.Subs) { subs = Server.Subs.ToArray(); }
-            foreach (StreamWriter w in subs) try { Server.Send(w, json); } catch (Exception) { }
-        }
-
-        static void Monitor()
-        {
-            while (true)
-            {
-                try
-                {
-                    float sp;
-                    bool game = Telemetry.TryRawSpeed(out sp);
-                    if (game && sp < -0.4f) { hasBack = true; lastBack = Environment.TickCount; }
-                    if (!game || sp > 0.3f) suppressed = false;
-                    if (!game) hasBack = false;
-                    Evaluate();
-                }
-                catch (Exception) { }
-                Thread.Sleep(200);
-            }
-        }
-
-        public static void Start()
-        {
-            var m = new Thread(Monitor); m.IsBackground = true; m.Start();
-            try
-            {
-                var l = new TcpListener(IPAddress.Any, port); l.Start();
-                var a = new Thread(delegate () { Accept(l); }); a.IsBackground = true; a.Start();
-                var c = new Thread(CaptureLoop); c.IsBackground = true; c.Start();
-                Log.Info("rear camera stream on TCP {0}", port);
-            }
-            catch (Exception ex) { Log.Info("rear camera stream disabled: {0}", ex.Message); }
-        }
-
-        static bool SafeEq(string a, string b)
-        {
-            if (a.Length != b.Length) return false;
-            int d = 0; for (int i = 0; i < a.Length; i++) d |= a[i] ^ b[i];
-            return d == 0;
-        }
-
-        static void Accept(TcpListener l)
-        {
-            while (true)
-            {
-                TcpClient c;
-                try { c = l.AcceptTcpClient(); } catch (Exception) { return; }
-                var t = new Thread(delegate ()
-                {
-                    try
-                    {
-                        c.NoDelay = true;
-                        NetworkStream ns = c.GetStream();
-                        ns.ReadTimeout = 3000; ns.WriteTimeout = 2000;
-                        var sb = new StringBuilder();
-                        while (sb.Length < 256) { int b = ns.ReadByte(); if (b < 0 || b == '\n') break; sb.Append((char)b); }
-                        if (token.Length > 0 && !SafeEq(sb.ToString().Trim(), token)) { c.Close(); return; }
-                        lock (gate) { clients.Add(ns); }
-                    }
-                    catch (Exception) { try { c.Close(); } catch (Exception) { } }
-                });
-                t.IsBackground = true; t.Start();
-            }
-        }
-
-        static ImageCodecInfo jpegCodec;
-        static byte[] Grab()
-        {
-            Rectangle r = region;
-            Rectangle vs = SystemInformation.VirtualScreen;
-            if (r.Width <= 0 || r.Height <= 0 || !r.IntersectsWith(vs)) r = Screen.PrimaryScreen.Bounds;
-            r.Intersect(vs);
-            using (Bitmap raw = new Bitmap(r.Width, r.Height, PixelFormat.Format24bppRgb))
-            {
-                using (Graphics g = Graphics.FromImage(raw)) g.CopyFromScreen(r.Location, Point.Empty, r.Size);
-                Bitmap src = raw; Bitmap scaled = null;
-                try
-                {
-                    if (r.Width > maxW)
-                    {
-                        int h = Math.Max(1, (int)((long)r.Height * maxW / r.Width));
-                        scaled = new Bitmap(maxW, h, PixelFormat.Format24bppRgb);
-                        using (Graphics g = Graphics.FromImage(scaled))
-                        {
-                            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBilinear;
-                            g.DrawImage(raw, 0, 0, maxW, h);
-                        }
-                        src = scaled;
-                    }
-                    if (jpegCodec == null)
-                        foreach (ImageCodecInfo ci in ImageCodecInfo.GetImageEncoders()) if (ci.MimeType == "image/jpeg") jpegCodec = ci;
-                    using (EncoderParameters ep = new EncoderParameters(1))
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        ep.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)quality);
-                        src.Save(ms, jpegCodec, ep);
-                        return ms.ToArray();
-                    }
-                }
-                finally { if (scaled != null) scaled.Dispose(); }
-            }
-        }
-
-        static void CaptureLoop()
-        {
-            var sw = new Stopwatch();
-            while (true)
-            {
-                NetworkStream[] list;
-                lock (gate) { list = clients.ToArray(); }
-                if (!On || list.Length == 0) { Thread.Sleep(100); continue; }
-                sw.Restart();
-                try
-                {
-                    byte[] jpg = Grab();
-                    byte[] head = { (byte)(jpg.Length >> 24), (byte)(jpg.Length >> 16), (byte)(jpg.Length >> 8), (byte)jpg.Length };
-                    foreach (NetworkStream ns in list)
-                    {
-                        try { ns.Write(head, 0, 4); ns.Write(jpg, 0, jpg.Length); ns.Flush(); }
-                        catch (Exception) { lock (gate) { clients.Remove(ns); } try { ns.Close(); } catch (Exception) { } }
-                    }
-                }
-                catch (Exception ex) { Log.Info("rear capture failed: {0}", ex.Message); Thread.Sleep(500); }
-                int wait = 1000 / fps - (int)sw.ElapsedMilliseconds;
-                if (wait > 1) Thread.Sleep(wait);
-            }
-        }
-
-        // Tray helper: drag a rectangle over the screen where the game shows the reverse-camera display.
-        class SelForm : Form
-        {
-            public SelForm() { DoubleBuffered = true; }
-        }
-
-        public static void SelectRegion()
-        {
-            Rectangle vs = SystemInformation.VirtualScreen;
-            using (SelForm f = new SelForm())
-            {
-                f.FormBorderStyle = FormBorderStyle.None; f.StartPosition = FormStartPosition.Manual; f.Bounds = vs;
-                f.TopMost = true; f.ShowInTaskbar = false; f.BackColor = Color.Black; f.Opacity = 0.35; f.Cursor = Cursors.Cross;
-                f.KeyPreview = true;
-                bool dragging = false; Point start = Point.Empty; Rectangle sel = Rectangle.Empty; bool ok = false;
-                f.MouseDown += delegate (object s, MouseEventArgs e) { dragging = true; start = e.Location; sel = Rectangle.Empty; };
-                f.MouseMove += delegate (object s, MouseEventArgs e)
-                {
-                    if (!dragging) return;
-                    sel = new Rectangle(Math.Min(start.X, e.X), Math.Min(start.Y, e.Y), Math.Abs(e.X - start.X), Math.Abs(e.Y - start.Y));
-                    f.Invalidate();
-                };
-                f.MouseUp += delegate (object s, MouseEventArgs e) { dragging = false; if (sel.Width > 20 && sel.Height > 20) { ok = true; f.Close(); } };
-                f.KeyDown += delegate (object s, KeyEventArgs e) { if (e.KeyCode == Keys.Escape) f.Close(); };
-                f.Paint += delegate (object s, PaintEventArgs e)
-                {
-                    using (Font font = new Font("Segoe UI", 20, FontStyle.Bold))
-                        e.Graphics.DrawString("Geri kamera ekranının olduğu bölgeyi fareyle sürükleyerek seç.   Esc = iptal", font, Brushes.White, 40, 40);
-                    if (!sel.IsEmpty) using (Pen p = new Pen(Color.Lime, 3)) e.Graphics.DrawRectangle(p, sel);
-                };
-                f.ShowDialog();
-                if (ok)
-                {
-                    region = new Rectangle(sel.X + vs.X, sel.Y + vs.Y, sel.Width, sel.Height);
-                    Save();
-                    Log.Info("rear region: {0}", region);
-                    if (Notify != null) Notify("Geri kamera bölgesi kaydedildi: " + region.Width + "x" + region.Height);
-                }
-            }
-        }
-    }
-
     // ---------------------------------------------------------------- telemetry
     // Reads the shared memory of RenCloud/scs-sdk-plugin (MIT), "Local\SCSTelemetry".
     // Offsets come from scs-telemetry-common.hpp (PLUGIN_REVID 12, plugin V.1.12.1).
@@ -817,23 +547,6 @@ namespace Krankmili
             a.ReadArray(off, b, 0, len);
             int n = Array.IndexOf(b, (byte)0); if (n < 0) n = len;
             return Encoding.UTF8.GetString(b, 0, n);
-        }
-
-        // Signed truck speed in m/s (negative = reversing); false when the game/plugin is not running.
-        public static bool TryRawSpeed(out float ms)
-        {
-            ms = 0;
-            try
-            {
-                using (MemoryMappedFile mmf = MemoryMappedFile.OpenExisting(MapName, MemoryMappedFileRights.Read))
-                using (MemoryMappedViewAccessor a = mmf.CreateViewAccessor(0, 1024, MemoryMappedFileAccess.Read))
-                {
-                    if (!a.ReadBoolean(0)) return false;
-                    ms = a.ReadSingle(948);   // truck_f.speed
-                    return true;
-                }
-            }
-            catch (Exception) { return false; }
         }
 
         public static string Snapshot()
@@ -1049,12 +762,9 @@ namespace Krankmili
             }
         }
 
-        [DllImport("user32.dll")] static extern bool SetProcessDPIAware();
-
         [STAThread]
         static void Main(string[] args)
         {
-            try { SetProcessDPIAware(); } catch (Exception) { }   // overlay and screen capture must share physical pixels
             dir = AppDomain.CurrentDomain.BaseDirectory;
             Log.Path = Path.Combine(dir, "krankmili-server.log");
             bool created;
@@ -1083,8 +793,6 @@ namespace Krankmili
                 return;
             }
 
-            Rear.Init(dir, cfg.Token);
-            Rear.Start();
             Telemetry.PluginInstalled = PluginInstaller.IsInstalled();
             Thread tt = new Thread(Telemetry.Loop); tt.IsBackground = true; tt.Start();
 
@@ -1102,7 +810,14 @@ namespace Krankmili
                 tray.Text = t.Length > 63 ? t.Substring(0, 63) : t;
             };
             ContextMenuStrip menu = new ContextMenuStrip();
-            ToolStripItem info = menu.Items.Add("IP: " + ipText + "   Port: " + cfg.Port); info.Enabled = false;
+            bool ipHidden = false;
+            Func<string> ipLine = delegate { return ipHidden ? "IP: •••.•••.•••.•••   Port: •••• (gizli)" : "IP: " + ipText + "   Port: " + cfg.Port; };
+            ToolStripItem info = menu.Items.Add(ipLine()); info.Enabled = false;
+            // Eye toggle: hides the address in the menu, the double-click balloon and the log-free UI (stream-safe).
+            ToolStripMenuItem eye = new ToolStripMenuItem("\uD83D\uDC41  IP'yi göster / gizle");
+            eye.Click += delegate { ipHidden = !ipHidden; info.Text = ipLine(); eye.Text = (ipHidden ? "\uD83D\uDE48  IP'yi göster" : "\uD83D\uDC41  IP'yi gizle"); };
+            eye.Text = "\uD83D\uDC41  IP'yi gizle";
+            menu.Items.Add(eye);
             ToolStripItem warn = null;
             if (cfg.Token.Length == 0) { warn = menu.Items.Add("Token yok: ağdaki herkes tuş gönderebilir"); warn.Enabled = false; }
             menu.Items.Add(new ToolStripSeparator());
@@ -1125,12 +840,6 @@ namespace Krankmili
                     }
                     catch (Exception ex) { Log.Info("elevation cancelled: {0}", ex.Message); }
                 });
-            ToolStripMenuItem rearAuto = new ToolStripMenuItem("Geri kamera: geri vitese otomatik aç"); rearAuto.Checked = Rear.Auto; rearAuto.CheckOnClick = true;
-            rearAuto.CheckedChanged += delegate { if (Rear.Auto != rearAuto.Checked) Rear.SetAuto(rearAuto.Checked); };
-            menu.Items.Add(rearAuto);
-            menu.Items.Add("Geri kamera bölgesini seç…", null, delegate { Rear.SelectRegion(); });
-            menu.Items.Add("Geri kamera penceresini aç/kapat (test)", null, delegate { Rear.ToggleManual(); });
-            Rear.Notify = delegate (string msg) { try { tray.ShowBalloonTip(3000, Const.AppName, msg, ToolTipIcon.Info); rearAuto.Checked = Rear.Auto; } catch (Exception) { } };
             menu.Items.Add("Tanılama (tuşlar neden çalışmıyor?)", null, delegate { MessageBox.Show(Diag.Report(cfg, server.Clients), Const.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information); });
             menu.Items.Add("Ayarları varsayılana sıfırla (yedek alır, kapanır)", null, delegate
             {
@@ -1148,7 +857,7 @@ namespace Krankmili
             menu.Items.Add(new ToolStripSeparator());
             menu.Items.Add("Çıkış", null, delegate { tray.Visible = false; server.Stop(); Application.Exit(); });
             tray.ContextMenuStrip = menu;
-            tray.DoubleClick += delegate { tray.ShowBalloonTip(5000, Const.AppName, "IP: " + ipText + "  Port: " + cfg.Port, ToolTipIcon.Info); };
+            tray.DoubleClick += delegate { tray.ShowBalloonTip(5000, Const.AppName, ipHidden ? "IP gizli (menüden göster)" : "IP: " + ipText + "  Port: " + cfg.Port, ToolTipIcon.Info); };
 
             System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer(); timer.Interval = 2000;
             timer.Tick += delegate { refreshText(); }; timer.Start(); refreshText();

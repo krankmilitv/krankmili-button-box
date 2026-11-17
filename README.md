@@ -33,7 +33,3 @@ Test edildi: ETS2, Windows 11. Oyun sürümü güncellemelerinde tuş atamaları
 
 ## Lisans
 MIT. Kodu kullanabilir, değiştirebilir ve dağıtabilirsin; telif satırını (`LICENSE`) korumak zorundasın. Kod dışındaki adlar ve görseller ("Krankmili TV", anma yazısı) lisansa dahil değildir.
-
-
-## Reverse camera (experimental, 1.6)
-ETS2's Coaches DLC draws the reverse-camera image on the bus dashboard screen. Run the game in windowed/borderless mode, choose the screen area from the tray menu ("Geri kamera bölgesini seç…"), then enable auto mode on page 2 ("Oto aç"). When the truck speed goes negative the tablet shows the captured image full screen; tap to close. Limitations: needs the fixed cab camera, exclusive fullscreen may capture black, no automatic bus detection.
