@@ -80,6 +80,9 @@ class VoiceControl(
     private var recognizer: SpeechRecognizer? = null
     private var active = false
     private var muted = false
+    // "Prefer offline" makes some engines (Xiaomi/Google) answer LANGUAGE_UNAVAILABLE when no offline pack is installed;
+    // in that case fall back to the online recognizer instead of giving up.
+    private var preferOffline = true
 
     fun start() {
         if (active) return
@@ -88,6 +91,7 @@ class VoiceControl(
             return
         }
         active = true
+        preferOffline = true
         muteBeep(true)
         onState("dinliyor")
         listen()
@@ -132,9 +136,12 @@ class VoiceControl(
             override fun onError(error: Int) {
                 when (error) {
                     SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> { stop(); onState("mikrofon izni yok") }
-                    12, 13 -> { stop(); onState("Türkçe ses tanıma yüklü değil") }   // LANGUAGE_NOT_SUPPORTED / UNAVAILABLE
+                    12, 13 -> {   // LANGUAGE_NOT_SUPPORTED / UNAVAILABLE
+                        if (preferOffline) { preferOffline = false; onState("çevrimiçi dinliyor"); restart(300) }
+                        else { stop(); onState("Türkçe ses tanıma yok (hata $error)") }
+                    }
                     SpeechRecognizer.ERROR_NO_MATCH, SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> restart(200)
-                    else -> restart(1200)
+                    else -> { onState("hata $error"); restart(1500) }
                 }
             }
 
@@ -149,7 +156,7 @@ class VoiceControl(
         val i = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, "tr-TR")
-            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
+            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, preferOffline)
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5)
             putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, ctx.packageName)
             putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1000L)
