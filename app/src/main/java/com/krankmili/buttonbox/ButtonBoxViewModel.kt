@@ -73,8 +73,10 @@ class ButtonBoxViewModel : ViewModel() {
                 _voiceStatus.value = "✓ ${r.phrase}"
                 for (id in r.ids) scope.launch {
                     val hold = buttons.firstOrNull { it.id == id }?.mode == "hold"
+                    // Windows need the key held for their whole travel so they open/close fully.
+                    val holdMs = if (id.startsWith("window_")) 5000L else 1500L
                     client.press(id)
-                    kotlinx.coroutines.delay(if (hold) 1500L else 80L)
+                    kotlinx.coroutines.delay(if (hold) holdMs else 80L)
                     client.release(id)
                 }
             }
