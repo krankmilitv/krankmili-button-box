@@ -862,27 +862,6 @@
             "çakar söndür",
             "çakar"
           ]
-        },
-        {
-          "id": "roof_lights",
-          "label": "Tepe lambası",
-          "sub": ",",
-          "icon": "roof",
-          "key": ",",
-          "mode": "tap",
-          "voice": [
-            "tepeleri aç",
-            "tepeleri kapat",
-            "tepe lambalarını aç",
-            "tepe lambalarını kapat",
-            "tepe lambasını aç",
-            "tepe lambasını kapat",
-            "tepe lambalarını yak",
-            "tepe lambalarını söndür",
-            "tepe aç",
-            "tepe kapat"
-          ],
-          "hidden": true
         }
       ]
     },
