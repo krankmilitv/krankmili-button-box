@@ -52,6 +52,41 @@ class ButtonBoxViewModel : ViewModel() {
 
     fun consumeFound() { _found.value = null }
 
+    // ---- voice: "hey krank <command>" presses the matching buttons directly (no confirm dialog; that is for touch only)
+    private val _voiceStatus = MutableStateFlow("")
+    val voiceStatus: StateFlow<String> = _voiceStatus
+    private var armedUntil = 0L
+
+    fun setVoiceState(text: String) { _voiceStatus.value = text }
+
+    fun onVoiceHeard(alternatives: List<String>) {
+        val buttons = layout.value.flatMap { it.buttons }
+        val phrases = HashMap<String, MutableList<String>>()
+        for (b in buttons) for (v in b.voice) {
+            val ids = phrases.getOrPut(com.krankmili.buttonbox.data.VoiceMatcher.norm(v)) { mutableListOf() }
+            if (b.id !in ids) ids.add(b.id)
+        }
+        val now = System.currentTimeMillis()
+        when (val r = com.krankmili.buttonbox.data.VoiceMatcher.match(alternatives, phrases, now < armedUntil)) {
+            is com.krankmili.buttonbox.data.VoiceMatcher.Result.Matched -> {
+                armedUntil = 0
+                _voiceStatus.value = "✓ ${r.phrase}"
+                for (id in r.ids) scope.launch {
+                    val hold = buttons.firstOrNull { it.id == id }?.mode == "hold"
+                    client.press(id)
+                    kotlinx.coroutines.delay(if (hold) 1500L else 80L)
+                    client.release(id)
+                }
+            }
+            is com.krankmili.buttonbox.data.VoiceMatcher.Result.WakeOnly -> {
+                armedUntil = now + 6000
+                _voiceStatus.value = "söyle…"
+            }
+            is com.krankmili.buttonbox.data.VoiceMatcher.Result.NoMatch -> _voiceStatus.value = "? ${r.heard}"
+            is com.krankmili.buttonbox.data.VoiceMatcher.Result.Ignored -> {}
+        }
+    }
+
     fun connect(host: String, port: Int, token: String) = client.connect(host, port, token)
     fun disconnect() = client.disconnect()
     fun press(id: String) = client.press(id)

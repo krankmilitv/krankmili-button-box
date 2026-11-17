@@ -91,6 +91,9 @@ fun BoxScreen(
     onDisconnect: () -> Unit,
     onPress: (String) -> Unit,
     onRelease: (String) -> Unit,
+    voiceOn: Boolean = false,
+    voiceStatus: String = "",
+    onVoice: () -> Unit = {},
 ) {
     val pages = allGroups.map { it.page }.distinct().sorted()
     var page by remember { mutableStateOf(1) }
@@ -230,7 +233,7 @@ fun BoxScreen(
                 .padding(pad),
             verticalArrangement = Arrangement.spacedBy(gap),
         ) {
-            Header(connected, statusText, onDisconnect, compact, pages, activePage) { target ->
+            Header(connected, statusText, onDisconnect, compact, pages, activePage, voiceOn, voiceStatus, onVoice) { target ->
                 // Chips slide the same way: a higher page enters from the left.
                 val dir = if (target > activePage) 1 else -1
                 scope.launch {
@@ -293,6 +296,9 @@ private fun Header(
     compact: Boolean,
     pages: List<Int>,
     activePage: Int,
+    voiceOn: Boolean,
+    voiceStatus: String,
+    onVoice: () -> Unit,
     onPage: (Int) -> Unit,
 ) {
     // Eye button hides the PC address (e.g. while streaming); the part after " · " is masked.
@@ -359,6 +365,22 @@ private fun Header(
                     Palette.Muted,
                     Modifier.clickable { showIp = !showIp },
                 )
+            }
+            // Voice control: "hey krank <command>". Off by default; the last heard phrase is shown next to the mic.
+            Row(
+                Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(if (voiceOn) Palette.Accent else Palette.Panel)
+                    .border(1.dp, if (voiceOn) Palette.Accent else Palette.PanelBorder, RoundedCornerShape(50))
+                    .clickable { onVoice() }
+                    .padding(horizontal = if (compact) 10.dp else 14.dp, vertical = if (compact) 4.dp else 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                SvgIcon(if (voiceOn) "mic" else "mic_off", if (compact) 18.dp else 22.dp, if (voiceOn) Palette.OnAccent else Palette.Muted)
+                if (voiceOn && voiceStatus.isNotEmpty() && !compact) {
+                    Text(voiceStatus, color = Palette.OnAccent, fontSize = 13.sp, maxLines = 1)
+                }
             }
             OutlinedButton(
                 onClick = onDisconnect,

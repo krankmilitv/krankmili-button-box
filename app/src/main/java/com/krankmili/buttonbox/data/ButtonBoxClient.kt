@@ -33,6 +33,7 @@ data class BoxButton(
     val span: Int = 1,
     val accent: Boolean = false,
     val prompt: BoxPrompt? = null,
+    val voice: List<String> = emptyList(),
 )
 
 data class BoxGroup(
@@ -231,6 +232,7 @@ class ButtonBoxClient(private val scope: CoroutineScope) {
                         sub = b.optString("sub"),
                         span = b.optInt("span", 1).coerceAtLeast(1),
                         accent = b.optBoolean("accent", false),
+                        voice = b.optJSONArray("voice")?.let { a -> List(a.length()) { a.getString(it) } } ?: emptyList(),
                         prompt = b.optJSONObject("prompt")?.let {
                             BoxPrompt(it.optString("text"), it.optString("yes"), it.optString("no"))
                         },

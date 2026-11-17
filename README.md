@@ -37,3 +37,6 @@ MIT. Kodu kullanabilir, değiştirebilir ve dağıtabilirsin; telif satırını 
 ## Update notice
 Starting with 1.7, the app and the server check `version.json` in this repository once at start-up (an HTTPS request to raw.githubusercontent.com, so GitHub sees the IP) and show a notice when a newer version exists. Nothing is downloaded or installed automatically. Turn it off with the checkbox on the tablet's connect screen or in the server's tray menu. Maintainers: after publishing a release, update `version.json`.
 
+## Voice control (1.8)
+Turn on the mic button in the header and say "hey krank servise git", "hey krank camları aç", etc. Phrases are the `voice` lists in `config.json`. Uses Android's built-in speech recognition (Turkish); works offline only when the offline Turkish language pack is installed. Voice commands run without the confirm dialog.
+

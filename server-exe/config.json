@@ -16,7 +16,13 @@
           "sub": "Sol cam",
           "icon": "arrow_up",
           "key": "insert",
-          "mode": "hold"
+          "mode": "hold",
+          "voice": [
+            "sol camı kapat",
+            "sol cam kapat",
+            "camları kapat",
+            "camı kapat"
+          ]
         },
         {
           "id": "window_right_up",
@@ -24,7 +30,13 @@
           "sub": "Sağ cam",
           "icon": "arrow_up",
           "key": "pageup",
-          "mode": "hold"
+          "mode": "hold",
+          "voice": [
+            "sağ camı kapat",
+            "sağ cam kapat",
+            "camları kapat",
+            "camı kapat"
+          ]
         },
         {
           "id": "window_left_down",
@@ -32,7 +44,13 @@
           "sub": "Sol cam",
           "icon": "arrow_down",
           "key": "delete",
-          "mode": "hold"
+          "mode": "hold",
+          "voice": [
+            "sol camı aç",
+            "sol cam aç",
+            "camları aç",
+            "camı aç"
+          ]
         },
         {
           "id": "window_right_down",
@@ -40,7 +58,13 @@
           "sub": "Sağ cam",
           "icon": "arrow_down",
           "key": "pagedown",
-          "mode": "hold"
+          "mode": "hold",
+          "voice": [
+            "sağ camı aç",
+            "sağ cam aç",
+            "camları aç",
+            "camı aç"
+          ]
         }
       ]
     },
@@ -55,7 +79,13 @@
           "label": "Otobüs kapısı",
           "icon": "bus",
           "key": "f9",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "kapıyı aç",
+            "kapıyı kapat",
+            "otobüs kapısı",
+            "kapı"
+          ]
         }
       ]
     },
@@ -71,7 +101,14 @@
           "icon": "power",
           "accent": true,
           "key": "e",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "motoru çalıştır",
+            "motoru durdur",
+            "motoru kapat",
+            "kontak",
+            "kontağı çevir"
+          ]
         }
       ]
     },
@@ -93,7 +130,11 @@
           "icon": "flash",
           "key": "j",
           "mode": "hold",
-          "sub": "J"
+          "sub": "J",
+          "voice": [
+            "selektör",
+            "selektör yap"
+          ]
         },
         {
           "id": "high_beam",
@@ -101,7 +142,12 @@
           "sub": "K",
           "icon": "headlight",
           "key": "k",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "uzun farı aç",
+            "uzun farı kapat",
+            "uzun far"
+          ]
         },
         {
           "id": "light_mode",
@@ -109,21 +155,36 @@
           "icon": "headlight",
           "key": "l",
           "mode": "tap",
-          "span": 2
+          "span": 2,
+          "voice": [
+            "kısa farları aç",
+            "kısa farı aç",
+            "kısa far",
+            "farları aç",
+            "park lambası"
+          ]
         },
         {
           "id": "indicator_l",
           "label": "Sol sinyal",
           "icon": "left",
           "key": "[",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "sol sinyal",
+            "sola sinyal"
+          ]
         },
         {
           "id": "indicator_r",
           "label": "Sağ sinyal",
           "icon": "right",
           "key": "]",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "sağ sinyal",
+            "sağa sinyal"
+          ]
         },
         {
           "id": "hazard",
@@ -132,7 +193,13 @@
           "icon": "hazard",
           "key": "f",
           "mode": "tap",
-          "span": 2
+          "span": 2,
+          "voice": [
+            "dörtlü",
+            "dörtlüleri aç",
+            "dörtlüleri kapat",
+            "flaşör"
+          ]
         },
         {
           "id": "parking",
@@ -140,7 +207,12 @@
           "icon": "parking",
           "key": "space",
           "mode": "tap",
-          "span": 2
+          "span": 2,
+          "voice": [
+            "el freni",
+            "el frenini çek",
+            "el frenini indir"
+          ]
         }
       ]
     },
@@ -155,14 +227,22 @@
           "label": "Dorse bağla",
           "icon": "link",
           "key": "t",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "dorse bağla",
+            "dorseyi bağla"
+          ]
         },
         {
           "id": "trailer_detach",
           "label": "Dorse bırak",
           "icon": "unlink",
           "key": "t",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "dorse bırak",
+            "dorseyi bırak"
+          ]
         },
         {
           "id": "axle_lower",
@@ -170,7 +250,12 @@
           "icon": "axle_down",
           "key": "end",
           "mode": "tap",
-          "sub": "Çekici"
+          "sub": "Çekici",
+          "voice": [
+            "araç dingilini indir",
+            "çekici dingili indir",
+            "dingili indir"
+          ]
         },
         {
           "id": "axle_raise",
@@ -178,7 +263,12 @@
           "icon": "axle_up",
           "key": "home",
           "mode": "tap",
-          "sub": "Çekici"
+          "sub": "Çekici",
+          "voice": [
+            "araç dingilini kaldır",
+            "çekici dingili kaldır",
+            "dingili kaldır"
+          ]
         },
         {
           "id": "trailer_axle_down_p1",
@@ -186,7 +276,11 @@
           "sub": "Num 3",
           "icon": "axle_down",
           "key": "num3",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "dorse dingilini indir",
+            "dorse dingil indir"
+          ]
         },
         {
           "id": "trailer_axle_up_p1",
@@ -194,7 +288,11 @@
           "sub": "Num 9",
           "icon": "axle_up",
           "key": "num9",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "dorse dingilini kaldır",
+            "dorse dingil kaldır"
+          ]
         }
       ]
     },
@@ -209,42 +307,64 @@
           "label": "İç",
           "sub": "Kamera 1",
           "key": "1",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "iç kamera"
+          ]
         },
         {
           "id": "cam_2",
           "label": "Takip",
           "sub": "Kamera 2",
           "key": "2",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "takip kamerası",
+            "takip kamera"
+          ]
         },
         {
           "id": "cam_3",
           "label": "Dikey",
           "sub": "Kamera 3",
           "key": "3",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "dikey kamera"
+          ]
         },
         {
           "id": "cam_4",
           "label": "Çatı",
           "sub": "Kamera 4",
           "key": "4",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "çatı kamerası",
+            "çatı kamera"
+          ]
         },
         {
           "id": "cam_5",
           "label": "Pencere",
           "sub": "Kamera 5",
           "key": "5",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "pencere kamerası",
+            "pencere kamera"
+          ]
         },
         {
           "id": "cam_6",
           "label": "Tampon",
           "sub": "Kamera 6",
           "key": "6",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "tampon kamerası",
+            "tampon kamera"
+          ]
         }
       ]
     },
@@ -261,7 +381,11 @@
           "sub": "Num 7",
           "icon": "susp_up",
           "key": "num7",
-          "mode": "hold"
+          "mode": "hold",
+          "voice": [
+            "ön süspansiyonu yükselt",
+            "ön süspansiyon yükselt"
+          ]
         },
         {
           "id": "susp_front_down",
@@ -269,7 +393,11 @@
           "sub": "Num 1",
           "icon": "susp_down",
           "key": "num1",
-          "mode": "hold"
+          "mode": "hold",
+          "voice": [
+            "ön süspansiyonu alçalt",
+            "ön süspansiyon alçalt"
+          ]
         }
       ]
     },
@@ -286,7 +414,11 @@
           "sub": "Num *",
           "icon": "reset",
           "key": "num*",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "süspansiyonu sıfırla",
+            "süspansiyon sıfırla"
+          ]
         }
       ]
     },
@@ -303,7 +435,11 @@
           "sub": "Num +",
           "icon": "susp_up",
           "key": "num+",
-          "mode": "hold"
+          "mode": "hold",
+          "voice": [
+            "arka süspansiyonu yükselt",
+            "arka süspansiyon yükselt"
+          ]
         },
         {
           "id": "susp_rear_down",
@@ -311,7 +447,11 @@
           "sub": "Num -",
           "icon": "susp_down",
           "key": "num-",
-          "mode": "hold"
+          "mode": "hold",
+          "voice": [
+            "arka süspansiyonu alçalt",
+            "arka süspansiyon alçalt"
+          ]
         }
       ]
     },
@@ -328,7 +468,11 @@
           "sub": "Num 8",
           "icon": "susp_up",
           "key": "num8",
-          "mode": "hold"
+          "mode": "hold",
+          "voice": [
+            "dorse süspansiyonu yükselt",
+            "dorse süspansiyon yükselt"
+          ]
         },
         {
           "id": "susp_trailer_down",
@@ -336,7 +480,11 @@
           "sub": "Num 2",
           "icon": "susp_down",
           "key": "num2",
-          "mode": "hold"
+          "mode": "hold",
+          "voice": [
+            "dorse süspansiyonu alçalt",
+            "dorse süspansiyon alçalt"
+          ]
         }
       ]
     },
@@ -353,7 +501,13 @@
           "sub": "Num 0",
           "icon": "bulb",
           "key": "num0",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "kabin ışığı",
+            "kabin ışığını aç",
+            "kabin ışığını kapat",
+            "iç ışık"
+          ]
         },
         {
           "id": "beacon",
@@ -361,7 +515,13 @@
           "sub": "O",
           "icon": "beacon",
           "key": "o",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "çakar",
+            "çakar lamba",
+            "çakarı aç",
+            "çakarı kapat"
+          ]
         }
       ]
     },
@@ -378,7 +538,14 @@
           "sub": "P · modlar arası",
           "icon": "wiper",
           "key": "p",
-          "mode": "tap"
+          "mode": "tap",
+          "voice": [
+            "silecek",
+            "sileceği aç",
+            "sileceği kapat",
+            "silecekleri aç",
+            "silecekleri kapat"
+          ]
         }
       ]
     },
@@ -404,7 +571,12 @@
             "text": "Servise gidilsin mi?\n(Evet = oyunda Enter, Hayır = Esc)",
             "yes": "confirm_enter",
             "no": "confirm_esc"
-          }
+          },
+          "voice": [
+            "servise git",
+            "servise gidelim",
+            "servis"
+          ]
         }
       ]
     },

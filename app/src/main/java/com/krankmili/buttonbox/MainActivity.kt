@@ -29,11 +29,47 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import com.krankmili.buttonbox.data.ConnectionState
+import com.krankmili.buttonbox.data.VoiceControl
 import com.krankmili.buttonbox.ui.BoxScreen
 import com.krankmili.buttonbox.ui.ConnectScreen
 import com.krankmili.buttonbox.ui.Palette
 
 class MainActivity : ComponentActivity() {
+
+    // Voice control ("hey krank …"): listens only while the screen is in front and the mic button is on.
+    private var voiceControl: VoiceControl? = null
+    private var voiceOn by mutableStateOf(false)
+    private var resumed = false
+    private lateinit var prefs: android.content.SharedPreferences
+
+    private fun micGranted() = checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+
+    private fun applyVoice() {
+        if (voiceOn && resumed && micGranted()) voiceControl?.start() else voiceControl?.stop()
+    }
+
+    private fun setVoice(on: Boolean) {
+        voiceOn = on
+        prefs.edit().putBoolean("voice_on", on).apply()
+        applyVoice()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        resumed = true
+        applyVoice()
+    }
+
+    override fun onPause() {
+        resumed = false
+        voiceControl?.stop()
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        voiceControl?.stop()
+        super.onDestroy()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +95,15 @@ class MainActivity : ComponentActivity() {
             }
             if (checkSelfPermission(perm) != PackageManager.PERMISSION_GRANTED) ask.launch(perm)
         }
-        val prefs = getSharedPreferences("buttonbox", Context.MODE_PRIVATE)
+        prefs = getSharedPreferences("buttonbox", Context.MODE_PRIVATE)
+        voiceControl = VoiceControl(this, { vm.onVoiceHeard(it) }, { vm.setVoiceState(it) })
+        voiceOn = prefs.getBoolean("voice_on", false) && micGranted()
+        val askMic = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) setVoice(true) else vm.setVoiceState("mikrofon izni yok")
+        }
+        val toggleVoice = {
+            if (voiceOn) setVoice(false) else if (micGranted()) setVoice(true) else askMic.launch(android.Manifest.permission.RECORD_AUDIO)
+        }
 
         setContent {
             MaterialTheme(
@@ -76,6 +120,8 @@ class MainActivity : ComponentActivity() {
                         initialHost = prefs.getString("host", "") ?: "",
                         initialPort = prefs.getString("port", "5555") ?: "5555",
                         initialToken = prefs.getString("token", "") ?: "",
+                        voiceOn = voiceOn,
+                        onVoice = { toggleVoice() },
                         initialUpdateCheck = prefs.getBoolean("update_check", true),
                         onUpdateCheck = { prefs.edit().putBoolean("update_check", it).apply() },
                         onSave = { host, port, token ->
@@ -118,6 +164,8 @@ private fun AppRoot(
     initialHost: String,
     initialPort: String,
     initialToken: String,
+    voiceOn: Boolean,
+    onVoice: () -> Unit,
     initialUpdateCheck: Boolean,
     onUpdateCheck: (Boolean) -> Unit,
     onSave: (host: String, port: String, token: String) -> Unit,
@@ -129,6 +177,7 @@ private fun AppRoot(
     var host by remember { mutableStateOf(initialHost) }
     var port by remember { mutableStateOf(initialPort) }
     var token by remember { mutableStateOf(initialToken) }
+    val voiceStatus by vm.voiceStatus.collectAsState()
     val update by vm.update.collectAsState()
     var updateCheck by remember { mutableStateOf(initialUpdateCheck) }
     var updateDismissed by rememberSaveable { mutableStateOf(false) }
@@ -184,6 +233,9 @@ private fun AppRoot(
             onDisconnect = vm::disconnect,
             onPress = vm::press,
             onRelease = vm::release,
+            voiceOn = voiceOn,
+            voiceStatus = voiceStatus,
+            onVoice = onVoice,
         )
     } else {
         ConnectScreen(

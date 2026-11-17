@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.0
+- New: voice control. Mic button in the header; while on, the tablet listens (Android SpeechRecognizer, tr-TR, offline if the language pack is installed) for "hey krank <command>" and presses the matching buttons. Phrases come from the new optional `voice` list on each button in config.json (protocol: additive `voice` array in the layout). Voice commands skip the confirm prompt; the prompt stays for touch.
+- Requires the RECORD_AUDIO permission. Several buttons may share one phrase (e.g. "camları aç" opens both windows).
+
 ## 1.7.0
 - New: update notice. App and server read `version.json` from this repo at start and tell the user when a newer release exists (notification only, nothing is downloaded). Can be switched off in both (tablet connect screen, server tray menu). Only the GitHub request is made.
 - To announce a release: publish the Release, then bump `version`/`notes` in `version.json`.

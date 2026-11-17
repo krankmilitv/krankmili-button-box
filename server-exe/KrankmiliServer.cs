@@ -27,8 +27,8 @@ using Microsoft.Win32;
 [assembly: AssemblyCompany("Krankmili TV")]
 [assembly: AssemblyProduct("Krankmili Button Box")]
 [assembly: AssemblyCopyright("Copyright (c) Krankmili TV")]
-[assembly: AssemblyVersion("1.7.0.0")]
-[assembly: AssemblyFileVersion("1.7.0.0")]
+[assembly: AssemblyVersion("1.8.0.0")]
+[assembly: AssemblyFileVersion("1.8.0.0")]
 
 namespace Krankmili
 {
@@ -40,7 +40,7 @@ namespace Krankmili
         public const int DiscoveryPort = 48765;
         public const string DiscoveryQuery = "KRANKMILI_BB_DISCOVER";
         public const string AppName = "Krankmili Button Box";
-        public const string Version = "1.7.0";
+        public const string Version = "1.8.0";
         public const string UpdateSource = "https://raw.githubusercontent.com/krankmilitv/krankmili-button-box/main/version.json";
     }
 
@@ -285,7 +285,7 @@ namespace Krankmili
     // ---------------------------------------------------------------- config
     class Btn
     {
-        public string Id, Label, Mode, Icon, Sub; public List<string> Keys; public int Span; public bool Accent;
+        public string Id, Label, Mode, Icon, Sub; public List<string> Keys; public List<string> Voice = new List<string>(); public int Span; public bool Accent;
         public List<List<string>> Steps; public int StepMs = 350;          // optional macro: key steps pressed one after another
         public string PromptText, PromptYes, PromptNo;                      // optional on-tablet confirm dialog shown after the press
     }
@@ -346,6 +346,8 @@ namespace Krankmili
                             }
                             btn.Label = S(b, "label", btn.Id); btn.Icon = S(b, "icon", ""); btn.Sub = S(b, "sub", "");
                             btn.Span = I(b, "span", 1); btn.Accent = B(b, "accent");
+                            if (b.Contains("voice") && b["voice"] is System.Collections.IEnumerable && !(b["voice"] is string))
+                                foreach (object v in (System.Collections.IEnumerable)b["voice"]) if (v != null) btn.Voice.Add(Convert.ToString(v, CultureInfo.InvariantCulture));
                             c.Buttons[btn.Id] = btn; grp.Buttons.Add(btn);
                         }
                     c.Groups.Add(grp);
@@ -367,6 +369,7 @@ namespace Krankmili
                     var bd = new Dictionary<string, object> {
                         {"id", b.Id}, {"label", b.Label}, {"mode", b.Mode}, {"icon", b.Icon},
                         {"sub", b.Sub}, {"span", b.Span}, {"accent", b.Accent} };
+                    if (b.Voice.Count > 0) bd["voice"] = b.Voice;
                     if (b.PromptText != null)
                         bd["prompt"] = new Dictionary<string, object> { {"text", b.PromptText}, {"yes", b.PromptYes}, {"no", b.PromptNo} };
                     bl.Add(bd);
