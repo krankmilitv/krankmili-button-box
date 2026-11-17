@@ -19,9 +19,26 @@
           "mode": "hold",
           "voice": [
             "sol camı kapat",
+            "sol camı kaldır",
+            "sol camı yukarı çıkar",
+            "sol camı yukarı al",
             "sol cam kapat",
+            "sol cam kaldır",
+            "sol cam yukarı çıkar",
+            "sol cam yukarı al",
             "soldaki camı kapat",
-            "camları kapat"
+            "soldaki camı kaldır",
+            "soldaki camı yukarı çıkar",
+            "soldaki camı yukarı al",
+            "sürücü camını kapat",
+            "sürücü camını kaldır",
+            "sürücü camını yukarı çıkar",
+            "sürücü camını yukarı al",
+            "camları kapat",
+            "tüm camları kapat",
+            "iki camı kapat",
+            "camları yukarı çıkar",
+            "camları kaldır"
           ]
         },
         {
@@ -33,9 +50,26 @@
           "mode": "hold",
           "voice": [
             "sağ camı kapat",
+            "sağ camı kaldır",
+            "sağ camı yukarı çıkar",
+            "sağ camı yukarı al",
             "sağ cam kapat",
+            "sağ cam kaldır",
+            "sağ cam yukarı çıkar",
+            "sağ cam yukarı al",
             "sağdaki camı kapat",
-            "camları kapat"
+            "sağdaki camı kaldır",
+            "sağdaki camı yukarı çıkar",
+            "sağdaki camı yukarı al",
+            "yolcu camını kapat",
+            "yolcu camını kaldır",
+            "yolcu camını yukarı çıkar",
+            "yolcu camını yukarı al",
+            "camları kapat",
+            "tüm camları kapat",
+            "iki camı kapat",
+            "camları yukarı çıkar",
+            "camları kaldır"
           ]
         },
         {
@@ -47,9 +81,26 @@
           "mode": "hold",
           "voice": [
             "sol camı aç",
+            "sol camı indir",
+            "sol camı aşağı indir",
+            "sol camı aşağı al",
             "sol cam aç",
+            "sol cam indir",
+            "sol cam aşağı indir",
+            "sol cam aşağı al",
             "soldaki camı aç",
-            "camları aç"
+            "soldaki camı indir",
+            "soldaki camı aşağı indir",
+            "soldaki camı aşağı al",
+            "sürücü camını aç",
+            "sürücü camını indir",
+            "sürücü camını aşağı indir",
+            "sürücü camını aşağı al",
+            "camları aç",
+            "tüm camları aç",
+            "iki camı aç",
+            "camları indir",
+            "camları aşağı indir"
           ]
         },
         {
@@ -61,9 +112,26 @@
           "mode": "hold",
           "voice": [
             "sağ camı aç",
+            "sağ camı indir",
+            "sağ camı aşağı indir",
+            "sağ camı aşağı al",
             "sağ cam aç",
+            "sağ cam indir",
+            "sağ cam aşağı indir",
+            "sağ cam aşağı al",
             "sağdaki camı aç",
-            "camları aç"
+            "sağdaki camı indir",
+            "sağdaki camı aşağı indir",
+            "sağdaki camı aşağı al",
+            "yolcu camını aç",
+            "yolcu camını indir",
+            "yolcu camını aşağı indir",
+            "yolcu camını aşağı al",
+            "camları aç",
+            "tüm camları aç",
+            "iki camı aç",
+            "camları indir",
+            "camları aşağı indir"
           ]
         }
       ]
@@ -82,12 +150,15 @@
           "mode": "tap",
           "voice": [
             "kapıyı aç",
-            "kapıyı kapat",
             "kapı aç",
+            "kapıyı kapat",
             "kapı kapat",
+            "kapıları aç",
+            "kapıları kapat",
             "otobüs kapısını aç",
             "otobüs kapısını kapat",
-            "otobüs kapısı"
+            "otobüs kapısı",
+            "otobüs kapısını çalıştır"
           ]
         }
       ]
@@ -107,13 +178,26 @@
           "mode": "tap",
           "voice": [
             "motoru çalıştır",
-            "motor çalıştır",
             "motoru aç",
-            "motoru kapat",
-            "motor kapat",
-            "motoru durdur",
+            "motoru yak",
+            "motor çalıştır",
+            "motor aç",
+            "aracı çalıştır",
+            "arabayı çalıştır",
             "kontağı aç",
+            "kontak aç",
+            "kontağı çevir",
+            "marşa bas",
+            "motoru kapat",
+            "motoru durdur",
+            "motoru sustur",
+            "motor kapat",
+            "motor durdur",
+            "aracı durdur",
+            "aracı kapat",
+            "arabayı durdur",
             "kontağı kapat",
+            "kontak kapat",
             "kontak"
           ]
         }
@@ -140,7 +224,9 @@
           "sub": "J",
           "voice": [
             "selektör",
-            "selektör yap"
+            "selektör yap",
+            "selektör at",
+            "selektör çak"
           ]
         },
         {
@@ -151,11 +237,24 @@
           "key": "k",
           "mode": "tap",
           "voice": [
+            "uzunları aç",
+            "uzunları yak",
+            "uzunları kapat",
+            "uzunları söndür",
             "uzun farı aç",
+            "uzun farı yak",
             "uzun farı kapat",
+            "uzun farı söndür",
             "uzun farları aç",
+            "uzun farları yak",
             "uzun farları kapat",
-            "uzun far"
+            "uzun farları söndür",
+            "uzun far aç",
+            "uzun far yak",
+            "uzun far kapat",
+            "uzun far söndür",
+            "uzun far",
+            "uzunlar"
           ]
         },
         {
@@ -166,13 +265,34 @@
           "mode": "tap",
           "span": 2,
           "voice": [
+            "kısaları aç",
+            "kısaları yak",
+            "kısaları kapat",
+            "kısaları söndür",
             "kısa farı aç",
+            "kısa farı yak",
             "kısa farı kapat",
+            "kısa farı söndür",
             "kısa farları aç",
+            "kısa farları yak",
             "kısa farları kapat",
-            "kısa far",
+            "kısa farları söndür",
+            "kısa far aç",
+            "kısa far yak",
+            "kısa far kapat",
+            "kısa far söndür",
             "farları aç",
-            "farları kapat"
+            "farları yak",
+            "farları kapat",
+            "farları söndür",
+            "far aç",
+            "far yak",
+            "far kapat",
+            "far söndür",
+            "kısa far",
+            "park lambası",
+            "park lambalarını aç",
+            "park lambalarını kapat"
           ]
         },
         {
@@ -183,7 +303,10 @@
           "mode": "tap",
           "voice": [
             "sol sinyal",
-            "sola sinyal"
+            "sola sinyal",
+            "sol sinyal ver",
+            "sol sinyali aç",
+            "sol sinyali kapat"
           ]
         },
         {
@@ -194,7 +317,10 @@
           "mode": "tap",
           "voice": [
             "sağ sinyal",
-            "sağa sinyal"
+            "sağa sinyal",
+            "sağ sinyal ver",
+            "sağ sinyali aç",
+            "sağ sinyali kapat"
           ]
         },
         {
@@ -207,12 +333,27 @@
           "span": 2,
           "voice": [
             "dörtlüleri aç",
+            "dörtlüleri yak",
             "dörtlüleri kapat",
+            "dörtlüleri söndür",
             "dörtlü aç",
+            "dörtlü yak",
             "dörtlü kapat",
-            "dörtlü",
+            "dörtlü söndür",
             "flaşörleri aç",
-            "flaşörleri kapat"
+            "flaşörleri yak",
+            "flaşörleri kapat",
+            "flaşörleri söndür",
+            "flaşör aç",
+            "flaşör yak",
+            "flaşör kapat",
+            "flaşör söndür",
+            "tehlike ışıklarını aç",
+            "tehlike ışıklarını yak",
+            "tehlike ışıklarını kapat",
+            "tehlike ışıklarını söndür",
+            "dörtlü",
+            "flaşör"
           ]
         },
         {
@@ -224,10 +365,14 @@
           "span": 2,
           "voice": [
             "el frenini çek",
-            "el frenini bırak",
-            "el frenini indir",
             "el freni çek",
+            "el frenini bırak",
             "el freni bırak",
+            "el frenini indir",
+            "el frenini kaldır",
+            "el frenini çekelim",
+            "park frenini çek",
+            "park frenini bırak",
             "el freni"
           ]
         }
@@ -247,7 +392,11 @@
           "mode": "tap",
           "voice": [
             "dorseyi bağla",
-            "dorse bağla"
+            "dorse bağla",
+            "dorseyi tak",
+            "dorseyi bağlayalım",
+            "römorku bağla",
+            "römorku tak"
           ]
         },
         {
@@ -258,7 +407,11 @@
           "mode": "tap",
           "voice": [
             "dorseyi bırak",
-            "dorse bırak"
+            "dorse bırak",
+            "dorseyi çöz",
+            "dorseyi ayır",
+            "römorku bırak",
+            "römorku ayır"
           ]
         },
         {
@@ -271,7 +424,9 @@
           "voice": [
             "araç dingilini indir",
             "çekici dingili indir",
-            "dingili indir"
+            "dingili indir",
+            "dingili aşağı al",
+            "araç dingili indir"
           ]
         },
         {
@@ -284,7 +439,9 @@
           "voice": [
             "araç dingilini kaldır",
             "çekici dingili kaldır",
-            "dingili kaldır"
+            "dingili kaldır",
+            "dingili yukarı al",
+            "araç dingili kaldır"
           ]
         },
         {
@@ -296,7 +453,9 @@
           "mode": "tap",
           "voice": [
             "dorse dingilini indir",
-            "dorse dingil indir"
+            "dorse dingili indir",
+            "dorse dingil indir",
+            "dorse dingilini aşağı al"
           ]
         },
         {
@@ -308,7 +467,9 @@
           "mode": "tap",
           "voice": [
             "dorse dingilini kaldır",
-            "dorse dingil kaldır"
+            "dorse dingili kaldır",
+            "dorse dingil kaldır",
+            "dorse dingilini yukarı al"
           ]
         }
       ]
@@ -329,6 +490,8 @@
             "iç kameraya geç",
             "iç kamerayı aç",
             "iç kamerasını aç",
+            "iç kamerasına geç",
+            "kabin kamerasına geç",
             "iç kamera"
           ]
         },
@@ -342,8 +505,17 @@
             "takip kamerasını aç",
             "takip kamerayı aç",
             "takip kameraya geç",
+            "takip kamerasına geç",
+            "takip kamerasını göster",
             "takip kamerası",
-            "takip kamera"
+            "takip kamera",
+            "arkadan takip kamerasını aç",
+            "arkadan takip kamerayı aç",
+            "arkadan takip kameraya geç",
+            "arkadan takip kamerasına geç",
+            "arkadan takip kamerasını göster",
+            "arkadan takip kamerası",
+            "arkadan takip kamera"
           ]
         },
         {
@@ -356,6 +528,8 @@
             "dikey kamerasını aç",
             "dikey kamerayı aç",
             "dikey kameraya geç",
+            "dikey kamerasına geç",
+            "dikey kamerasını göster",
             "dikey kamerası",
             "dikey kamera"
           ]
@@ -370,8 +544,17 @@
             "çatı kamerasını aç",
             "çatı kamerayı aç",
             "çatı kameraya geç",
+            "çatı kamerasına geç",
+            "çatı kamerasını göster",
             "çatı kamerası",
-            "çatı kamera"
+            "çatı kamera",
+            "tavan kamerasını aç",
+            "tavan kamerayı aç",
+            "tavan kameraya geç",
+            "tavan kamerasına geç",
+            "tavan kamerasını göster",
+            "tavan kamerası",
+            "tavan kamera"
           ]
         },
         {
@@ -384,6 +567,8 @@
             "pencere kamerasını aç",
             "pencere kamerayı aç",
             "pencere kameraya geç",
+            "pencere kamerasına geç",
+            "pencere kamerasını göster",
             "pencere kamerası",
             "pencere kamera"
           ]
@@ -398,8 +583,17 @@
             "tampon kamerasını aç",
             "tampon kamerayı aç",
             "tampon kameraya geç",
+            "tampon kamerasına geç",
+            "tampon kamerasını göster",
             "tampon kamerası",
-            "tampon kamera"
+            "tampon kamera",
+            "ön tampon kamerasını aç",
+            "ön tampon kamerayı aç",
+            "ön tampon kameraya geç",
+            "ön tampon kamerasına geç",
+            "ön tampon kamerasını göster",
+            "ön tampon kamerası",
+            "ön tampon kamera"
           ]
         }
       ]
@@ -420,7 +614,9 @@
           "mode": "hold",
           "voice": [
             "ön süspansiyonu yükselt",
-            "ön süspansiyon yükselt"
+            "ön süspansiyon yükselt",
+            "ön süspansiyonu kaldır",
+            "ön yüksekliği artır"
           ]
         },
         {
@@ -432,7 +628,8 @@
           "mode": "hold",
           "voice": [
             "ön süspansiyonu alçalt",
-            "ön süspansiyon alçalt"
+            "ön süspansiyon alçalt",
+            "ön süspansiyonu indir"
           ]
         }
       ]
@@ -453,7 +650,8 @@
           "mode": "tap",
           "voice": [
             "süspansiyonu sıfırla",
-            "süspansiyon sıfırla"
+            "süspansiyon sıfırla",
+            "süspansiyonları sıfırla"
           ]
         }
       ]
@@ -474,7 +672,8 @@
           "mode": "hold",
           "voice": [
             "arka süspansiyonu yükselt",
-            "arka süspansiyon yükselt"
+            "arka süspansiyon yükselt",
+            "arka süspansiyonu kaldır"
           ]
         },
         {
@@ -486,7 +685,8 @@
           "mode": "hold",
           "voice": [
             "arka süspansiyonu alçalt",
-            "arka süspansiyon alçalt"
+            "arka süspansiyon alçalt",
+            "arka süspansiyonu indir"
           ]
         }
       ]
@@ -507,7 +707,8 @@
           "mode": "hold",
           "voice": [
             "dorse süspansiyonu yükselt",
-            "dorse süspansiyon yükselt"
+            "dorse süspansiyonunu yükselt",
+            "dorse süspansiyonu kaldır"
           ]
         },
         {
@@ -519,7 +720,8 @@
           "mode": "hold",
           "voice": [
             "dorse süspansiyonu alçalt",
-            "dorse süspansiyon alçalt"
+            "dorse süspansiyonunu alçalt",
+            "dorse süspansiyonu indir"
           ]
         }
       ]
@@ -540,10 +742,22 @@
           "mode": "tap",
           "voice": [
             "kabin ışığını aç",
+            "kabin ışığını yak",
             "kabin ışığını kapat",
-            "kabin ışığı",
+            "kabin ışığını söndür",
+            "kabin lambasını aç",
+            "kabin lambasını yak",
+            "kabin lambasını kapat",
+            "kabin lambasını söndür",
             "iç ışığı aç",
-            "iç ışığı kapat"
+            "iç ışığı yak",
+            "iç ışığı kapat",
+            "iç ışığı söndür",
+            "iç ışıkları aç",
+            "iç ışıkları yak",
+            "iç ışıkları kapat",
+            "iç ışıkları söndür",
+            "kabin ışığı"
           ]
         },
         {
@@ -555,11 +769,25 @@
           "mode": "tap",
           "voice": [
             "çakarları aç",
+            "çakarları yak",
             "çakarları kapat",
+            "çakarları söndür",
             "çakarı aç",
+            "çakarı yak",
             "çakarı kapat",
+            "çakarı söndür",
             "çakar lambayı aç",
+            "çakar lambayı yak",
             "çakar lambayı kapat",
+            "çakar lambayı söndür",
+            "çakar lambaları aç",
+            "çakar lambaları yak",
+            "çakar lambaları kapat",
+            "çakar lambaları söndür",
+            "çakar aç",
+            "çakar yak",
+            "çakar kapat",
+            "çakar söndür",
             "çakar"
           ]
         }
@@ -581,9 +809,17 @@
           "mode": "tap",
           "voice": [
             "silecekleri aç",
+            "silecekleri çalıştır",
             "silecekleri kapat",
+            "silecekleri durdur",
             "sileceği aç",
+            "sileceği çalıştır",
             "sileceği kapat",
+            "sileceği durdur",
+            "silecek aç",
+            "silecek çalıştır",
+            "silecek kapat",
+            "silecek durdur",
             "silecek"
           ]
         }
@@ -615,7 +851,10 @@
           "voice": [
             "servise git",
             "servise gidelim",
-            "servise gidiyoruz"
+            "servise gidiyoruz",
+            "tamire git",
+            "tamire gidelim",
+            "tamirhaneye git"
           ]
         }
       ]
