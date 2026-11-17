@@ -596,24 +596,6 @@ namespace Krankmili
             return Encoding.UTF8.GetString(b, 0, n);
         }
 
-        static string lastDump = "";
-        // diagnostic: logs every non-empty string slot in the string zone whenever it changes
-        static void DumpStrings(MemoryMappedViewAccessor a)
-        {
-            try
-            {
-                var sb = new StringBuilder();
-                for (int off = 2300; off + 64 <= 3600; off += 64)
-                {
-                    string v = Str(a, off, 64);
-                    if (v.Length > 0) sb.AppendFormat("[{0}]={1} ", off, v);
-                }
-                string dump = sb.ToString();
-                if (dump != lastDump) { lastDump = dump; Log.Info("telemetry strings: {0}", dump); }
-            }
-            catch (Exception) { }
-        }
-
         public static string Snapshot()
         {
             var d = new Dictionary<string, object>();
@@ -643,7 +625,6 @@ namespace Krankmili
                         d["cargoLoaded"] = a.ReadBoolean(1564);                           // config_b.isCargoLoaded
                         d["cargo"] = Str(a, 2620, 64);                                    // config_s.cargo
                         d["dest"] = Str(a, 2748, 64);                                     // config_s.cityDst
-                        DumpStrings(a);
                     }
                 }
             }
