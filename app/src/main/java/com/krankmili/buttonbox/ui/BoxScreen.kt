@@ -32,6 +32,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.clipToBounds
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -126,75 +127,9 @@ fun BoxScreen(
         val offset = remember { Animatable(0f) }
         val scope = rememberCoroutineScope()
         val widthPx = constraints.maxWidth.toFloat()
-        Column(
-            Modifier.fillMaxSize()
-                // Swipe right = next page, swipe left = previous page. Watched in the Initial pass so it also
-                // works when the finger starts on a button; once it is clearly horizontal the touch is consumed,
-                // which cancels the button under the finger (tap buttons only fire on release).
-                .pointerInput(pages, activePage) {
-                    if (pages.size < 2) return@pointerInput
-                    val threshold = minOf(size.width * 0.22f, 160.dp.toPx())
-                    awaitEachGesture {
-                        val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
-                        var dx = 0f
-                        var dy = 0f
-                        var dragging = false
-                        while (true) {
-                            val ev = awaitPointerEvent(PointerEventPass.Initial)
-                            val ch = ev.changes.firstOrNull { it.id == down.id } ?: break
-                            if (!ch.pressed) break
-                            val d = ch.positionChange()
-                            dx += d.x
-                            dy += d.y
-                            if (!dragging && abs(dx) > slop && abs(dx) > abs(dy) * 1.5f) dragging = true
-                            if (dragging) {
-                                // Consuming cancels the button under the finger (tap buttons only fire on release).
-                                ev.changes.forEach { it.consume() }
-                                val i = pages.indexOf(activePage)
-                                val n = if (dx > 0) i + 1 else i - 1
-                                val shown = if (n in pages.indices) dx else dx * 0.25f   // rubber band at the ends
-                                scope.launch { offset.snapTo(shown) }
-                            }
-                        }
-                        if (dragging) {
-                            val i = pages.indexOf(activePage)
-                            val dir = if (dx > 0) 1 else -1
-                            val n = i + dir
-                            val w = size.width.toFloat()
-                            if (abs(dx) > threshold && n in pages.indices) {
-                                scope.launch {
-                                    offset.animateTo(dir * w, tween(140))
-                                    page = pages[n]; tab = 1
-                                    offset.snapTo(-dir * w)
-                                    offset.animateTo(0f, tween(220))
-                                }
-                            } else {
-                                scope.launch { offset.animateTo(0f, spring()) }
-                            }
-                        }
-                    }
-                }
-                .padding(pad),
-            verticalArrangement = Arrangement.spacedBy(gap),
-        ) {
-            Header(connected, statusText, onDisconnect, compact, pages, activePage) { target ->
-                // Chips slide the same way: a higher page enters from the left.
-                val dir = if (target > activePage) 1 else -1
-                scope.launch {
-                    val w = widthPx
-                    offset.animateTo(dir * w, tween(140))
-                    page = target; tab = 1
-                    offset.snapTo(-dir * w)
-                    offset.animateTo(0f, tween(220))
-                }
-            }
-            // The page follows the finger while swiping and slides out/in when it is let go.
-            Box(
-                Modifier.weight(1f).fillMaxWidth().graphicsLayer {
-                    translationX = offset.value
-                    alpha = 1f - 0.35f * (abs(offset.value) / size.width.coerceAtLeast(1f)).coerceIn(0f, 1f)
-                },
-            ) {
+        val pageContent: @Composable (Int) -> Unit = { shownPage ->
+            val layout = allGroups.filter { it.page == shownPage }
+            val padPage = compact && layout.count { it.columns == 1 && it.buttons.size >= 4 } >= 3 && layout.all { it.columns == 1 }
                 Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(gap)) {
                     if (compact && !padPage) {
                         val columns = (1..SCREEN_COLUMNS).filter { c -> layout.any { it.column == c } }
@@ -242,6 +177,78 @@ fun BoxScreen(
                                 }
                             }
                         }
+                    }
+                }
+        }
+        Column(
+            Modifier.fillMaxSize()
+                // Swipe right = next page, swipe left = previous page. Watched in the Initial pass so it also
+                // works when the finger starts on a button; once it is clearly horizontal the touch is consumed,
+                // which cancels the button under the finger (tap buttons only fire on release).
+                .pointerInput(pages, activePage) {
+                    if (pages.size < 2) return@pointerInput
+                    val threshold = minOf(size.width * 0.22f, 160.dp.toPx())
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                        var dx = 0f
+                        var dy = 0f
+                        var dragging = false
+                        while (true) {
+                            val ev = awaitPointerEvent(PointerEventPass.Initial)
+                            val ch = ev.changes.firstOrNull { it.id == down.id } ?: break
+                            if (!ch.pressed) break
+                            val d = ch.positionChange()
+                            dx += d.x
+                            dy += d.y
+                            if (!dragging && abs(dx) > slop && abs(dx) > abs(dy) * 1.5f) dragging = true
+                            if (dragging) {
+                                // Consuming cancels the button under the finger (tap buttons only fire on release).
+                                ev.changes.forEach { it.consume() }
+                                val i = pages.indexOf(activePage)
+                                val n = if (dx > 0) i + 1 else i - 1
+                                val shown = if (n in pages.indices) dx else dx * 0.25f   // rubber band at the ends
+                                scope.launch { offset.snapTo(shown) }
+                            }
+                        }
+                        if (dragging) {
+                            val i = pages.indexOf(activePage)
+                            val dir = if (dx > 0) 1 else -1
+                            val n = i + dir
+                            val w = size.width.toFloat()
+                            if (abs(dx) > threshold && n in pages.indices) {
+                                scope.launch {
+                                    offset.animateTo(dir * w, tween(200))
+                                    page = pages[n]; tab = 1
+                                    offset.snapTo(0f)
+                                }
+                            } else {
+                                scope.launch { offset.animateTo(0f, spring()) }
+                            }
+                        }
+                    }
+                }
+                .padding(pad),
+            verticalArrangement = Arrangement.spacedBy(gap),
+        ) {
+            Header(connected, statusText, onDisconnect, compact, pages, activePage) { target ->
+                // Chips slide the same way: a higher page enters from the left.
+                val dir = if (target > activePage) 1 else -1
+                scope.launch {
+                    val w = widthPx
+                    offset.animateTo(dir * w, tween(220))
+                    page = target; tab = 1
+                    offset.snapTo(0f)
+                }
+            }
+            // The page follows the finger; the neighbouring page sits right next to it, so there is no gap while sliding.
+            Box(Modifier.weight(1f).fillMaxWidth().clipToBounds()) {
+                Box(Modifier.fillMaxSize().graphicsLayer { translationX = offset.value }) { pageContent(activePage) }
+                val shift = offset.value
+                if (shift != 0f) {
+                    val dir = if (shift > 0f) 1 else -1
+                    val n = pages.indexOf(activePage) + dir
+                    if (n in pages.indices) {
+                        Box(Modifier.fillMaxSize().graphicsLayer { translationX = shift - dir * size.width }) { pageContent(pages[n]) }
                     }
                 }
             }
