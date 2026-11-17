@@ -1,7 +1,9 @@
 # Changelog
 
 ## 1.8.0
-- New: voice control. Mic button in the header; while on, the tablet listens (Android SpeechRecognizer, tr-TR, offline if the language pack is installed) for "hey krank <command>" and presses the matching buttons. Phrases come from the new optional `voice` list on each button in config.json (protocol: additive `voice` array in the layout). Voice commands skip the confirm prompt; the prompt stays for touch.
+- New: voice control. Mic button in the header; while on, the tablet listens (Android SpeechRecognizer, tr-TR) and presses the matching buttons. No wake word: a phrase must be (nearly) the whole utterance, with a small edit-distance tolerance for recognizer spelling. Phrases come from the new optional `voice` list on each button in config.json (protocol: additive `voice` array in the layout). Voice commands skip the confirm prompt; the prompt stays for touch.
+- Voice answers the in-game confirmation itself ("servise git" also sends Enter); windows are held 5 s so they travel fully; the recognizer beep is hidden by muting the media/notification/system streams while listening.
+- New buttons: park camera (page 1, key `\`), sun visor lower/raise (page 2, keys `;` and `'`), all with voice phrases; many more phrase variants per feature.
 - Requires the RECORD_AUDIO permission. Several buttons may share one phrase (e.g. "camları aç" opens both windows).
 
 ## 1.7.0
