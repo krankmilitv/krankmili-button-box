@@ -85,6 +85,8 @@ class ButtonBoxClient(private val scope: CoroutineScope) {
     private val _truck = MutableStateFlow<TruckStatus?>(null)
     val truck: StateFlow<TruckStatus?> = _truck.asStateFlow()
 
+    val rear = RearCam(scope)
+
     private var job: Job? = null
 
     @Volatile private var socket: Socket? = null
@@ -121,6 +123,7 @@ class ButtonBoxClient(private val scope: CoroutineScope) {
         outgoing = null
         _state.value = ConnectionState.Disconnected
         _truck.value = null
+        rear.hide()
     }
 
     fun press(id: String) = send("press", id)
@@ -192,6 +195,7 @@ class ButtonBoxClient(private val scope: CoroutineScope) {
                                 destination = msg.optString("dest"),
                                 routeKm = msg.optDouble("routeKm", 0.0).toFloat(),
                             )
+                            "rear" -> if (msg.optBoolean("on")) rear.show(host, msg.optInt("port", 5556), token) else rear.hide()
                             "error" -> throw IOException(msg.optString("msg", "sunucu hatası"))
                             // "pong": nothing to do, receiving it resets the read timeout
                         }

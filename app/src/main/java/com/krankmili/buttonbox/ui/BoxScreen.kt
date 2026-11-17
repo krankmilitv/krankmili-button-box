@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
@@ -77,7 +78,41 @@ fun BoxScreen(
     onDisconnect: () -> Unit,
     onPress: (String) -> Unit,
     onRelease: (String) -> Unit,
+    rearOn: Boolean = false,
+    rearFrame: android.graphics.Bitmap? = null,
 ) {
+    if (rearOn) {
+        // Reverse camera: full-screen window that the PC opens/closes by itself (or via the "Göster/Gizle" key).
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { onPress("rear_hide") },
+            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false),
+        ) {
+            Box(Modifier.fillMaxSize().background(Color.Black).clickable { onPress("rear_hide") }) {
+                if (rearFrame != null) {
+                    androidx.compose.foundation.Image(
+                        bitmap = rearFrame.asImageBitmap(),
+                        contentDescription = "Geri kamera",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+                    )
+                } else {
+                    Text("Görüntü bekleniyor…", color = Palette.Muted, modifier = Modifier.align(Alignment.Center))
+                }
+                Text(
+                    "GERİ KAMERA",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.TopStart).padding(16.dp)
+                        .background(Color(0xCCB3261E), RoundedCornerShape(8.dp)).padding(horizontal = 12.dp, vertical = 6.dp),
+                )
+                Text(
+                    "Kapatmak için dokun",
+                    color = Palette.Muted,
+                    modifier = Modifier.align(Alignment.BottomCenter).padding(12.dp),
+                )
+            }
+        }
+    }
     val pages = allGroups.map { it.page }.distinct().sorted()
     var page by remember { mutableStateOf(1) }
     val activePage = if (page in pages) page else pages.firstOrNull() ?: 1

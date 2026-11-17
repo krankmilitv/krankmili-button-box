@@ -121,6 +121,8 @@ private fun AppRoot(
     val state by vm.state.collectAsState()
     val layout by vm.layout.collectAsState()
     val truck by vm.truck.collectAsState()
+    val rearOn by vm.rearOn.collectAsState()
+    val rearFrame by vm.rearFrame.collectAsState()
 
     var host by remember { mutableStateOf(initialHost) }
     var port by remember { mutableStateOf(initialPort) }
@@ -163,6 +165,8 @@ private fun AppRoot(
             onDisconnect = vm::disconnect,
             onPress = vm::press,
             onRelease = vm::release,
+            rearOn = rearOn,
+            rearFrame = rearFrame,
         )
     } else {
         ConnectScreen(
