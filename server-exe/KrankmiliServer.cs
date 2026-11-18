@@ -24,7 +24,11 @@ using System.Web.Script.Serialization;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
+#if VOICEPC
+[assembly: AssemblyTitle("Krankmili Sesli Komut (PC)")]
+#else
 [assembly: AssemblyTitle("Krankmili Button Box Server")]
+#endif
 [assembly: AssemblyDescription("Tray server that receives button presses from the Krankmili & O.K Button Box Android app and sends them to Euro Truck Simulator 2.")]
 [assembly: AssemblyCompany("Krankmili TV")]
 [assembly: AssemblyProduct("Krankmili Button Box")]
@@ -41,7 +45,11 @@ namespace Krankmili
         public const int HelloTimeoutMs = 5000;
         public const int DiscoveryPort = 48765;
         public const string DiscoveryQuery = "KRANKMILI_BB_DISCOVER";
+#if VOICEPC
+        public const string AppName = "Krankmili Sesli Komut (PC)";
+#else
         public const string AppName = "Krankmili Button Box";
+#endif
         public const string Version = "1.8.0";
         public const string UpdateSource = "https://raw.githubusercontent.com/krankmilitv/krankmili-button-box/main/version.json";
     }
@@ -808,6 +816,7 @@ namespace Krankmili
     }
 
     // ---------------------------------------------------------------- tray app
+#if VOICEPC
     // PC microphone voice control. A small page on http://localhost:<port+1>/ transcribes speech in Edge/Chrome
     // (Web Speech API, tr-TR) and posts the text here; phrase matching and key presses happen in the server,
     // with the same rules as the Android app (near-exact phrase, 5 s window holds, "biraz", service auto-confirm).
@@ -1011,6 +1020,8 @@ namespace Krankmili
         }
     }
 
+#endif
+
     static class Program
     {
         static NotifyIcon tray; static Server server; static string dir;
@@ -1064,9 +1075,17 @@ namespace Krankmili
         static void Main(string[] args)
         {
             dir = AppDomain.CurrentDomain.BaseDirectory;
+            #if VOICEPC
+            Log.Path = Path.Combine(dir, "krankmili-voice.log");
+#else
             Log.Path = Path.Combine(dir, "krankmili-server.log");
+#endif
             bool created;
+            #if VOICEPC
+            Mutex mutex = new Mutex(true, "Krankmili.ButtonBox.Voice", out created);
+#else
             Mutex mutex = new Mutex(true, "Krankmili.ButtonBox.Server", out created);
+#endif
             Application.EnableVisualStyles();
             if (!created) { MessageBox.Show("Server zaten çalışıyor (sağ alttaki tray ikonuna bak).", Const.AppName); return; }
 
@@ -1084,15 +1103,22 @@ namespace Krankmili
             KeyState keys = new KeyState();
             foreach (string a in args) if (a == "--dry-run") keys.DryRun = true;
             server = new Server(cfg, keys);
+#if !VOICEPC
             try { server.Start(); }
             catch (Exception ex)
             {
                 MessageBox.Show("Port " + cfg.Port + " açılamadı (başka program kullanıyor olabilir):\n" + ex.Message, Const.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
+#else
+            // PC-only voice edition: no network listener at all, only the localhost voice page.
             VoiceBridge voice = new VoiceBridge(cfg, new Session(cfg, keys));
-            voice.Start();
+            if (!voice.Start())
+            {
+                MessageBox.Show("Sesli komut sayfası açılamadı (port " + voice.Port + " başka program tarafından kullanılıyor olabilir).", Const.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+#endif
 
             Telemetry.PluginInstalled = PluginInstaller.IsInstalled();
             Thread tt = new Thread(Telemetry.Loop); tt.IsBackground = true; tt.Start();
@@ -1107,12 +1133,20 @@ namespace Krankmili
             tray.Visible = true;
             Action refreshText = delegate
             {
+#if VOICEPC
+                string t = Const.AppName + " — localhost:" + voice.Port;
+#else
                 string t = Const.AppName + " — " + server.Clients + " tablet bağlı";
+#endif
                 tray.Text = t.Length > 63 ? t.Substring(0, 63) : t;
             };
             ContextMenuStrip menu = new ContextMenuStrip();
             bool ipHidden = false;
+#if VOICEPC
+            Func<string> ipLine = delegate { return "Sesli komut sayfası: localhost:" + voice.Port; };
+#else
             Func<string> ipLine = delegate { return ipHidden ? "IP: •••.•••.•••.•••   Port: •••• (gizli)" : "IP: " + ipText + "   Port: " + cfg.Port; };
+#endif
             ToolStripItem info = menu.Items.Add(ipLine()); info.Enabled = false;
             // Eye toggle: hides the address in the menu, the double-click balloon and the log-free UI (stream-safe).
             ToolStripMenuItem eye = new ToolStripMenuItem("\uD83D\uDC41  IP'yi göster / gizle");
@@ -1141,12 +1175,15 @@ namespace Krankmili
                     }
                     catch (Exception ex) { Log.Info("elevation cancelled: {0}", ex.Message); }
                 });
-            menu.Items.Add("Sesli komut sayfasını aç (PC mikrofonu)", null, delegate
+#if VOICEPC
+            Action openVoice = delegate
             {
                 string url = "http://localhost:" + voice.Port + "/";
                 try { Process.Start("msedge.exe", url); }
                 catch (Exception) { try { Process.Start(url); } catch (Exception ex2) { Log.Info("could not open voice page: {0}", ex2.Message); } }
-            });
+            };
+            menu.Items.Add("Sesli komut sayfasını aç", null, delegate { openVoice(); });
+#endif
             menu.Items.Add("Tanılama (tuşlar neden çalışmıyor?)", null, delegate { MessageBox.Show(Diag.Report(cfg, server.Clients), Const.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information); });
             menu.Items.Add("Ayarları varsayılana sıfırla (yedek alır, kapanır)", null, delegate
             {
@@ -1199,7 +1236,14 @@ namespace Krankmili
                 });
                 ut.IsBackground = true; ut.Start();
             }
-            menu.Items.Add("Çıkış", null, delegate { tray.Visible = false; server.Stop(); voice.Stop(); Application.Exit(); });
+            menu.Items.Add("Çıkış", null, delegate
+            {
+                tray.Visible = false; server.Stop();
+#if VOICEPC
+                voice.Stop();
+#endif
+                Application.Exit();
+            });
             tray.ContextMenuStrip = menu;
             tray.DoubleClick += delegate { tray.ShowBalloonTip(5000, Const.AppName, ipHidden ? "IP gizli (menüden göster)" : "IP: " + ipText + "  Port: " + cfg.Port, ToolTipIcon.Info); };
 
@@ -1227,7 +1271,12 @@ namespace Krankmili
                 once.Start();
             }
 
+#if VOICEPC
+            tray.ShowBalloonTip(6000, Const.AppName, "Sesli komut sayfası tarayıcıda açılıyor. Sayfada 'Dinlemeyi başlat'a bas ve mikrofon izni ver.", ToolTipIcon.Info);
+            openVoice();
+#else
             tray.ShowBalloonTip(6000, Const.AppName, "Server çalışıyor. Tabletten 'PC'yi otomatik bul'a bas.\nIP: " + ipText + "  Port: " + cfg.Port, ToolTipIcon.Info);
+#endif
             Application.Run();
             tray.Dispose();
             GC.KeepAlive(mutex);
