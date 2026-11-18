@@ -989,8 +989,11 @@ namespace Krankmili
             if (rq.HttpMethod == "GET" && (path == "/" || path == "/ses"))
             {
                 string html;
-                using (Stream st = Assembly.GetExecutingAssembly().GetManifestResourceStream("voice.html"))
-                using (StreamReader r = new StreamReader(st, Encoding.UTF8)) html = r.ReadToEnd();
+                string custom = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "voice.html");   // optional override next to the exe
+                if (File.Exists(custom)) html = File.ReadAllText(custom, Encoding.UTF8);
+                else
+                    using (Stream st = Assembly.GetExecutingAssembly().GetManifestResourceStream("voice.html"))
+                    using (StreamReader r = new StreamReader(st, Encoding.UTF8)) html = r.ReadToEnd();
                 Reply(rs, 200, "text/html; charset=utf-8", html.Replace("__TOKEN__", token).Replace("__COUNT__", phrases.Count.ToString()));
                 return;
             }

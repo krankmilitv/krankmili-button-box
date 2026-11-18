@@ -27,12 +27,14 @@
   <button id="btn">Dinlemeyi başlat</button>
   <div id="state">Hazır</div>
   <div id="last"></div>
+  <div id="interim" style="color:#7e8a9b;min-height:22px;font-size:15px;margin-bottom:10px"></div>
   <div id="log"></div>
   <div class="warn" id="warn">Bu tarayıcı konuşma tanımayı desteklemiyor. Sayfayı Microsoft Edge veya Google Chrome ile aç.</div>
   <ul>
     <li>Bu sayfa açık kalmalı (küçültebilirsin, kapatma). Oyun açıkken de dinlemeye devam eder.</li>
     <li>Tanıma tarayıcının çevrimiçi Türkçe konuşma servisiyle yapılır, internet gerekir.</li>
     <li>İlk seferde tarayıcı mikrofon izni ister; "İzin ver" de.</li>
+    <li>Edge hiç metin üretmiyorsa: Windows Ayarlar → Gizlilik → Konuşma → "Çevrimiçi konuşma tanıma"yı aç, ya da sayfayı Chrome'da aç.</li>
   </ul>
 </div>
 <script>
@@ -40,7 +42,7 @@
   var TOKEN = "__TOKEN__";
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   var btn = document.getElementById("btn"), st = document.getElementById("state"),
-      last = document.getElementById("last"), log = document.getElementById("log");
+      last = document.getElementById("last"), interim = document.getElementById("interim"), log = document.getElementById("log");
   var rec = null, on = false, lines = [];
   if (!SR) { document.getElementById("warn").style.display = "block"; btn.disabled = true; return; }
 
@@ -60,19 +62,26 @@
   }
   function start() {
     rec = new SR();
-    rec.lang = "tr-TR"; rec.continuous = true; rec.interimResults = false; rec.maxAlternatives = 5;
-    rec.onstart = function () { st.textContent = "Dinliyor…"; };
+    rec.lang = "tr-TR"; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 5;
+    rec.onstart = function () { st.textContent = "Dinliyor… (konuş)"; };
+    rec.onaudiostart = function () { st.textContent = "Mikrofon açık, dinliyor…"; };
+    rec.onspeechstart = function () { st.textContent = "Ses algılandı…"; };
+    rec.onspeechend = function () { st.textContent = "Dinliyor…"; };
+    rec.onnomatch = function () { addLog("no", "anlaşılamadı"); };
     rec.onresult = function (e) {
       for (var i = e.resultIndex; i < e.results.length; i++) {
-        if (!e.results[i].isFinal) continue;
+        var res = e.results[i];
+        if (!res.isFinal) { if (res[0] && res[0].transcript) interim.textContent = res[0].transcript; continue; }
+        interim.textContent = "";
         var alts = [];
-        for (var k = 0; k < e.results[i].length; k++) alts.push(e.results[i][k].transcript);
-        if (alts.length) send(alts);
+        for (var k = 0; k < res.length; k++) if (res[k].transcript && res[k].transcript.trim()) alts.push(res[k].transcript.trim());
+        if (alts.length) send(alts); else addLog("no", "boş sonuç (tarayıcı metin üretmedi)");
       }
     };
     rec.onerror = function (e) {
       if (e.error === "not-allowed" || e.error === "service-not-allowed") { on = false; setBtn(); st.textContent = "Mikrofon izni verilmedi (adres çubuğundaki kilit simgesinden izin ver)."; }
-      else if (e.error !== "no-speech" && e.error !== "aborted") st.textContent = "Hata: " + e.error;
+      else if (e.error === "network") { st.textContent = "Hata: konuşma servisine ulaşılamadı (internet / Windows 'Çevrimiçi konuşma tanıma' ayarı)."; addLog("no", "hata: network"); }
+      else if (e.error !== "no-speech" && e.error !== "aborted") { st.textContent = "Hata: " + e.error; addLog("no", "hata: " + e.error); }
     };
     rec.onend = function () { if (on) setTimeout(function () { try { rec.start(); } catch (x) {} }, 250); else st.textContent = "Durdu"; };
     try { rec.start(); } catch (x) {}
