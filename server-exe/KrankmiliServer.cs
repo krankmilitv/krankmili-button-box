@@ -15,7 +15,9 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography;
 using System.Security.Principal;
+using System.Text.RegularExpressions;
 using System.Text;
 using System.Threading;
 using System.Web.Script.Serialization;
@@ -806,6 +808,209 @@ namespace Krankmili
     }
 
     // ---------------------------------------------------------------- tray app
+    // PC microphone voice control. A small page on http://localhost:<port+1>/ transcribes speech in Edge/Chrome
+    // (Web Speech API, tr-TR) and posts the text here; phrase matching and key presses happen in the server,
+    // with the same rules as the Android app (near-exact phrase, 5 s window holds, "biraz", service auto-confirm).
+    class VoiceBridge
+    {
+        readonly Config cfg; readonly Session session; readonly string token;
+        readonly Dictionary<string, List<string>> phrases = new Dictionary<string, List<string>>();
+        readonly Dictionary<string, int> gen = new Dictionary<string, int>();
+        readonly HashSet<string> active = new HashSet<string>();
+        readonly object gate = new object();
+        HttpListener http;
+        public int Port;
+        static readonly Regex Wake = new Regex("^(?:hey|hay|ay|ey)\\s*(?:krank|crank|kronk|krenk|kreyk|kranc|krunk|kraynk|kreng|cronk|kranch)\\s*(.*)$");
+
+        public VoiceBridge(Config c, Session s)
+        {
+            cfg = c; session = s; Port = c.Port + 1;
+            byte[] rnd = new byte[16];
+            using (RandomNumberGenerator g = RandomNumberGenerator.Create()) g.GetBytes(rnd);
+            token = BitConverter.ToString(rnd).Replace("-", "");
+            foreach (Btn b in c.Buttons.Values)
+                foreach (string v in b.Voice)
+                {
+                    string key = Norm(v);
+                    if (key.Length == 0) continue;
+                    List<string> ids;
+                    if (!phrases.TryGetValue(key, out ids)) { ids = new List<string>(); phrases[key] = ids; }
+                    if (!ids.Contains(b.Id)) ids.Add(b.Id);
+                }
+        }
+
+        // Turkish letters folded to ASCII so "camı aç" and "cami ac" compare equal.
+        public static string Norm(string s)
+        {
+            var sb = new StringBuilder();
+            foreach (char c0 in s.ToLower(new CultureInfo("tr-TR")))
+            {
+                char c = c0;
+                switch (c)
+                {
+                    case 'ç': c = 'c'; break; case 'ğ': c = 'g'; break; case 'ı': c = 'i'; break;
+                    case 'ö': c = 'o'; break; case 'ş': c = 's'; break; case 'ü': c = 'u'; break; case 'â': c = 'a'; break;
+                }
+                sb.Append(char.IsLetterOrDigit(c) ? c : ' ');
+            }
+            return Regex.Replace(sb.ToString().Trim(), "\\s+", " ");
+        }
+
+        static int Edit(string a, string b)
+        {
+            int[] prev = new int[b.Length + 1];
+            for (int j = 0; j <= b.Length; j++) prev[j] = j;
+            for (int i = 1; i <= a.Length; i++)
+            {
+                int[] cur = new int[b.Length + 1];
+                cur[0] = i;
+                for (int j = 1; j <= b.Length; j++)
+                    cur[j] = Math.Min(Math.Min(prev[j] + 1, cur[j - 1] + 1), prev[j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1));
+                prev = cur;
+            }
+            return prev[b.Length];
+        }
+
+        // Returns the matched phrase key, or null. A phrase only counts when it is (nearly) the whole utterance.
+        string FindPhrase(List<string> alts)
+        {
+            foreach (string alt in alts)
+            {
+                string n = Norm(alt);
+                if (n.Length == 0) continue;
+                System.Text.RegularExpressions.Match m = Wake.Match(n);
+                string cmd = m.Success ? m.Groups[1].Value.Trim() : n;
+                if (cmd.Length == 0) continue;
+                if (phrases.ContainsKey(cmd)) return cmd;
+                string near = null; int nearCount = 0;
+                foreach (string key in phrases.Keys)
+                    if (key.Length >= 8 && Math.Abs(key.Length - cmd.Length) <= 2 && Edit(key, cmd) <= (key.Length >= 16 ? 2 : 1)) { near = key; nearCount++; }
+                if (nearCount == 1) return near;
+                int words = cmd.Split(' ').Length;
+                string hit = null;
+                foreach (string key in phrases.Keys)
+                    if (key.Length >= 4 && cmd.Contains(key) && words <= key.Split(' ').Length + 2 && (hit == null || key.Length > hit.Length)) hit = key;
+                if (hit != null) return hit;
+            }
+            return null;
+        }
+
+        int Gen(string id) { int g; return gen.TryGetValue(id, out g) ? g : 0; }
+
+        void Fire(string id, string phrase)
+        {
+            Btn b;
+            if (!cfg.Buttons.TryGetValue(id, out b)) return;
+            bool hold = b.Mode == "hold";
+            // Windows need the key held for their whole travel; "biraz" holds about 20% of it.
+            int holdMs = hold ? (id.StartsWith("window_") ? (phrase.Contains("biraz") ? 1000 : 5000) : 1500) : 80;
+            string opposite = null;
+            if (id.StartsWith("window_"))
+            {
+                if (id.EndsWith("_up")) opposite = id.Substring(0, id.Length - 3) + "_down";
+                else if (id.EndsWith("_down")) opposite = id.Substring(0, id.Length - 5) + "_up";
+            }
+            int my; bool wasRunning;
+            lock (gate)
+            {
+                if (opposite != null && active.Remove(opposite)) { gen[opposite] = Gen(opposite) + 1; session.Release(opposite); }
+                wasRunning = active.Contains(id);
+                my = Gen(id) + 1; gen[id] = my; active.Add(id);
+            }
+            // Voice answers the in-game confirmation itself (e.g. "servise git" -> Enter).
+            if (!string.IsNullOrEmpty(b.PromptYes))
+            {
+                string yes = b.PromptYes;
+                ThreadPool.QueueUserWorkItem(delegate { Thread.Sleep(1500); session.Press(yes); Thread.Sleep(80); session.Release(yes); });
+            }
+            ThreadPool.QueueUserWorkItem(delegate
+            {
+                if (!wasRunning) session.Press(id);
+                Thread.Sleep(holdMs);
+                lock (gate) { if (Gen(id) == my) { active.Remove(id); session.Release(id); } }
+            });
+        }
+
+        public bool Start()
+        {
+            try
+            {
+                http = new HttpListener();
+                http.Prefixes.Add("http://localhost:" + Port + "/");
+                http.Start();
+            }
+            catch (Exception ex) { Log.Info("voice page disabled: {0}", ex.Message); http = null; return false; }
+            Thread t = new Thread(Loop); t.IsBackground = true; t.Start();
+            Log.Info("voice page: http://localhost:{0}/ ({1} phrases)", Port, phrases.Count);
+            return true;
+        }
+
+        public void Stop() { try { if (http != null) http.Stop(); } catch (Exception) { } }
+
+        void Loop()
+        {
+            while (true)
+            {
+                HttpListenerContext ctx;
+                try { ctx = http.GetContext(); } catch (Exception) { return; }
+                ThreadPool.QueueUserWorkItem(delegate
+                {
+                    try { Handle(ctx); }
+                    catch (Exception ex) { Log.Info("voice page request failed: {0}", ex.Message); try { ctx.Response.Abort(); } catch (Exception) { } }
+                });
+            }
+        }
+
+        static void Reply(HttpListenerResponse rs, int code, string type, string body)
+        {
+            byte[] data = Encoding.UTF8.GetBytes(body);
+            rs.StatusCode = code; rs.ContentType = type; rs.ContentLength64 = data.Length;
+            rs.Headers["Cache-Control"] = "no-store";
+            rs.OutputStream.Write(data, 0, data.Length);
+            rs.OutputStream.Close();
+        }
+
+        void Handle(HttpListenerContext ctx)
+        {
+            HttpListenerRequest rq = ctx.Request; HttpListenerResponse rs = ctx.Response;
+            // Only this machine, and only under the names we listen on (blocks DNS-rebinding from web pages).
+            string host = rq.Headers["Host"] ?? "";
+            if (host != "localhost:" + Port && host != "127.0.0.1:" + Port) { Reply(rs, 403, "text/plain", "forbidden"); return; }
+            string path = rq.Url.AbsolutePath;
+            if (rq.HttpMethod == "GET" && (path == "/" || path == "/ses"))
+            {
+                string html;
+                using (Stream st = Assembly.GetExecutingAssembly().GetManifestResourceStream("voice.html"))
+                using (StreamReader r = new StreamReader(st, Encoding.UTF8)) html = r.ReadToEnd();
+                Reply(rs, 200, "text/html; charset=utf-8", html.Replace("__TOKEN__", token).Replace("__COUNT__", phrases.Count.ToString()));
+                return;
+            }
+            if (rq.HttpMethod == "POST" && path == "/say")
+            {
+                // A custom header cannot be sent cross-origin without a preflight we never answer.
+                if (rq.Headers["X-Token"] != token || rq.ContentLength64 > 8192) { Reply(rs, 403, "text/plain", "forbidden"); return; }
+                string body;
+                using (StreamReader r = new StreamReader(rq.InputStream, Encoding.UTF8)) body = r.ReadToEnd();
+                var alts = new List<string>();
+                IDictionary d = new JavaScriptSerializer().DeserializeObject(body) as IDictionary;
+                if (d != null && d.Contains("alts") && d["alts"] is IEnumerable)
+                    foreach (object o in (IEnumerable)d["alts"]) alts.Add(Convert.ToString(o, CultureInfo.InvariantCulture));
+                string phrase = FindPhrase(alts);
+                var res = new Dictionary<string, object>();
+                if (phrase != null)
+                {
+                    Log.Info("voice (PC): '{0}' -> {1}", phrase, string.Join(",", phrases[phrase].ToArray()));
+                    foreach (string id in phrases[phrase]) Fire(id, phrase);
+                    res["ok"] = true; res["phrase"] = phrase;
+                }
+                else { res["ok"] = false; Log.Info("voice (PC): no match for '{0}'", alts.Count > 0 ? alts[0] : ""); }
+                Reply(rs, 200, "application/json", new JavaScriptSerializer().Serialize(res));
+                return;
+            }
+            Reply(rs, 404, "text/plain", "not found");
+        }
+    }
+
     static class Program
     {
         static NotifyIcon tray; static Server server; static string dir;
@@ -886,6 +1091,9 @@ namespace Krankmili
                 return;
             }
 
+            VoiceBridge voice = new VoiceBridge(cfg, new Session(cfg, keys));
+            voice.Start();
+
             Telemetry.PluginInstalled = PluginInstaller.IsInstalled();
             Thread tt = new Thread(Telemetry.Loop); tt.IsBackground = true; tt.Start();
 
@@ -933,6 +1141,12 @@ namespace Krankmili
                     }
                     catch (Exception ex) { Log.Info("elevation cancelled: {0}", ex.Message); }
                 });
+            menu.Items.Add("Sesli komut sayfasını aç (PC mikrofonu)", null, delegate
+            {
+                string url = "http://localhost:" + voice.Port + "/";
+                try { Process.Start("msedge.exe", url); }
+                catch (Exception) { try { Process.Start(url); } catch (Exception ex2) { Log.Info("could not open voice page: {0}", ex2.Message); } }
+            });
             menu.Items.Add("Tanılama (tuşlar neden çalışmıyor?)", null, delegate { MessageBox.Show(Diag.Report(cfg, server.Clients), Const.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information); });
             menu.Items.Add("Ayarları varsayılana sıfırla (yedek alır, kapanır)", null, delegate
             {
@@ -985,7 +1199,7 @@ namespace Krankmili
                 });
                 ut.IsBackground = true; ut.Start();
             }
-            menu.Items.Add("Çıkış", null, delegate { tray.Visible = false; server.Stop(); Application.Exit(); });
+            menu.Items.Add("Çıkış", null, delegate { tray.Visible = false; server.Stop(); voice.Stop(); Application.Exit(); });
             tray.ContextMenuStrip = menu;
             tray.DoubleClick += delegate { tray.ShowBalloonTip(5000, Const.AppName, ipHidden ? "IP gizli (menüden göster)" : "IP: " + ipText + "  Port: " + cfg.Port, ToolTipIcon.Info); };
 
