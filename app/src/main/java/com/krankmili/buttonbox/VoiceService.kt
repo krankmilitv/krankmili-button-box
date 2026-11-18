@@ -28,6 +28,15 @@ object VoiceHub {
 class VoiceService : Service() {
     private var voice: VoiceControl? = null
     private var wake: PowerManager.WakeLock? = null
+    private var lastHeard = ""
+    private var builder: Notification.Builder? = null
+
+    private fun notify(state: String) {
+        val b = builder ?: return
+        val text = if (lastHeard.isEmpty()) state else "$state · son: $lastHeard"
+        b.setContentText(text)
+        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(ID, b.build())
+    }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -44,7 +53,14 @@ class VoiceService : Service() {
         }
         startForegroundCompat()
         if (voice == null) {
-            voice = VoiceControl(this, { VoiceHub.onHeard?.invoke(it) }, { VoiceHub.onState?.invoke(it) })
+            voice = VoiceControl(this, { heard ->
+                lastHeard = heard.firstOrNull().orEmpty()
+                VoiceHub.onHeard?.invoke(heard)
+            }, { st ->
+                // Mirror the recognizer state into the notification so background behaviour is visible without the app open.
+                if (st.isNotEmpty()) notify(st)
+                VoiceHub.onState?.invoke(st)
+            })
             val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
             wake = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "krankmili:voice").apply { setReferenceCounted(false); acquire() }
             VoiceHub.running = true
@@ -66,14 +82,15 @@ class VoiceService : Service() {
             this, 1, Intent(this, VoiceService::class.java).setAction(ACTION_STOP),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
-        val n = Notification.Builder(this, CHANNEL)
+        val nb = Notification.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_launcher)
             .setContentTitle("Sesli komut dinliyor")
             .setContentText("\"Hey Krank …\" — durdurmak için dokun")
             .setContentIntent(open)
             .addAction(Notification.Action.Builder(null, "Durdur", stop).build())
             .setOngoing(true)
-            .build()
+        builder = nb
+        val n = nb.build()
         if (Build.VERSION.SDK_INT >= 29) {
             startForeground(ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE)
         } else {
