@@ -5,6 +5,7 @@
 - Voice answers the in-game confirmation itself ("servise git" also sends Enter); windows are held 5 s so they travel fully; the recognizer beep is hidden by muting the media/notification/system streams while listening.
 - New buttons: park camera (page 1, key `\`), sun visor lower/raise (page 2, keys `;` and `'`), all with voice phrases; many more phrase variants per feature.
 - Status panel: the cargo box alternates every 3 s between cargo (name, weight) and destination city with remaining km. Fixed the status panel disappearing when hidden buttons were filtered.
+- Voice: lights and wipers are state-aware. Hidden voice-only buttons tap the key until the telemetry state matches (`until` in config.json: state, value, max, wait_ms), so "kısaları aç" ends on low beam and "silecekleri kapat" ends with the wipers off across all stages. Without telemetry they tap once.
 - Requires the RECORD_AUDIO permission. Several buttons may share one phrase (e.g. "camları aç" opens both windows).
 
 ## 1.7.0
