@@ -29,23 +29,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import com.krankmili.buttonbox.data.ConnectionState
-import com.krankmili.buttonbox.data.VoiceControl
 import com.krankmili.buttonbox.ui.BoxScreen
 import com.krankmili.buttonbox.ui.ConnectScreen
 import com.krankmili.buttonbox.ui.Palette
 
 class MainActivity : ComponentActivity() {
 
-    // Voice control ("hey krank …"): listens only while the screen is in front and the mic button is on.
-    private var voiceControl: VoiceControl? = null
+    // Voice control ("hey krank …"): the recognizer lives in VoiceService so it keeps listening in the background.
     private var voiceOn by mutableStateOf(false)
-    private var resumed = false
     private lateinit var prefs: android.content.SharedPreferences
 
     private fun micGranted() = checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
 
     private fun applyVoice() {
-        if (voiceOn && resumed && micGranted()) voiceControl?.start() else voiceControl?.stop()
+        if (voiceOn && micGranted()) {
+            if (!VoiceHub.running) VoiceService.start(this)
+        } else {
+            VoiceService.stop(this)
+        }
     }
 
     private fun setVoice(on: Boolean) {
@@ -56,19 +57,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        resumed = true
-        applyVoice()
-    }
-
-    override fun onPause() {
-        resumed = false
-        voiceControl?.stop()
-        super.onPause()
-    }
-
-    override fun onDestroy() {
-        voiceControl?.stop()
-        super.onDestroy()
+        // The notification's "Durdur" button stops the service; keep the toggle in sync.
+        voiceOn = prefs.getBoolean("voice_on", false) && micGranted()
+        if (voiceOn && !VoiceHub.running) applyVoice()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,12 +87,18 @@ class MainActivity : ComponentActivity() {
             if (checkSelfPermission(perm) != PackageManager.PERMISSION_GRANTED) ask.launch(perm)
         }
         prefs = getSharedPreferences("buttonbox", Context.MODE_PRIVATE)
-        voiceControl = VoiceControl(this, { vm.onVoiceHeard(it) }, { vm.setVoiceState(it) })
         voiceOn = prefs.getBoolean("voice_on", false) && micGranted()
+        val askNotif = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
         val askMic = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) setVoice(true) else vm.setVoiceState("mikrofon izni yok")
         }
+        if (Build.VERSION.SDK_INT >= 33 && voiceOn &&
+            checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) askNotif.launch(android.Manifest.permission.POST_NOTIFICATIONS)
         val toggleVoice = {
+            if (Build.VERSION.SDK_INT >= 33 && !voiceOn &&
+                checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+            ) askNotif.launch(android.Manifest.permission.POST_NOTIFICATIONS)
             if (voiceOn) setVoice(false) else if (micGranted()) setVoice(true) else askMic.launch(android.Manifest.permission.RECORD_AUDIO)
         }
 

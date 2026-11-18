@@ -59,6 +59,14 @@ class ButtonBoxViewModel : ViewModel() {
 
     fun setVoiceState(text: String) { _voiceStatus.value = text }
 
+    // The recognizer runs in VoiceService; heard text arrives here through the hub.
+    private val heardHook: (List<String>) -> Unit = { onVoiceHeard(it) }
+    private val stateHook: (String) -> Unit = { setVoiceState(it) }
+    init {
+        VoiceHub.onHeard = heardHook
+        VoiceHub.onState = stateHook
+    }
+
     private val voiceJobs = HashMap<String, kotlinx.coroutines.Job>()
 
     fun onVoiceHeard(alternatives: List<String>) {
@@ -126,6 +134,8 @@ class ButtonBoxViewModel : ViewModel() {
     fun release(id: String) = client.release(id)
 
     override fun onCleared() {
+        if (VoiceHub.onHeard === heardHook) VoiceHub.onHeard = null
+        if (VoiceHub.onState === stateHook) VoiceHub.onState = null
         client.disconnect()
         scope.cancel()
     }
