@@ -401,7 +401,37 @@
             "wait_ms": 450
           },
           "voice": [
-            "park lambalarını aç"
+            "park lambalarını aç",
+            "parkları aç",
+            "parkları yak",
+            "parkları çalıştır",
+            "park lambalarını yak",
+            "park lambalarını çalıştır",
+            "park lambasını aç",
+            "park lambasını yak",
+            "park lambasını çalıştır",
+            "park lambaları aç",
+            "park lambaları yak",
+            "park lambaları çalıştır",
+            "park lambası aç",
+            "park lambası yak",
+            "park lambası çalıştır",
+            "park ışıklarını aç",
+            "park ışıklarını yak",
+            "park ışıklarını çalıştır",
+            "park ışığını aç",
+            "park ışığını yak",
+            "park ışığını çalıştır",
+            "park aç",
+            "park yak",
+            "park çalıştır",
+            "park farlarını aç",
+            "park farlarını yak",
+            "park farlarını çalıştır",
+            "park farını aç",
+            "park farını yak",
+            "park farını çalıştır",
+            "park lambası"
           ]
         },
         {
@@ -430,7 +460,26 @@
             "farları söndür",
             "far kapat",
             "far söndür",
-            "park lambalarını kapat"
+            "park lambalarını kapat",
+            "parkları kapat",
+            "parkları söndür",
+            "park lambalarını söndür",
+            "park lambasını kapat",
+            "park lambasını söndür",
+            "park lambaları kapat",
+            "park lambaları söndür",
+            "park lambası kapat",
+            "park lambası söndür",
+            "park ışıklarını kapat",
+            "park ışıklarını söndür",
+            "park ışığını kapat",
+            "park ışığını söndür",
+            "park kapat",
+            "park söndür",
+            "park farlarını kapat",
+            "park farlarını söndür",
+            "park farını kapat",
+            "park farını söndür"
           ]
         }
       ]
