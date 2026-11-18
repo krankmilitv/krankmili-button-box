@@ -275,37 +275,7 @@
           "icon": "headlight",
           "key": "l",
           "mode": "tap",
-          "span": 2,
-          "voice": [
-            "kısaları aç",
-            "kısaları yak",
-            "kısaları kapat",
-            "kısaları söndür",
-            "kısa farı aç",
-            "kısa farı yak",
-            "kısa farı kapat",
-            "kısa farı söndür",
-            "kısa farları aç",
-            "kısa farları yak",
-            "kısa farları kapat",
-            "kısa farları söndür",
-            "kısa far aç",
-            "kısa far yak",
-            "kısa far kapat",
-            "kısa far söndür",
-            "farları aç",
-            "farları yak",
-            "farları kapat",
-            "farları söndür",
-            "far aç",
-            "far yak",
-            "far kapat",
-            "far söndür",
-            "kısa far",
-            "park lambası",
-            "park lambalarını aç",
-            "park lambalarını kapat"
-          ]
+          "span": 2
         },
         {
           "id": "indicator_l",
@@ -386,6 +356,81 @@
             "park frenini çek",
             "park frenini bırak",
             "el freni"
+          ]
+        },
+        {
+          "id": "light_low_on",
+          "label": "Kısa far aç",
+          "icon": "headlight",
+          "key": "l",
+          "mode": "tap",
+          "hidden": true,
+          "until": {
+            "state": "beam_low",
+            "value": 1,
+            "max": 4,
+            "wait_ms": 450
+          },
+          "voice": [
+            "kısaları aç",
+            "kısaları yak",
+            "kısa farı aç",
+            "kısa farı yak",
+            "kısa farları aç",
+            "kısa farları yak",
+            "kısa far aç",
+            "kısa far yak",
+            "farları aç",
+            "farları yak",
+            "far aç",
+            "far yak",
+            "kısa far"
+          ]
+        },
+        {
+          "id": "light_park_on",
+          "label": "Park aç",
+          "icon": "headlight",
+          "key": "l",
+          "mode": "tap",
+          "hidden": true,
+          "until": {
+            "state": "parking",
+            "value": 1,
+            "max": 4,
+            "wait_ms": 450
+          },
+          "voice": [
+            "park lambalarını aç"
+          ]
+        },
+        {
+          "id": "light_all_off",
+          "label": "Farlar kapat",
+          "icon": "headlight",
+          "key": "l",
+          "mode": "tap",
+          "hidden": true,
+          "until": {
+            "state": "lights_off",
+            "value": 1,
+            "max": 4,
+            "wait_ms": 450
+          },
+          "voice": [
+            "kısaları kapat",
+            "kısaları söndür",
+            "kısa farı kapat",
+            "kısa farı söndür",
+            "kısa farları kapat",
+            "kısa farları söndür",
+            "kısa far kapat",
+            "kısa far söndür",
+            "farları kapat",
+            "farları söndür",
+            "far kapat",
+            "far söndür",
+            "park lambalarını kapat"
           ]
         }
       ]
@@ -878,21 +923,51 @@
           "sub": "P · modlar arası",
           "icon": "wiper",
           "key": "p",
+          "mode": "tap"
+        },
+        {
+          "id": "wipers_on",
+          "label": "Silecek aç",
+          "icon": "wiper",
+          "key": "p",
           "mode": "tap",
+          "hidden": true,
+          "until": {
+            "state": "wipers",
+            "value": 1,
+            "max": 6,
+            "wait_ms": 450
+          },
           "voice": [
             "silecekleri aç",
             "silecekleri çalıştır",
-            "silecekleri kapat",
-            "silecekleri durdur",
             "sileceği aç",
             "sileceği çalıştır",
-            "sileceği kapat",
-            "sileceği durdur",
             "silecek aç",
             "silecek çalıştır",
-            "silecek kapat",
-            "silecek durdur",
             "silecek"
+          ]
+        },
+        {
+          "id": "wipers_off",
+          "label": "Silecek kapat",
+          "icon": "wiper",
+          "key": "p",
+          "mode": "tap",
+          "hidden": true,
+          "until": {
+            "state": "wipers",
+            "value": 0,
+            "max": 6,
+            "wait_ms": 450
+          },
+          "voice": [
+            "silecekleri kapat",
+            "silecekleri durdur",
+            "sileceği kapat",
+            "sileceği durdur",
+            "silecek kapat",
+            "silecek durdur"
           ]
         }
       ]

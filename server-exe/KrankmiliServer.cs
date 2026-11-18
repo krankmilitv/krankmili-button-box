@@ -287,6 +287,7 @@ namespace Krankmili
     {
         public string Id, Label, Mode, Icon, Sub; public List<string> Keys; public List<string> Voice = new List<string>(); public int Span; public bool Accent, Hidden;   // Hidden: voice-only button (not drawn on the tablet)
         public List<List<string>> Steps; public int StepMs = 350;          // optional macro: key steps pressed one after another
+        public string UntilState; public int UntilValue = 1, UntilMax = 6;   // optional: tap the key until a telemetry state reaches the value (cycling switches)
         public string PromptText, PromptYes, PromptNo;                      // optional on-tablet confirm dialog shown after the press
     }
     class Grp
@@ -339,6 +340,12 @@ namespace Krankmili
                                 else btn.Keys = KeyTable.Parse(S(b, "key", ""));
                             }
                             catch (Exception ex) { throw new Exception("button '" + btn.Id + "': " + ex.Message); }
+                            if (b.Contains("until") && b["until"] is IDictionary)
+                            {
+                                IDictionary u = (IDictionary)b["until"];
+                                btn.UntilState = S(u, "state", ""); btn.UntilValue = I(u, "value", 1); btn.UntilMax = I(u, "max", 6);
+                                btn.StepMs = I(u, "wait_ms", 450);
+                            }
                             if (b.Contains("prompt") && b["prompt"] is IDictionary)
                             {
                                 IDictionary pr = (IDictionary)b["prompt"];
@@ -399,7 +406,22 @@ namespace Krankmili
         {
             Btn b;
             if (!cfg.Buttons.TryGetValue(id, out b)) { Log.Info("press for unknown button '{0}'", id); return; }
-            if (b.Steps != null)
+            if (b.UntilState != null)
+            {
+                ThreadPool.QueueUserWorkItem(delegate
+                {
+                    for (int n = 0; n < b.UntilMax; n++)
+                    {
+                        int st = Telemetry.State(b.UntilState);
+                        if (st == b.UntilValue) return;            // already there
+                        if (st < 0 && n > 0) return;               // state unknown: act like a plain tap, once
+                        DownAll(b);
+                        try { Thread.Sleep(cfg.TapMs); } finally { UpAll(b); }
+                        Thread.Sleep(b.StepMs);
+                    }
+                });
+            }
+            else if (b.Steps != null)
             {
                 ThreadPool.QueueUserWorkItem(delegate
                 {
@@ -594,6 +616,30 @@ namespace Krankmili
             a.ReadArray(off, b, 0, len);
             int n = Array.IndexOf(b, (byte)0); if (n < 0) n = len;
             return Encoding.UTF8.GetString(b, 0, n);
+        }
+
+        // Reads one boolean game state straight from the telemetry map: 1 / 0, or -1 when unknown (game closed, no plugin).
+        // Offsets found by logging bool-zone changes in game: wipers, lightsParking, lightsBeamLow, lightsBeamHigh.
+        public static int State(string name)
+        {
+            try
+            {
+                using (MemoryMappedFile mmf = MemoryMappedFile.OpenExisting(MapName, MemoryMappedFileRights.Read))
+                using (MemoryMappedViewAccessor a = mmf.CreateViewAccessor(0, 8192, MemoryMappedFileAccess.Read))
+                {
+                    if (!a.ReadBoolean(0)) return -1;
+                    switch (name)
+                    {
+                        case "wipers": return a.ReadBoolean(1577) ? 1 : 0;
+                        case "parking": return a.ReadBoolean(1582) ? 1 : 0;
+                        case "beam_low": return a.ReadBoolean(1583) ? 1 : 0;
+                        case "beam_high": return a.ReadBoolean(1584) ? 1 : 0;
+                        case "lights_off": return (!a.ReadBoolean(1582) && !a.ReadBoolean(1583)) ? 1 : 0;
+                    }
+                }
+            }
+            catch (Exception) { }
+            return -1;
         }
 
         public static string Snapshot()
