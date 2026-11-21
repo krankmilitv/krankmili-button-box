@@ -207,7 +207,7 @@ class ButtonBoxClient(private val scope: CoroutineScope) {
                                 cargo = msg.optString("cargo"),
                                 cargoKg = msg.optDouble("cargoKg", 0.0).toFloat(),
                                 destination = msg.optString("dest"),
-                                routeKm = msg.optDouble("routeKm", 0.0).toFloat(),
+                                routeKm = (msg.optDouble("routeKm", 0.0) / 1000.0).toFloat(),   // server sends meters
                                 states = msg.optJSONObject("states")?.let { o -> o.keys().asSequence().associateWith { k -> o.optInt(k) } } ?: emptyMap(),
                             )
                             "error" -> throw IOException(msg.optString("msg", "sunucu hatası"))

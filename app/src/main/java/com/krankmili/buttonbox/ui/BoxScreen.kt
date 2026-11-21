@@ -700,7 +700,7 @@ private fun StatusPanel(t: TruckStatus?, compact: Boolean, modifier: Modifier = 
             val routeShown = hasRoute && showRoute && t != null
             Text(if (routeShown) "VARIŞ" else "YÜK", color = Palette.Muted, fontSize = 13.sp, letterSpacing = 2.sp)
             Text(
-                if (routeShown && t != null) "${t.destination} · ${(t.routeKm / 1000f).toInt()} km kaldı" else cargoText,
+                if (routeShown && t != null) "${t.destination} · ${t.routeKm.toInt()} km kaldı" else cargoText,
                 color = Palette.Text,
                 fontSize = if (compact) 15.sp else 20.sp,
                 fontWeight = FontWeight.SemiBold,

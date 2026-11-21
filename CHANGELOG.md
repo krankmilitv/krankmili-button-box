@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.2
+- Fix: the route distance arrives from the server in meters; spoken info said e.g. "500000 kilometre". It is now converted to km once when the status is parsed (on-screen text unchanged).
+
 ## 1.9.1
 - New: `KrankmiliKontrolKurulum.exe` adds the button box keys to the game's `controls.sii` (ETS2 `profiles` and `steam_profiles`; ATS with `--ats`). Only adds `| keyboard.X?0` alternatives to the matching game actions, backs up each file first, refuses to run while the game is open, `--dry` previews, `--geri-al` restores the newest backup.
 - Changed: sun visor keys are now F8 / Shift+F8 / Ctrl+F8 / Alt+F8 (the old `;` `'` collided with the retarder defaults). Park camera uses V (the game default).
