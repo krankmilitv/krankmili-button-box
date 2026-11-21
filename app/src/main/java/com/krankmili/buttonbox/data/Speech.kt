@@ -43,9 +43,11 @@ object Speaker {
         prefs = p
         mode = p.getString("tts_mode", "female") ?: "female"
         autoInfo = p.getBoolean("auto_info", true)
-        tts = TextToSpeech(ctx.applicationContext) { status ->
+        val google = "com.google.android.tts"
+        val hasGoogle = try { ctx.packageManager.getPackageInfo(google, 0); true } catch (_: Exception) { false }
+        val onInit = TextToSpeech.OnInitListener { status ->
             val t = tts
-            if (status != TextToSpeech.SUCCESS || t == null) return@TextToSpeech
+            if (status != TextToSpeech.SUCCESS || t == null) return@OnInitListener
             t.language = Locale("tr", "TR")
             t.setAudioAttributes(
                 AudioAttributes.Builder()
@@ -62,6 +64,8 @@ object Speaker {
             applyVoice()
             while (pending.isNotEmpty()) speakNow(pending.removeFirst())
         }
+        // Google's engine carries the same voices as Google Maps navigation; use it when installed.
+        tts = if (hasGoogle) TextToSpeech(ctx.applicationContext, onInit, google) else TextToSpeech(ctx.applicationContext, onInit)
     }
 
     /** True while speaking and shortly after, so the recognizer does not hear (and obey) the tablet itself. */
@@ -79,15 +83,16 @@ object Speaker {
     private fun applyVoice() {
         val t = tts ?: return
         if (!ready) return
-        val tr = try { t.voices?.filter { it.locale.language == "tr" && !it.isNetworkConnectionRequired }?.sortedBy { it.name } } catch (_: Exception) { null }
-            ?: emptyList()
-        val all = if (tr.isNotEmpty()) tr else try { t.voices?.filter { it.locale.language == "tr" }?.sortedBy { it.name } } catch (_: Exception) { null } ?: emptyList()
+        val all = try {
+            t.voices?.filter { it.locale.language == "tr" && !it.features.contains("notInstalled") }
+                ?.sortedWith(compareByDescending<android.speech.tts.Voice> { it.quality }.thenBy { it.name })
+        } catch (_: Exception) { null } ?: emptyList()
         if (all.isNotEmpty()) {
-            val v = if (mode == "male" && all.size > 1) all.last() else all.first()
+            val v = if (mode == "male" && all.size > 1) all[1] else all.first()
             try { t.voice = v } catch (_: Exception) {}
         }
         val single = all.size <= 1
-        t.setPitch(if (mode == "male") (if (single) 0.75f else 0.9f) else 1.05f)
+        t.setPitch(if (mode == "male") (if (single) 0.8f else 0.92f) else 1.0f)
         t.setSpeechRate(1.0f)
     }
 
@@ -122,6 +127,7 @@ object Speaker {
 /** Watches the truck status and speaks warnings once per threshold crossing (fuel, damage, arrival). */
 class TruckAlerts {
     private var init = false
+    private var fuel30 = false
     private var fuel15 = false
     private var fuel7 = false
     private val bands = IntArray(4)
@@ -131,6 +137,7 @@ class TruckAlerts {
     // then every 100 km of route is reported. Speeds feed a rough ETA and a "traffic is slow" guess.
     private var tripKey = ""
     private var startPending = false
+    private var briefPending = false   // once per connection: say cargo, destination and distance when the truck first moves
     private var lastMarkKm = 0f
     private var prevWear = 0f
     private var avgSpeed = 0f          // slow average of moving speed (km/h)
@@ -152,6 +159,16 @@ class TruckAlerts {
             fastSpeed = if (fastSpeed == 0f) t.speedKmh else fastSpeed + (t.speedKmh - fastSpeed) * 0.05f
         } else if (t.speedKmh < 3f) {
             fastSpeed += (t.speedKmh - fastSpeed) * 0.02f   // standing still slowly pulls the fast average down
+        }
+        if (briefPending && t.speedKmh > 5f) {
+            briefPending = false
+            if (t.destination.isNotBlank() && t.routeKm > 1f && !startPending) {
+                val ton = "%.1f".format(Locale("tr", "TR"), t.cargoKg / 1000f)
+                val min = (t.routeKm / (if (avgSpeed >= 20f) avgSpeed else 60f) * 60f).toInt()
+                val eta = (if (min / 60 > 0) "${min / 60} saat " else "") + "${min % 60} dakika"
+                val cargo = if (t.cargoLoaded && t.cargo.isNotBlank()) "Yük ${t.cargo}, $ton ton. " else "Yük taşımıyorsun. "
+                Speaker.inform("Araç çalıştı. $cargo Varış ${t.destination}, ${t.routeKm.toInt()} kilometre kaldı, yaklaşık $eta sürer.")
+            }
         }
         val key = t.destination + "|" + t.cargo
         if (key != tripKey) {
@@ -198,16 +215,18 @@ class TruckAlerts {
         if (!init) {
             // First status after connecting: remember the current state without announcing it.
             init = true
-            fuel15 = f < 0.15f; fuel7 = f < 0.07f
+            fuel30 = f < 0.30f; fuel15 = f < 0.15f; fuel7 = f < 0.07f
             for (i in 0..3) bands[i] = band(wear[i])
             near5 = t.routeKm in 0.1f..5f
             tripKey = t.destination + "|" + t.cargo
             lastMarkKm = t.routeKm
+            briefPending = true
             prevWear = maxOf(t.wearChassis, t.wearEngine, t.wearWheels)
             return
         }
         if (Speaker.autoInfo) trip(t) else { tripKey = t.destination + "|" + t.cargo; prevWear = maxOf(t.wearChassis, t.wearEngine, t.wearWheels) }
-        if (f > 0.30f) { fuel15 = false; fuel7 = false }
+        if (f > 0.35f) { fuel30 = false; fuel15 = false; fuel7 = false }
+        if (f < 0.30f && !fuel30) { fuel30 = true; Speaker.alert("Yakıt yüzde 30'un altına düştü, benzin bitiyor. En yakın benzin istasyonuna git.") }
         if (f < 0.07f && !fuel7) { fuel7 = true; fuel15 = true; Speaker.alert("Dikkat, yakıt kritik seviyede.") }
         else if (f < 0.15f && !fuel15) { fuel15 = true; Speaker.alert("Yakıt azaldı. Yaklaşık ${t.rangeKm.toInt()} kilometre menzil kaldı.") }
         for (i in 0..3) {

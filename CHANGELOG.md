@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.1
+- New: when the truck first moves after connecting, the tablet says cargo, destination, km left and a rough ETA.
+- New: fuel warning at 30 %: "benzin bitiyor, en yakın benzin istasyonuna git" (15 % and 7 % warnings stay).
+- Better voice: uses Google's speech engine when installed (same voices as Google Maps), picks the highest-quality installed Turkish voice, network voices included.
+
 ## 1.9.0
 - New: spoken feedback on the tablet (Android TTS, tr-TR). Header chip cycles female / male / off. Output uses the alarm stream because the recognizer mutes the media stream while listening; the tablet ignores the microphone while it speaks.
 - New: `speak` on a button in config.json: text said after the press (touch or voice).
