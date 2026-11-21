@@ -1,0 +1,18 @@
+name: Release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create release with dist files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          NOTES=$(awk -v v="${TAG#v}" '$0=="## "v{f=1;next} /^## /{f=0} f' CHANGELOG.md)
+          gh release create "$TAG" dist/* --title "Krankmili Button Box $TAG" --notes "${NOTES:-See CHANGELOG.md}"

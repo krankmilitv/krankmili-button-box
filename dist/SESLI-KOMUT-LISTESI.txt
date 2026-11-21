@@ -1,0 +1,183 @@
+﻿KRANKMILI BUTTON BOX - TUS VE SESLI KOMUT LISTESI
+
+Her butonun oyuna gonderdigi klavye tusu ve calisan sesli komutlar.
+Oyunun kontrol ayarlarina bu tuslari otomatik eklemek icin KrankmiliKontrolKurulum.exe'yi (oyun kapaliyken) calistir.
+Elle atayacaksan oyunda Ayarlar > Klavye ve fare bolumunde ilgili eyleme asagidaki tusu ver.
+Tuslar config.json'daki 'key' degerleridir; orayi degistirirsen bu liste de degisir.
+(basili tut) = tus basili tutulur (cam, guneslik, suspansiyon).
+
+
+=== BILGI KOMUTLARI (sesli cevap verir, tus gondermez) ===
+
+  Genel durum: sesli bilgi ver / bilgi ver / genel durum / durumu söyle / her şeyi söyle
+     (yol + yakıt + yük + hasar bilgisini birlikte söyler)
+  Yol: yol durumu / ne kadar kaldı / kaç kilometre kaldı / varışa ne kadar kaldı / rota durumu
+  Yakıt: yakıt durumu / yakıt ne kadar / yakıt kaldı mı
+  Hasar: hasar durumu / hasar var mı / araç durumu / kamyon durumu
+  Yük: yük bilgisi / ne taşıyorum / yük ne / yük durumu
+  Hız: hızım ne / hız kaç
+  Otomatik bilgiyi kapat: otomatik bilgiyi kapat / otomatik bilgilendirmeyi kapat / yol bilgisini kapat
+  Otomatik bilgiyi aç: otomatik bilgiyi aç / otomatik bilgilendirmeyi aç / yol bilgisini aç
+
+  Not: Sesli komut için tablette mikrofon butonuna dokun; komutu söyle.
+  Motor çalışınca hedef, yük ve yakıt bilgisi kendiliğinden söylenir; yakıt %30'un altına inince uyarır.
+
+=== SAYFA 1 ===
+
+[Camlar]
+  Sol cam - Kapat: tus INSERT (basili tut)
+     komutlar: sol camı kapat / sol camı kaldır / sol camı yukarı çıkar / sol camı yukarı al / sol cam kapat / sol cam kaldır / sol cam yukarı çıkar / sol cam yukarı al / soldaki camı kapat / soldaki camı kaldır / soldaki camı yukarı çıkar / soldaki camı yukarı al / sürücü camını kapat / sürücü camını kaldır / sürücü camını yukarı çıkar / sürücü camını yukarı al / camları kapat / tüm camları kapat / iki camı kapat / camları yukarı çıkar / camları kaldır / sol camı biraz kapat / sol cam biraz kapat / soldaki camı biraz kapat
+  Sağ cam - Kapat: tus PAGEUP (basili tut)
+     komutlar: sağ camı kapat / sağ camı kaldır / sağ camı yukarı çıkar / sağ camı yukarı al / sağ cam kapat / sağ cam kaldır / sağ cam yukarı çıkar / sağ cam yukarı al / sağdaki camı kapat / sağdaki camı kaldır / sağdaki camı yukarı çıkar / sağdaki camı yukarı al / yolcu camını kapat / yolcu camını kaldır / yolcu camını yukarı çıkar / yolcu camını yukarı al / camları kapat / tüm camları kapat / iki camı kapat / camları yukarı çıkar / camları kaldır / sağ camı biraz kapat / sağ cam biraz kapat / sağdaki camı biraz kapat
+  Sol cam - Aç: tus DELETE (basili tut)
+     komutlar: sol camı aç / sol camı indir / sol camı aşağı indir / sol camı aşağı al / sol cam aç / sol cam indir / sol cam aşağı indir / sol cam aşağı al / soldaki camı aç / soldaki camı indir / soldaki camı aşağı indir / soldaki camı aşağı al / sürücü camını aç / sürücü camını indir / sürücü camını aşağı indir / sürücü camını aşağı al / camları aç / tüm camları aç / iki camı aç / camları indir / camları aşağı indir / sol camı biraz aç / sol cam biraz aç / soldaki camı biraz aç
+  Sağ cam - Aç: tus PAGEDOWN (basili tut)
+     komutlar: sağ camı aç / sağ camı indir / sağ camı aşağı indir / sağ camı aşağı al / sağ cam aç / sağ cam indir / sağ cam aşağı indir / sağ cam aşağı al / sağdaki camı aç / sağdaki camı indir / sağdaki camı aşağı indir / sağdaki camı aşağı al / yolcu camını aç / yolcu camını indir / yolcu camını aşağı indir / yolcu camını aşağı al / camları aç / tüm camları aç / iki camı aç / camları indir / camları aşağı indir / sağ camı biraz aç / sağ cam biraz aç / sağdaki camı biraz aç
+
+[Kapı]
+  Otobüs kapısı: tus F9
+     komutlar: kapıyı aç / kapı aç / kapıyı kapat / kapı kapat / kapıları aç / kapıları kapat / otobüs kapısını aç / otobüs kapısını kapat / otobüs kapısı / otobüs kapısını çalıştır
+
+[Kontak]
+  Kontak / Motor: tus e
+     komutlar: motoru çalıştır / motoru aç / motoru yak / motor çalıştır / motor aç / aracı çalıştır / arabayı çalıştır / kontağı aç / kontak aç / kontağı çevir / marşa bas / motoru kapat / motoru durdur / motoru sustur / motor kapat / motor durdur / aracı durdur / aracı kapat / arabayı durdur / kontağı kapat / kontak kapat / kontak
+
+[Işık / Fren]
+  J - Selektör: tus j (basili tut)
+     komutlar: selektör / selektör yap / selektör at / selektör çak
+  K - Uzun far: tus k
+     komutlar: uzunları aç / uzunları yak / uzunları kapat / uzunları söndür / uzun farı aç / uzun farı yak / uzun farı kapat / uzun farı söndür / uzun farları aç / uzun farları yak / uzun farları kapat / uzun farları söndür / uzun far aç / uzun far yak / uzun far kapat / uzun far söndür / uzun far / uzunlar
+  Kısa far / park: tus l
+  Sol sinyal: tus [
+     komutlar: sol sinyal / sola sinyal / sol sinyal ver / sol sinyali aç / sol sinyali kapat
+  Sağ sinyal: tus ]
+     komutlar: sağ sinyal / sağa sinyal / sağ sinyal ver / sağ sinyali aç / sağ sinyali kapat
+  F - Dörtlü: tus f
+     komutlar: dörtlüleri aç / dörtlüleri yak / dörtlüleri kapat / dörtlüleri söndür / dörtlü aç / dörtlü yak / dörtlü kapat / dörtlü söndür / flaşörleri aç / flaşörleri yak / flaşörleri kapat / flaşörleri söndür / flaşör aç / flaşör yak / flaşör kapat / flaşör söndür / tehlike ışıklarını aç / tehlike ışıklarını yak / tehlike ışıklarını kapat / tehlike ışıklarını söndür / dörtlü / flaşör
+  El freni: tus SPACE
+     komutlar: el frenini çek / el freni çek / el frenini bırak / el freni bırak / el frenini indir / el frenini kaldır / el frenini çekelim / park frenini çek / park frenini bırak / el freni
+  Kısa far aç: tus l [sadece sesli]
+     komutlar: kısaları aç / kısaları yak / kısa farı aç / kısa farı yak / kısa farları aç / kısa farları yak / kısa far aç / kısa far yak / farları aç / farları yak / far aç / far yak / kısa far
+  Park aç: tus l [sadece sesli]
+     komutlar: park lambalarını aç / parkları aç / parkları yak / parkları çalıştır / park lambalarını yak / park lambalarını çalıştır / park lambasını aç / park lambasını yak / park lambasını çalıştır / park lambaları aç / park lambaları yak / park lambaları çalıştır / park lambası aç / park lambası yak / park lambası çalıştır / park ışıklarını aç / park ışıklarını yak / park ışıklarını çalıştır / park ışığını aç / park ışığını yak / park ışığını çalıştır / park aç / park yak / park çalıştır / park farlarını aç / park farlarını yak / park farlarını çalıştır / park farını aç / park farını yak / park farını çalıştır / park lambası
+  Farlar kapat: tus l [sadece sesli]
+     komutlar: kısaları kapat / kısaları söndür / kısa farı kapat / kısa farı söndür / kısa farları kapat / kısa farları söndür / kısa far kapat / kısa far söndür / farları kapat / farları söndür / far kapat / far söndür / park lambalarını kapat / parkları kapat / parkları söndür / park lambalarını söndür / park lambasını kapat / park lambasını söndür / park lambaları kapat / park lambaları söndür / park lambası kapat / park lambası söndür / park ışıklarını kapat / park ışıklarını söndür / park ışığını kapat / park ışığını söndür / park kapat / park söndür / park farlarını kapat / park farlarını söndür / park farını kapat / park farını söndür
+
+[Dorse / Dingil]
+  Dorse bağla: tus t
+     komutlar: dorseyi bağla / dorse bağla / dorseyi tak / dorseyi bağlayalım / römorku bağla / römorku tak
+  Dorse bırak: tus t
+     komutlar: dorseyi bırak / dorse bırak / dorseyi çöz / dorseyi ayır / römorku bırak / römorku ayır
+  Çekici - Çekici dingil indir: tus END
+     komutlar: araç dingilini indir / çekici dingili indir / dingili indir / dingili aşağı al / araç dingili indir
+  Çekici - Çekici dingil kaldır: tus HOME
+     komutlar: araç dingilini kaldır / çekici dingili kaldır / dingili kaldır / dingili yukarı al / araç dingili kaldır
+  Num 3 - Dorse dingil indir: tus NUM3
+     komutlar: dorse dingilini indir / dorse dingili indir / dorse dingil indir / dorse dingilini aşağı al
+  Num 9 - Dorse dingil kaldır: tus NUM9
+     komutlar: dorse dingilini kaldır / dorse dingili kaldır / dorse dingil kaldır / dorse dingilini yukarı al
+
+[Kamera]
+  Kamera 1 - İç: tus 1
+     komutlar: iç kameraya geç / iç kamerayı aç / iç kamerasını aç / iç kamerasına geç / kabin kamerasına geç / iç kamera
+  Kamera 2 - Takip: tus 2
+     komutlar: takip kamerasını aç / takip kamerayı aç / takip kameraya geç / takip kamerasına geç / takip kamerasını göster / takip kamerası / takip kamera / arkadan takip kamerasını aç / arkadan takip kamerayı aç / arkadan takip kameraya geç / arkadan takip kamerasına geç / arkadan takip kamerasını göster / arkadan takip kamerası / arkadan takip kamera
+  Kamera 3 - Dikey: tus 3
+     komutlar: dikey kamerasını aç / dikey kamerayı aç / dikey kameraya geç / dikey kamerasına geç / dikey kamerasını göster / dikey kamerası / dikey kamera
+  Kamera 4 - Çatı: tus 4
+     komutlar: çatı kamerasını aç / çatı kamerayı aç / çatı kameraya geç / çatı kamerasına geç / çatı kamerasını göster / çatı kamerası / çatı kamera / tavan kamerasını aç / tavan kamerayı aç / tavan kameraya geç / tavan kamerasına geç / tavan kamerasını göster / tavan kamerası / tavan kamera
+  Kamera 5 - Pencere: tus 5
+     komutlar: pencere kamerasını aç / pencere kamerayı aç / pencere kameraya geç / pencere kamerasına geç / pencere kamerasını göster / pencere kamerası / pencere kamera
+  Kamera 6 - Tampon: tus 6
+     komutlar: tampon kamerasını aç / tampon kamerayı aç / tampon kameraya geç / tampon kamerasına geç / tampon kamerasını göster / tampon kamerası / tampon kamera / ön tampon kamerasını aç / ön tampon kamerayı aç / ön tampon kameraya geç / ön tampon kamerasına geç / ön tampon kamerasını göster / ön tampon kamerası / ön tampon kamera
+  Park kamerası - Park modu: tus v
+     komutlar: park kamerasını aç / park kamerayı aç / park modu kamerasını aç / park kamerasına geç / park moduna geç / park modu / park kamerası / park kamera
+
+
+=== SAYFA 2 ===
+
+[Ön süspansiyon]
+  Num 7 - Yükselt: tus NUM7 (basili tut)
+     komutlar: ön süspansiyonu yükselt / ön süspansiyon yükselt / ön süspansiyonu kaldır / ön yüksekliği artır / ön süspansiyon kaldır / ön süspansiyonu yukarı al / ön süspansiyonu yukarı çıkar / ön süspansiyonu yukarı kaldır / ön süspansiyonu yüksel / öne süspansiyonu kaldır / ön yükselt / önü kaldır / önü yükselt
+  Num 1 - Alçalt: tus NUM1 (basili tut)
+     komutlar: ön süspansiyonu alçalt / ön süspansiyon alçalt / ön süspansiyonu indir / ön süspansiyon indir / ön süspansiyonu aşağı al / ön süspansiyonu aşağı indir / önü indir / önü alçalt
+
+[Süspansiyon]
+  Num * - Sıfırla: tus NUM*
+     komutlar: süspansiyonu sıfırla / süspansiyon sıfırla / süspansiyonları sıfırla / süspansiyonu eski haline getir / süspansiyonu normale al / süspansiyonu düzelt / süspansiyon düzelt
+
+[Arka süspansiyon]
+  Num + - Yükselt: tus NUM+ (basili tut)
+     komutlar: arka süspansiyonu yükselt / arka süspansiyon yükselt / arka süspansiyonu kaldır / arka süspansiyon kaldır / arka süspansiyonu yukarı al / arka süspansiyonu yukarı çıkar / arka süspansiyonu yukarı kaldır / arka süspansiyonu yüksel / arka yükselt / arkayı kaldır / arkayı yükselt
+  Num - - Alçalt: tus NUM- (basili tut)
+     komutlar: arka süspansiyonu alçalt / arka süspansiyon alçalt / arka süspansiyonu indir / arka süspansiyon indir / arka süspansiyonu aşağı al / arka süspansiyonu aşağı indir / arkayı indir / arkayı alçalt
+
+[Dorse süspansiyonu]
+  Num 8 - Yükselt: tus NUM8 (basili tut)
+     komutlar: dorse süspansiyonu yükselt / dorse süspansiyonunu yükselt / dorse süspansiyonu kaldır / dorse süspansiyon kaldır / dorse süspansiyonunu kaldır / dorse süspansiyonu yukarı al / dorse süspansiyonu yukarı çıkar / dorseyi yükselt / dorseyi kaldır
+  Num 2 - Alçalt: tus NUM2 (basili tut)
+     komutlar: dorse süspansiyonu alçalt / dorse süspansiyonunu alçalt / dorse süspansiyonu indir / dorse süspansiyon indir / dorse süspansiyonunu indir / dorse süspansiyonu aşağı al / dorse süspansiyonu aşağı indir
+
+[Kabin / Çakar]
+  Num 0 - Kabin ışığı: tus NUM0
+     komutlar: kabin ışığını aç / kabin ışığını yak / kabin ışığını kapat / kabin ışığını söndür / kabin lambasını aç / kabin lambasını yak / kabin lambasını kapat / kabin lambasını söndür / iç ışığı aç / iç ışığı yak / iç ışığı kapat / iç ışığı söndür / iç ışıkları aç / iç ışıkları yak / iç ışıkları kapat / iç ışıkları söndür / kabin ışığı
+  O - Çakar lamba: tus o
+     komutlar: çakarları aç / çakarları yak / çakarları kapat / çakarları söndür / çakarı aç / çakarı yak / çakarı kapat / çakarı söndür / çakar lambayı aç / çakar lambayı yak / çakar lambayı kapat / çakar lambayı söndür / çakar lambaları aç / çakar lambaları yak / çakar lambaları kapat / çakar lambaları söndür / çakar aç / çakar yak / çakar kapat / çakar söndür / çakar
+
+[Silecek]
+  P · modlar arası - Silecek: tus p
+  Silecek aç: tus p [sadece sesli]
+     komutlar: silecekleri aç / silecekleri çalıştır / sileceği aç / sileceği çalıştır / silecek aç / silecek çalıştır / silecek
+  Silecek kapat: tus p [sadece sesli]
+     komutlar: silecekleri kapat / silecekleri durdur / sileceği kapat / sileceği durdur / silecek kapat / silecek durdur
+
+[Güneşlik]
+  Sol güneşlik - İndir: tus F8 (basili tut)
+     komutlar: sol güneşliği indir / sol güneşliği aşağı al / sol güneşliği aşağı indir / sol güneşlik indir / sol güneşlik aşağı al / sol güneşlik aşağı indir / soldaki güneşliği indir / soldaki güneşliği aşağı al / soldaki güneşliği aşağı indir / sürücü güneşliğini indir / sürücü güneşliğini aşağı al / sürücü güneşliğini aşağı indir / güneşlikleri indir / güneşliği indir / güneşlik indir / tüm güneşlikleri indir / iki güneşliği indir / güneşlikleri aşağı al / güneşlikleri aşağı indir
+  Sağ güneşlik - İndir: tus SHIFT+F8 (basili tut)
+     komutlar: sağ güneşliği indir / sağ güneşliği aşağı al / sağ güneşliği aşağı indir / sağ güneşlik indir / sağ güneşlik aşağı al / sağ güneşlik aşağı indir / sağdaki güneşliği indir / sağdaki güneşliği aşağı al / sağdaki güneşliği aşağı indir / yolcu güneşliğini indir / yolcu güneşliğini aşağı al / yolcu güneşliğini aşağı indir / güneşlikleri indir / güneşliği indir / güneşlik indir / tüm güneşlikleri indir / iki güneşliği indir / güneşlikleri aşağı al / güneşlikleri aşağı indir
+  Sol güneşlik - Kaldır: tus CTRL+F8 (basili tut)
+     komutlar: sol güneşliği kaldır / sol güneşliği yukarı al / sol güneşliği yukarı kaldır / sol güneşlik kaldır / sol güneşlik yukarı al / sol güneşlik yukarı kaldır / soldaki güneşliği kaldır / soldaki güneşliği yukarı al / soldaki güneşliği yukarı kaldır / sürücü güneşliğini kaldır / sürücü güneşliğini yukarı al / sürücü güneşliğini yukarı kaldır / güneşlikleri kaldır / güneşliği kaldır / güneşlik kaldır / tüm güneşlikleri kaldır / iki güneşliği kaldır / güneşlikleri yukarı al / güneşlikleri yukarı kaldır
+  Sağ güneşlik - Kaldır: tus ALT+F8 (basili tut)
+     komutlar: sağ güneşliği kaldır / sağ güneşliği yukarı al / sağ güneşliği yukarı kaldır / sağ güneşlik kaldır / sağ güneşlik yukarı al / sağ güneşlik yukarı kaldır / sağdaki güneşliği kaldır / sağdaki güneşliği yukarı al / sağdaki güneşliği yukarı kaldır / yolcu güneşliğini kaldır / yolcu güneşliğini yukarı al / yolcu güneşliğini yukarı kaldır / güneşlikleri kaldır / güneşliği kaldır / güneşlik kaldır / tüm güneşlikleri kaldır / iki güneşliği kaldır / güneşlikleri yukarı al / güneşlikleri yukarı kaldır
+
+[Servis]
+  F7 → 1 - Servise git: tus F7 SONRA 1
+     komutlar: servise git / servise gidelim / servise gidiyoruz / tamire git / tamire gidelim / tamirhaneye git
+
+[Oyun onayı]
+  Enter - Evet / Onayla: tus ENTER
+  Esc - İptal: tus ESC
+
+
+=== SAYFA 3 ===
+
+[Numpad]
+  Num Lock: tus NUMLOCK
+  7: tus NUM7 (basili tut)
+  4: tus NUM4 (basili tut)
+  1: tus NUM1 (basili tut)
+  0: tus NUM0 (basili tut)
+
+[]
+  /: tus NUM/ (basili tut)
+  8: tus NUM8 (basili tut)
+  5: tus NUM5 (basili tut)
+  2: tus NUM2 (basili tut)
+  .: tus NUM. (basili tut)
+
+[]
+  *: tus NUM* (basili tut)
+  9: tus NUM9 (basili tut)
+  6: tus NUM6 (basili tut)
+  3: tus NUM3 (basili tut)
+  Enter: tus NUMENTER (basili tut)
+
+[]
+  -: tus NUM- (basili tut)
+  +: tus NUM+ (basili tut)
+
+NOTLAR
+- Sayfa 3'teki Num tuslari ile Sayfa 2'deki suspansiyon/kabin isigi tuslari ayni tuslardir.
+- Isik butonlari (kisa far/park/kapat) ayni L tusuyla oyunun durumuna bakarak gerekli kadar basar.
+- Oyunda sesli navigasyon icin klavye tusu yoktur; button box bunu acip kapatamaz.
