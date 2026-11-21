@@ -7,6 +7,21 @@ Tuslar config.json'daki 'key' degerleridir; orayi degistirirsen bu liste de degi
 (basili tut) = tus basili tutulur (cam, guneslik, suspansiyon).
 
 
+=== BILGI KOMUTLARI (sesli cevap verir, tus gondermez) ===
+
+  Genel durum: sesli bilgi ver / bilgi ver / genel durum / durumu söyle / her şeyi söyle
+     (yol + yakıt + yük + hasar bilgisini birlikte söyler)
+  Yol: yol durumu / ne kadar kaldı / kaç kilometre kaldı / varışa ne kadar kaldı / rota durumu
+  Yakıt: yakıt durumu / yakıt ne kadar / yakıt kaldı mı
+  Hasar: hasar durumu / hasar var mı / araç durumu / kamyon durumu
+  Yük: yük bilgisi / ne taşıyorum / yük ne / yük durumu
+  Hız: hızım ne / hız kaç
+  Otomatik bilgiyi kapat: otomatik bilgiyi kapat / otomatik bilgilendirmeyi kapat / yol bilgisini kapat
+  Otomatik bilgiyi aç: otomatik bilgiyi aç / otomatik bilgilendirmeyi aç / yol bilgisini aç
+
+  Not: Sesli komut için tablette mikrofon butonuna dokun; komutu söyle.
+  Motor çalışınca hedef, yük ve yakıt bilgisi kendiliğinden söylenir; yakıt %30'un altına inince uyarır.
+
 === SAYFA 1 ===
 
 [Camlar]
