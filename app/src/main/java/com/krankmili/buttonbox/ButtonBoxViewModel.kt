@@ -113,7 +113,10 @@ class ButtonBoxViewModel : ViewModel() {
     private fun isFlasher(id: String) = id == "hazard" || id == "indicator_l" || id == "indicator_r"
 
     // Any interaction lights its button; taps pulse, holds stay lit while the key is down.
-    private fun interact(id: String, hold: Boolean) { if (isFlasher(id)) toggleFlasher(id) else if (!hold) pulse(id) }
+    private fun interact(id: String, hold: Boolean) {
+        if (id == "engine_toggle") alerts.engineToggled(truck.value)
+        if (isFlasher(id)) toggleFlasher(id) else if (!hold) pulse(id)
+    }
 
     init {
         scope.launch { client.truck.collect { t -> if (t == null || !t.gameRunning) { synchronized(this@ButtonBoxViewModel) { flashers.clear() }; publishLit() } } }

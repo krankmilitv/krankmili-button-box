@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.5
+- Fix: fuel / damage / arrival warnings were spoken in menus. They are armed by the first movement or by the engine button; until then the current state is only remembered.
+- New: pressing the engine button (touch or "motoru çalıştır") says the start briefing: destination, km, cargo, ETA, fuel and range (with the 30 % fuel warning). The tablet guesses the engine state from the button presses (every second press while standing is a start); the game's real engine flag was not verified.
+- Cargo wording: "Yükünüz <yük>, 6,5 ton ağırlığında."
+
 ## 1.9.4
 - Fix: the trip start / "araç çalıştı" information was spoken in menus. It now waits for the first movement of the truck (> 5 km/h); the game exposes no reliable engine-on flag we could verify.
 

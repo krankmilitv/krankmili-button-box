@@ -132,6 +132,9 @@ class TruckAlerts {
     private var fuel7 = false
     private val bands = IntArray(4)
     private var near5 = false
+    // Alerts stay silent until the truck rolls or the engine is started from the box: menus and parked state say nothing.
+    private var armed = false
+    private var engineOn = false
 
     // Trip tracking: a new job (destination or cargo changes) announces itself once the route is known,
     // then every 100 km of route is reported. Speeds feed a rough ETA and a "traffic is slow" guess.
@@ -173,7 +176,7 @@ class TruckAlerts {
             briefPending = false
             lastMarkKm = t.routeKm
             val fuelNote = if (t.rangeKm in 1f..t.routeKm) " Dikkat, yakıt menzili rotaya yetmeyebilir, yolda yakıt almayı planla." else ""
-            Speaker.inform("Sefer başladı. Hedefimiz ${t.destination}, ${t.routeKm.toInt()} kilometre. Yük ${t.cargo}, $ton ton. Yakıt menzili ${t.rangeKm.toInt()} kilometre.$fuelNote")
+            Speaker.inform("Sefer başladı. Hedefimiz ${t.destination}, ${t.routeKm.toInt()} kilometre. Yükünüz ${t.cargo}, $ton ton ağırlığında. Yakıt menzili ${t.rangeKm.toInt()} kilometre.$fuelNote")
             return
         }
         if (briefPending && rolling) {
@@ -181,7 +184,7 @@ class TruckAlerts {
             if (t.destination.isNotBlank() && t.routeKm > 1f) {
                 val min = (t.routeKm / (if (avgSpeed >= 20f) avgSpeed else 60f) * 60f).toInt()
                 val eta = (if (min / 60 > 0) "${min / 60} saat " else "") + "${min % 60} dakika"
-                val cargo = if (t.cargoLoaded && t.cargo.isNotBlank()) "Yük ${t.cargo}, $ton ton. " else "Yük taşımıyorsun. "
+                val cargo = if (t.cargoLoaded && t.cargo.isNotBlank()) "Yükünüz ${t.cargo}, $ton ton ağırlığında. " else "Yük taşımıyorsun. "
                 Speaker.inform("Araç çalıştı. $cargo Varış ${t.destination}, ${t.routeKm.toInt()} kilometre kaldı, yaklaşık $eta sürer.")
             }
         }
@@ -208,8 +211,49 @@ class TruckAlerts {
         prevWear = w
     }
 
+    private fun fuelFraction(t: TruckStatus) = if (t.fuelCapacity > 0) t.fuelLiters / t.fuelCapacity else 1f
+    private fun bandOf(w: Float) = if (w >= 0.75f) 3 else if (w >= 0.5f) 2 else if (w >= 0.25f) 1 else 0
+
+    /** Remembers the current state as "already known" so nothing is announced for it. */
+    private fun sync(t: TruckStatus) {
+        val f = fuelFraction(t)
+        fuel30 = f < 0.30f; fuel15 = f < 0.15f; fuel7 = f < 0.07f
+        bands[0] = bandOf(t.wearEngine); bands[1] = bandOf(t.wearTransmission); bands[2] = bandOf(t.wearChassis); bands[3] = bandOf(t.wearWheels)
+        near5 = t.routeKm in 0.1f..5f
+        prevWear = maxOf(t.wearChassis, t.wearEngine, t.wearWheels)
+    }
+
+    private fun briefing(t: TruckStatus): String {
+        val ton = "%.1f".format(Locale("tr", "TR"), t.cargoKg / 1000f)
+        val pct = (fuelFraction(t) * 100).toInt()
+        val sb = StringBuilder("Motor çalıştı. ")
+        val hasRoute = t.destination.isNotBlank() && t.routeKm > 1f
+        if (hasRoute) sb.append("Hedefimiz ${t.destination}, ${t.routeKm.toInt()} kilometre. ")
+        if (t.cargoLoaded && t.cargo.isNotBlank()) sb.append("Yükünüz ${t.cargo}, $ton ton ağırlığında. ") else sb.append("Yük taşımıyorsun. ")
+        if (hasRoute) {
+            val min = (t.routeKm / 60f * 60f).toInt()
+            sb.append("Ortalama 60 kilometre hızla yaklaşık ${if (min / 60 > 0) "${min / 60} saat " else ""}${min % 60} dakika sürer. ")
+        }
+        sb.append("Yakıt yüzde $pct, yaklaşık ${t.rangeKm.toInt()} kilometre menzil var.")
+        if (pct < 30) sb.append(" Benzin az, en yakın benzin istasyonuna git.")
+        else if (hasRoute && t.rangeKm in 1f..t.routeKm) sb.append(" Dikkat, yakıt menzili rotaya yetmeyebilir.")
+        return sb.toString()
+    }
+
+    /** The engine button was pressed (touch or voice). Every second press while standing still is taken as a start. */
+    fun engineToggled(t: TruckStatus?) {
+        if (t == null || !t.gameRunning || t.speedKmh > 5f) return
+        engineOn = !engineOn
+        if (!engineOn) return
+        armed = true; startPending = false; briefPending = false
+        tripKey = t.destination + "|" + t.cargo
+        if (t.routeKm > 1f) lastMarkKm = t.routeKm
+        sync(t)
+        Speaker.inform(briefing(t))
+    }
+
     fun check(t: TruckStatus) {
-        if (!t.gameRunning) { init = false; return }
+        if (!t.gameRunning) { init = false; armed = false; engineOn = false; return }
         val wear = floatArrayOf(t.wearEngine, t.wearTransmission, t.wearChassis, t.wearWheels)
         val names = arrayOf("Motor", "Şanzıman", "Şasi", "Tekerlekler")
         val f = if (t.fuelCapacity > 0) t.fuelLiters / t.fuelCapacity else 1f
@@ -226,6 +270,7 @@ class TruckAlerts {
             prevWear = maxOf(t.wearChassis, t.wearEngine, t.wearWheels)
             return
         }
+        if (!armed) { if (t.speedKmh > 5f) armed = true else { sync(t); return } }
         if (Speaker.autoInfo) trip(t) else { tripKey = t.destination + "|" + t.cargo; prevWear = maxOf(t.wearChassis, t.wearEngine, t.wearWheels) }
         if (f > 0.35f) { fuel30 = false; fuel15 = false; fuel7 = false }
         if (f < 0.30f && !fuel30) { fuel30 = true; Speaker.alert("Yakıt yüzde 30'un altına düştü, benzin bitiyor. En yakın benzin istasyonuna git.") }
@@ -277,7 +322,7 @@ object InfoCommands {
             }
             "info:cargo" ->
                 if (!t.cargoLoaded || t.cargo.isBlank()) "Şu an yük taşımıyorsun."
-                else "${t.cargo}, ${"%.1f".format(Locale("tr", "TR"), t.cargoKg / 1000f)} ton taşıyorsun."
+                else "Yükünüz ${t.cargo}, ${"%.1f".format(Locale("tr", "TR"), t.cargoKg / 1000f)} ton ağırlığında."
             "info:speed" -> "Hızın ${t.speedKmh.toInt()} kilometre."
             else -> ""
         }
