@@ -22,6 +22,7 @@ Tuslar config.json'daki 'key' degerleridir; orayi degistirirsen bu liste de degi
 
   Not: Sesli komut için tablette mikrofon butonuna dokun; komutu söyle.
   Motor çalışınca bir şey söylenmez; 'bilgi ver' deyince genel durum söylenir (otobüs seferindeyse durak ve yolcu bilgisi dahil).
+  PC'den de dinlemek için: sunucu açılınca Edge'de açılan 'PC sesli bilgi' penceresini açık bırak (tepsi menüsünde 'PC'de sesli bilgi' ile aç/kapat). Tablet sesi ayrı: Kadın / Erkek / Ses kapalı düğmesi.
   Yakıt %30'un altına inince uyarır. Otobüs seferinde sefer başı, her durak, durağa yaklaşma ve sefer sonu söylenir.
 
 === SAYFA 1 ===

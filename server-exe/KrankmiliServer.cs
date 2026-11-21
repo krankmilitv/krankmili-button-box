@@ -510,6 +510,131 @@ namespace Krankmili
         }
     }
 
+#if !VOICEPC
+    /// <summary>Speaks the tablet's spoken information on the PC too. The server keeps a short queue of texts and serves a small
+    /// page (speak.html) on localhost that Edge opens at start; the page polls the queue and reads it with Edge's Turkish voices
+    /// (the natural online ones when available). On by default; pc-voice.txt = "0" switches it off.</summary>
+    static class PcVoice
+    {
+        const int Port = 5556;
+        static readonly string Flag = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pc-voice.txt");
+        class Item { public long Id; public string Text; public bool Flush; }
+        static readonly List<Item> Queue = new List<Item>();
+        static readonly object gate = new object();
+        static long seq;
+        static HttpListener http;
+
+        public static string Url { get { return "http://localhost:" + Port + "/"; } }
+
+        public static bool Enabled
+        {
+            get { try { return !(File.Exists(Flag) && File.ReadAllText(Flag).Trim() == "0"); } catch (Exception) { return true; } }
+            set { try { File.WriteAllText(Flag, value ? "1" : "0"); } catch (Exception) { } }
+        }
+
+        public static void Speak(string text, bool flush)
+        {
+            if (!Enabled || string.IsNullOrWhiteSpace(text)) return;
+            if (text.Length > 500) text = text.Substring(0, 500);
+            lock (gate)
+            {
+                Queue.Add(new Item { Id = ++seq, Text = text, Flush = flush });
+                while (Queue.Count > 40) Queue.RemoveAt(0);
+            }
+        }
+
+        public static bool StartHttp()
+        {
+            if (http != null) return true;
+            try
+            {
+                http = new HttpListener();
+                http.Prefixes.Add(Url);
+                http.Start();
+            }
+            catch (Exception ex) { Log.Info("pc voice page disabled: {0}", ex.Message); http = null; return false; }
+            Thread t = new Thread(Loop); t.IsBackground = true; t.Start();
+            Log.Info("pc voice page: {0}", Url);
+            return true;
+        }
+
+        static void Loop()
+        {
+            while (true)
+            {
+                HttpListenerContext ctx;
+                try { ctx = http.GetContext(); } catch (Exception) { return; }
+                ThreadPool.QueueUserWorkItem(delegate
+                {
+                    try { Handle(ctx); }
+                    catch (Exception) { try { ctx.Response.Abort(); } catch (Exception) { } }
+                });
+            }
+        }
+
+        static void Handle(HttpListenerContext ctx)
+        {
+            HttpListenerRequest rq = ctx.Request; HttpListenerResponse rs = ctx.Response;
+            string body, type = "application/json; charset=utf-8";
+            if (rq.Url.AbsolutePath == "/next")
+            {
+                long since; long.TryParse(rq.QueryString["since"], out since);
+                var sb = new StringBuilder();
+                long lastId;
+                lock (gate)
+                {
+                    lastId = seq;
+                    sb.Append("{\"last\":").Append(lastId).Append(",\"items\":[");
+                    bool first = true;
+                    if (rq.QueryString["since"] != null && rq.QueryString["since"].StartsWith("-")) since = lastId;   // first poll: do not replay old texts
+                    foreach (Item it in Queue)
+                    {
+                        if (it.Id <= since) continue;
+                        if (!first) sb.Append(',');
+                        first = false;
+                        sb.Append("{\"text\":").Append(new JavaScriptSerializer().Serialize(it.Text)).Append(",\"flush\":").Append(it.Flush ? "true" : "false").Append('}');
+                    }
+                    sb.Append("]}");
+                }
+                body = sb.ToString();
+            }
+            else
+            {
+                type = "text/html; charset=utf-8";
+                string custom = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "speak.html");   // optional override next to the exe
+                if (File.Exists(custom)) body = File.ReadAllText(custom, Encoding.UTF8);
+                else using (Stream st = Assembly.GetExecutingAssembly().GetManifestResourceStream("speak.html"))
+                {
+                    if (st == null) { rs.StatusCode = 404; rs.Close(); return; }
+                    using (var r = new StreamReader(st, Encoding.UTF8)) body = r.ReadToEnd();
+                }
+            }
+            byte[] bytes = Encoding.UTF8.GetBytes(body);
+            rs.StatusCode = 200; rs.ContentType = type; rs.Headers["Cache-Control"] = "no-store";
+            rs.ContentLength64 = bytes.Length;
+            rs.OutputStream.Write(bytes, 0, bytes.Length);
+            rs.Close();
+        }
+
+        /// <summary>Opens the page in its own Edge window (separate profile so the autoplay flag applies even when Edge is already running).</summary>
+        public static void OpenPage()
+        {
+            string prof = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KrankmiliVoice");
+            string args = "--user-data-dir=\"" + prof + "\" --no-first-run --no-default-browser-check --autoplay-policy=no-user-gesture-required --window-size=420,230 --app=" + Url;
+            string[] exes = {
+                "msedge.exe",
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Microsoft\Edge\Application\msedge.exe"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Microsoft\Edge\Application\msedge.exe"),
+            };
+            foreach (string exe in exes)
+            {
+                try { Process.Start(exe, args); return; } catch (Exception) { }
+            }
+            try { Process.Start(Url); } catch (Exception ex) { Log.Info("could not open pc voice page: {0}", ex.Message); }
+        }
+    }
+
+#endif
     class Server
     {
         readonly Config cfg; readonly KeyState keys;
@@ -634,6 +759,9 @@ namespace Krankmili
                     if (kind == "press") session.Press(id);
                     else if (kind == "release") session.Release(id);
                     else if (kind == "ping") Send(writer, "{\"t\":\"pong\"}");
+#if !VOICEPC
+                    else if (kind == "speak") PcVoice.Speak(m.Contains("text") ? Convert.ToString(m["text"]) : "", m.Contains("flush") && m["flush"] is bool && (bool)m["flush"]);
+#endif
                     else if (kind == "profile")
                     {
                         string pname = m.Contains("name") ? Convert.ToString(m["name"]) : "";
@@ -1320,6 +1448,17 @@ namespace Krankmili
                 bool ok; string msg = BusPlugin.Install(out ok);
                 MessageBox.Show(msg, Const.AppName, MessageBoxButtons.OK, ok ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
             });
+#endif
+#if !VOICEPC
+            ToolStripMenuItem pcVoice = new ToolStripMenuItem("PC'de sesli bilgi (Edge sayfası, tabletteki bilgileri bilgisayardan da söyler)"); pcVoice.CheckOnClick = true; pcVoice.Checked = PcVoice.Enabled;
+            pcVoice.CheckedChanged += delegate
+            {
+                PcVoice.Enabled = pcVoice.Checked;
+                if (pcVoice.Checked) { if (PcVoice.StartHttp()) PcVoice.OpenPage(); }
+            };
+            menu.Items.Add(pcVoice);
+            menu.Items.Add("PC sesli bilgi sayfasını aç", null, delegate { if (PcVoice.StartHttp()) PcVoice.OpenPage(); });
+            if (PcVoice.Enabled && PcVoice.StartHttp()) PcVoice.OpenPage();   // the exe opens the page by itself at start
 #endif
             if (!Diag.SelfElevated())
                 menu.Items.Add("Yönetici olarak yeniden başlat", null, delegate

@@ -19,7 +19,7 @@ class ButtonBoxViewModel : ViewModel() {
 
     // Own scope instead of viewModelScope: avoids depending on lifecycle-viewmodel-ktx.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val client = ButtonBoxClient(scope)
+    private val client = ButtonBoxClient(scope).also { c -> com.krankmili.buttonbox.data.Speaker.pcSink = { text, flush -> c.speak(text, flush) } }
 
     val state: StateFlow<ConnectionState> = client.state
     val layout: StateFlow<List<BoxGroup>> = client.layout

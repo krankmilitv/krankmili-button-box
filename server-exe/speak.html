@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Krankmili - PC sesli bilgi</title>
+<style>
+  body { margin:0; background:#111418; color:#e8eaed; font:15px Segoe UI, sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; text-align:center; }
+  h1 { font-size:16px; margin:0 0 6px; letter-spacing:1px; }
+  #st { color:#9aa0a6; font-size:13px; margin:4px 12px; }
+  #last { margin:10px 14px 0; font-size:14px; min-height:2.4em; }
+  button { margin-top:10px; padding:8px 18px; font-size:14px; border:0; border-radius:8px; background:#f5a623; color:#111; cursor:pointer; }
+  .ok { color:#6fcf97 } .warn { color:#f5a623 } .err { color:#eb5757 }
+</style>
+</head>
+<body>
+<h1>KRANKMILI · PC SESLİ BİLGİ</h1>
+<div id="st" class="warn">Hazırlanıyor…</div>
+<div id="last"></div>
+<button id="go" style="display:none">Sesi başlat</button>
+<script>
+(function () {
+  var since = -1, voice = null, blocked = false, fails = 0;
+  var st = document.getElementById('st'), last = document.getElementById('last'), go = document.getElementById('go');
+  function setSt(t, c) { st.textContent = t; st.className = c; }
+
+  function pick() {
+    var vs = speechSynthesis.getVoices().filter(function (v) { return (v.lang || '').toLowerCase().indexOf('tr') === 0; });
+    // prefer Edge's natural online voices, female first (Emel), then any online, then any Turkish voice
+    voice = vs.filter(function (v) { return /emel/i.test(v.name) && /natural/i.test(v.name); })[0]
+         || vs.filter(function (v) { return /natural/i.test(v.name); })[0]
+         || vs.filter(function (v) { return /online/i.test(v.name); })[0]
+         || vs[0] || null;
+    if (!voice) setSt('Türkçe ses bulunamadı (Edge/Windows).', 'err');
+  }
+  speechSynthesis.onvoiceschanged = pick;
+  pick();
+
+  function say(text, flush) {
+    last.textContent = text;
+    if (flush) speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = 'tr-TR';
+    if (voice) u.voice = voice;
+    u.onerror = function (e) {
+      if (e.error === 'not-allowed') { blocked = true; go.style.display = ''; setSt('Sesi başlatmak için aşağıdaki düğmeye bir kez tıkla.', 'warn'); }
+    };
+    speechSynthesis.speak(u);
+  }
+
+  go.onclick = function () { blocked = false; go.style.display = 'none'; pick(); say('Ses açıldı.', true); setSt('Çalışıyor' + (voice ? ' · ' + voice.name : ''), 'ok'); };
+  document.addEventListener('click', function () { if (blocked) go.onclick(); });
+
+  function poll() {
+    fetch('/next?since=' + since, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
+      fails = 0;
+      if (!blocked) setSt('Çalışıyor' + (voice ? ' · ' + voice.name : ''), voice ? 'ok' : 'err');
+      since = j.last;
+      (j.items || []).forEach(function (it) { say(it.text, it.flush); });
+    }).catch(function () {
+      fails++;
+      if (fails > 3) setSt('Sunucuya bağlanılamıyor (KrankmiliServer çalışıyor mu?)', 'err');
+    }).then(function () { setTimeout(poll, 400); });
+  }
+  poll();
+})();
+</script>
+</body>
+</html>

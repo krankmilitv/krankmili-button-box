@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.10.1
+- New: the tablet's spoken information can also be heard on the PC. The tablet sends every spoken text to the server; the server keeps a short queue and serves `http://localhost:5556/` (`speak.html`), which the exe opens by itself in an Edge app window at start. The page reads the texts with Edge's Turkish voices (natural online voices preferred, e.g. Emel). Independent switches: the tablet's voice button (female / male / off) and the tray item "PC'de sesli bilgi" (on by default, `pc-voice.txt` = 0 switches it off). Edge may need one click on the page before it is allowed to speak.
+
 ## 1.10.0
 - New: Coaches DLC bus jobs. `krankmili-bus.dll` (SCS Telemetry SDK 1.16 plugin, source in `server-exe/plugin/`) writes the game's `bus_job` configuration to `%TEMP%\krankmili_bus.json`; the server adds it to the status message and the tablet speaks: trip start (route, passengers, departure/arrival times), next stop and passengers leaving, approaching a stop (5 km / 1 km), end of the trip. New voice commands: "sıradaki durak", "durak bilgisi", "yolcu bilgisi", "kaç yolcu var". "sesli bilgi ver" includes the bus job.
 - The server offers to install the plugin once when `dlc_bus.scs` is found; tray menu: "Otobüs (Coaches) eklentisini kur / güncelle".

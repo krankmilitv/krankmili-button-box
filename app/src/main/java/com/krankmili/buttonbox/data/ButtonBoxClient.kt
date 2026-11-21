@@ -141,6 +141,11 @@ class ButtonBoxClient(private val scope: CoroutineScope) {
         outgoing?.trySend(JSONObject().put("t", "profile").put("name", name).toString())
     }
 
+    /** Spoken text for the PC's own voice (the server decides whether it is switched on). */
+    fun speak(text: String, flush: Boolean) {
+        outgoing?.trySend(JSONObject().put("t", "speak").put("text", text).put("flush", flush).toString())
+    }
+
     fun press(id: String) = send("press", id)
     fun release(id: String) = send("release", id)
 

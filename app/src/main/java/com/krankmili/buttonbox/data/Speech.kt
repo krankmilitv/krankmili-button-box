@@ -36,6 +36,9 @@ object Speaker {
         prefs?.edit()?.putBoolean("auto_info", on)?.apply()
     }
 
+    /** Set by the connection: forwards spoken text to the PC server (text, replaceQueued). The PC has its own on/off switch. */
+    @Volatile var pcSink: ((String, Boolean) -> Unit)? = null
+
     val label: String get() = when (mode) { "male" -> "Erkek ses"; "off" -> "Ses kapalı"; else -> "Kadın ses" }
 
     fun init(ctx: Context, p: android.content.SharedPreferences) {
@@ -76,7 +79,7 @@ object Speaker {
         prefs?.edit()?.putString("tts_mode", mode)?.apply()
         if (mode == "off") tts?.stop() else {
             applyVoice()
-            say(if (mode == "male") "Erkek ses seçildi" else "Kadın ses seçildi")
+            sayLocal(if (mode == "male") "Erkek ses seçildi" else "Kadın ses seçildi")
         }
     }
 
@@ -98,6 +101,12 @@ object Speaker {
 
     /** Speaks now (replacing anything queued). */
     fun say(text: String) {
+        if (text.isBlank()) return
+        pcSink?.invoke(text, true)
+        sayLocal(text)
+    }
+
+    private fun sayLocal(text: String) {
         if (mode == "off" || text.isBlank()) return
         if (!ready) { pending.addLast(text); return }
         speakNow(text)
@@ -106,14 +115,17 @@ object Speaker {
     /** For automatic alerts: skips if something was just said, so alerts never pile up. */
     fun alert(text: String) {
         val now = System.currentTimeMillis()
-        if (mode == "off" || now - lastAlertAt < 6000 || busy()) return
+        if (now - lastAlertAt < 6000 || busy()) return
         lastAlertAt = now
-        say(text)
+        pcSink?.invoke(text, true)
+        sayLocal(text)
     }
 
     /** For automatic trip information: queued after whatever is being said, never cuts it off. */
     fun inform(text: String) {
-        if (mode == "off" || !autoInfo || text.isBlank()) return
+        if (!autoInfo || text.isBlank()) return
+        pcSink?.invoke(text, false)
+        if (mode == "off") return
         if (!ready) { pending.addLast(text); return }
         tts?.speak(text, TextToSpeech.QUEUE_ADD, Bundle(), "k${System.nanoTime()}")
     }

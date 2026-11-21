@@ -1,5 +1,5 @@
 {
-  "version": "1.10.0",
+  "version": "1.10.1",
   "url": "https://github.com/krankmilitv/krankmili-button-box/releases/latest",
-  "notes": "Otobüs (Coaches DLC) desteği: durak, varış yeri ve yolcu bilgisi sesli ve ekranda. Motor çalışınca konuşmaz, 'bilgi ver' deyince söyler."
+  "notes": "PC'de sesli bilgi: tabletin söylediği bilgiler Edge penceresinden bilgisayarda da duyulur. Tablet ve PC sesi ayrı anahtarlarla açılıp kapanır."
 }
