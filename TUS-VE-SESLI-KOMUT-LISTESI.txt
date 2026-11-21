@@ -1,0 +1,172 @@
+﻿KRANKMILI BUTTON BOX 1.9 - TUS VE SESLI KOMUT LISTESI
+========================================================
+Her butonun oyuna gonderdigi klavye tusu ve o butonu calistiran sesli komutlar.
+Oyunda Ayarlar > Klavye ve fare bolumunde ilgili eylemi sec, sonra bu listedeki tusa bas (ya da tabletten butona bas, oyun tusu algilar).
+Not: Sesli komutlari 'hey krank' ile baslatabilirsin; sonra komutu soyle (ornek: 'hey krank sol cami kapat').
+'(*)' isaretli eylemlerde ETS2'de varsayilan tus yoktur, oyunda atama gerekir. Digerleri ETS2 varsayilanidir; oyun surumune gore kontrol et.
+'basili tut' = tus basili kalir (sesli komutta cam ve guneslik 5 sn, digerleri 1.5 sn). 'bas' = tek basis.
+
+
+=== SAYFA 1 ===
+
+[Camlar]
+  Kapat - Sol cam: tus Insert (basili tut) (*)
+      komutlar: sol camı kapat / sol camı kaldır / sol camı yukarı çıkar / sol camı yukarı al / sol cam kapat / sol cam kaldır / sol cam yukarı çıkar / sol cam yukarı al / soldaki camı kapat / soldaki camı kaldır / soldaki camı yukarı çıkar / soldaki camı yukarı al / sürücü camını kapat / sürücü camını kaldır / sürücü camını yukarı çıkar / sürücü camını yukarı al / camları kapat / tüm camları kapat / iki camı kapat / camları yukarı çıkar / camları kaldır / sol camı biraz kapat / sol cam biraz kapat / soldaki camı biraz kapat
+  Kapat - Sağ cam: tus Page Up (basili tut) (*)
+      komutlar: sağ camı kapat / sağ camı kaldır / sağ camı yukarı çıkar / sağ camı yukarı al / sağ cam kapat / sağ cam kaldır / sağ cam yukarı çıkar / sağ cam yukarı al / sağdaki camı kapat / sağdaki camı kaldır / sağdaki camı yukarı çıkar / sağdaki camı yukarı al / yolcu camını kapat / yolcu camını kaldır / yolcu camını yukarı çıkar / yolcu camını yukarı al / camları kapat / tüm camları kapat / iki camı kapat / camları yukarı çıkar / camları kaldır / sağ camı biraz kapat / sağ cam biraz kapat / sağdaki camı biraz kapat
+  Aç - Sol cam: tus Delete (basili tut) (*)
+      komutlar: sol camı aç / sol camı indir / sol camı aşağı indir / sol camı aşağı al / sol cam aç / sol cam indir / sol cam aşağı indir / sol cam aşağı al / soldaki camı aç / soldaki camı indir / soldaki camı aşağı indir / soldaki camı aşağı al / sürücü camını aç / sürücü camını indir / sürücü camını aşağı indir / sürücü camını aşağı al / camları aç / tüm camları aç / iki camı aç / camları indir / camları aşağı indir / sol camı biraz aç / sol cam biraz aç / soldaki camı biraz aç
+  Aç - Sağ cam: tus Page Down (basili tut) (*)
+      komutlar: sağ camı aç / sağ camı indir / sağ camı aşağı indir / sağ camı aşağı al / sağ cam aç / sağ cam indir / sağ cam aşağı indir / sağ cam aşağı al / sağdaki camı aç / sağdaki camı indir / sağdaki camı aşağı indir / sağdaki camı aşağı al / yolcu camını aç / yolcu camını indir / yolcu camını aşağı indir / yolcu camını aşağı al / camları aç / tüm camları aç / iki camı aç / camları indir / camları aşağı indir / sağ camı biraz aç / sağ cam biraz aç / sağdaki camı biraz aç
+
+[Kapı]
+  Otobüs kapısı: tus F9 (bas) (*)
+      komutlar: kapıyı aç / kapı aç / kapıyı kapat / kapı kapat / kapıları aç / kapıları kapat / otobüs kapısını aç / otobüs kapısını kapat / otobüs kapısı / otobüs kapısını çalıştır
+
+[Kontak]
+  Kontak / Motor: tus E (bas)
+      komutlar: motoru çalıştır / motoru aç / motoru yak / motor çalıştır / motor aç / aracı çalıştır / arabayı çalıştır / kontağı aç / kontak aç / kontağı çevir / marşa bas / motoru kapat / motoru durdur / motoru sustur / motor kapat / motor durdur / aracı durdur / aracı kapat / arabayı durdur / kontağı kapat / kontak kapat / kontak
+
+[Işık / Fren]
+  Selektör - J: tus J (basili tut)
+      komutlar: selektör / selektör yap / selektör at / selektör çak
+  Uzun far - K: tus K (bas)
+      komutlar: uzunları aç / uzunları yak / uzunları kapat / uzunları söndür / uzun farı aç / uzun farı yak / uzun farı kapat / uzun farı söndür / uzun farları aç / uzun farları yak / uzun farları kapat / uzun farları söndür / uzun far aç / uzun far yak / uzun far kapat / uzun far söndür / uzun far / uzunlar
+  Kısa far / park: tus L (bas)
+  Sol sinyal: tus [ (bas)
+      komutlar: sol sinyal / sola sinyal / sol sinyal ver / sol sinyali aç / sol sinyali kapat
+  Sağ sinyal: tus ] (bas)
+      komutlar: sağ sinyal / sağa sinyal / sağ sinyal ver / sağ sinyali aç / sağ sinyali kapat
+  Dörtlü - F: tus F (bas)
+      komutlar: dörtlüleri aç / dörtlüleri yak / dörtlüleri kapat / dörtlüleri söndür / dörtlü aç / dörtlü yak / dörtlü kapat / dörtlü söndür / flaşörleri aç / flaşörleri yak / flaşörleri kapat / flaşörleri söndür / flaşör aç / flaşör yak / flaşör kapat / flaşör söndür / tehlike ışıklarını aç / tehlike ışıklarını yak / tehlike ışıklarını kapat / tehlike ışıklarını söndür / dörtlü / flaşör
+  El freni: tus Boşluk (bas)
+      komutlar: el frenini çek / el freni çek / el frenini bırak / el freni bırak / el frenini indir / el frenini kaldır / el frenini çekelim / park frenini çek / park frenini bırak / el freni
+  Kısa far aç [sadece sesli]: tus L (bas)
+      komutlar: kısaları aç / kısaları yak / kısa farı aç / kısa farı yak / kısa farları aç / kısa farları yak / kısa far aç / kısa far yak / farları aç / farları yak / far aç / far yak / kısa far
+  Park aç [sadece sesli]: tus L (bas)
+      komutlar: park lambalarını aç / parkları aç / parkları yak / parkları çalıştır / park lambalarını yak / park lambalarını çalıştır / park lambasını aç / park lambasını yak / park lambasını çalıştır / park lambaları aç / park lambaları yak / park lambaları çalıştır / park lambası aç / park lambası yak / park lambası çalıştır / park ışıklarını aç / park ışıklarını yak / park ışıklarını çalıştır / park ışığını aç / park ışığını yak / park ışığını çalıştır / park aç / park yak / park çalıştır / park farlarını aç / park farlarını yak / park farlarını çalıştır / park farını aç / park farını yak / park farını çalıştır / park lambası
+  Farlar kapat [sadece sesli]: tus L (bas)
+      komutlar: kısaları kapat / kısaları söndür / kısa farı kapat / kısa farı söndür / kısa farları kapat / kısa farları söndür / kısa far kapat / kısa far söndür / farları kapat / farları söndür / far kapat / far söndür / park lambalarını kapat / parkları kapat / parkları söndür / park lambalarını söndür / park lambasını kapat / park lambasını söndür / park lambaları kapat / park lambaları söndür / park lambası kapat / park lambası söndür / park ışıklarını kapat / park ışıklarını söndür / park ışığını kapat / park ışığını söndür / park kapat / park söndür / park farlarını kapat / park farlarını söndür / park farını kapat / park farını söndür
+
+[Dorse / Dingil]
+  Dorse bağla: tus T (bas)
+      komutlar: dorseyi bağla / dorse bağla / dorseyi tak / dorseyi bağlayalım / römorku bağla / römorku tak
+  Dorse bırak: tus T (bas)
+      komutlar: dorseyi bırak / dorse bırak / dorseyi çöz / dorseyi ayır / römorku bırak / römorku ayır
+  Çekici dingil indir - Çekici: tus End (bas) (*)
+      komutlar: araç dingilini indir / çekici dingili indir / dingili indir / dingili aşağı al / araç dingili indir
+  Çekici dingil kaldır - Çekici: tus Home (bas) (*)
+      komutlar: araç dingilini kaldır / çekici dingili kaldır / dingili kaldır / dingili yukarı al / araç dingili kaldır
+  Dorse dingil indir - Num 3: tus Num 3 (bas) (*)
+      komutlar: dorse dingilini indir / dorse dingili indir / dorse dingil indir / dorse dingilini aşağı al
+  Dorse dingil kaldır - Num 9: tus Num 9 (bas) (*)
+      komutlar: dorse dingilini kaldır / dorse dingili kaldır / dorse dingil kaldır / dorse dingilini yukarı al
+
+[Kamera]
+  İç - Kamera 1: tus 1 (bas)
+      komutlar: iç kameraya geç / iç kamerayı aç / iç kamerasını aç / iç kamerasına geç / kabin kamerasına geç / iç kamera
+  Takip - Kamera 2: tus 2 (bas)
+      komutlar: takip kamerasını aç / takip kamerayı aç / takip kameraya geç / takip kamerasına geç / takip kamerasını göster / takip kamerası / takip kamera / arkadan takip kamerasını aç / arkadan takip kamerayı aç / arkadan takip kameraya geç / arkadan takip kamerasına geç / arkadan takip kamerasını göster / arkadan takip kamerası / arkadan takip kamera
+  Dikey - Kamera 3: tus 3 (bas)
+      komutlar: dikey kamerasını aç / dikey kamerayı aç / dikey kameraya geç / dikey kamerasına geç / dikey kamerasını göster / dikey kamerası / dikey kamera
+  Çatı - Kamera 4: tus 4 (bas)
+      komutlar: çatı kamerasını aç / çatı kamerayı aç / çatı kameraya geç / çatı kamerasına geç / çatı kamerasını göster / çatı kamerası / çatı kamera / tavan kamerasını aç / tavan kamerayı aç / tavan kameraya geç / tavan kamerasına geç / tavan kamerasını göster / tavan kamerası / tavan kamera
+  Pencere - Kamera 5: tus 5 (bas)
+      komutlar: pencere kamerasını aç / pencere kamerayı aç / pencere kameraya geç / pencere kamerasına geç / pencere kamerasını göster / pencere kamerası / pencere kamera
+  Tampon - Kamera 6: tus 6 (bas)
+      komutlar: tampon kamerasını aç / tampon kamerayı aç / tampon kameraya geç / tampon kamerasına geç / tampon kamerasını göster / tampon kamerası / tampon kamera / ön tampon kamerasını aç / ön tampon kamerayı aç / ön tampon kameraya geç / ön tampon kamerasına geç / ön tampon kamerasını göster / ön tampon kamerası / ön tampon kamera
+  Park modu - Park kamerası: tus \ (bas)
+      komutlar: park kamerasını aç / park kamerayı aç / park modu kamerasını aç / park kamerasına geç / park moduna geç / park modu / park kamerası / park kamera
+
+=== SAYFA 2 ===
+
+[Ön süspansiyon]
+  Yükselt - Num 7: tus Num 7 (basili tut) (*)
+      komutlar: ön süspansiyonu yükselt / ön süspansiyon yükselt / ön süspansiyonu kaldır / ön yüksekliği artır / ön süspansiyon kaldır / ön süspansiyonu yukarı al / ön süspansiyonu yukarı çıkar / ön süspansiyonu yukarı kaldır / ön süspansiyonu yüksel / öne süspansiyonu kaldır / ön yükselt / önü kaldır / önü yükselt
+  Alçalt - Num 1: tus Num 1 (basili tut) (*)
+      komutlar: ön süspansiyonu alçalt / ön süspansiyon alçalt / ön süspansiyonu indir / ön süspansiyon indir / ön süspansiyonu aşağı al / ön süspansiyonu aşağı indir / önü indir / önü alçalt
+
+[Süspansiyon]
+  Sıfırla - Num *: tus Num * (bas) (*)
+      komutlar: süspansiyonu sıfırla / süspansiyon sıfırla / süspansiyonları sıfırla / süspansiyonu eski haline getir / süspansiyonu normale al / süspansiyonu düzelt / süspansiyon düzelt
+
+[Arka süspansiyon]
+  Yükselt - Num +: tus Num + (basili tut) (*)
+      komutlar: arka süspansiyonu yükselt / arka süspansiyon yükselt / arka süspansiyonu kaldır / arka süspansiyon kaldır / arka süspansiyonu yukarı al / arka süspansiyonu yukarı çıkar / arka süspansiyonu yukarı kaldır / arka süspansiyonu yüksel / arka yükselt / arkayı kaldır / arkayı yükselt
+  Alçalt - Num -: tus Num - (basili tut) (*)
+      komutlar: arka süspansiyonu alçalt / arka süspansiyon alçalt / arka süspansiyonu indir / arka süspansiyon indir / arka süspansiyonu aşağı al / arka süspansiyonu aşağı indir / arkayı indir / arkayı alçalt
+
+[Dorse süspansiyonu]
+  Yükselt - Num 8: tus Num 8 (basili tut) (*)
+      komutlar: dorse süspansiyonu yükselt / dorse süspansiyonunu yükselt / dorse süspansiyonu kaldır / dorse süspansiyon kaldır / dorse süspansiyonunu kaldır / dorse süspansiyonu yukarı al / dorse süspansiyonu yukarı çıkar / dorseyi yükselt / dorseyi kaldır
+  Alçalt - Num 2: tus Num 2 (basili tut) (*)
+      komutlar: dorse süspansiyonu alçalt / dorse süspansiyonunu alçalt / dorse süspansiyonu indir / dorse süspansiyon indir / dorse süspansiyonunu indir / dorse süspansiyonu aşağı al / dorse süspansiyonu aşağı indir
+
+[Kabin / Çakar]
+  Kabin ışığı - Num 0: tus Num 0 (bas) (*)
+      komutlar: kabin ışığını aç / kabin ışığını yak / kabin ışığını kapat / kabin ışığını söndür / kabin lambasını aç / kabin lambasını yak / kabin lambasını kapat / kabin lambasını söndür / iç ışığı aç / iç ışığı yak / iç ışığı kapat / iç ışığı söndür / iç ışıkları aç / iç ışıkları yak / iç ışıkları kapat / iç ışıkları söndür / kabin ışığı
+  Çakar lamba - O: tus O (bas)
+      komutlar: çakarları aç / çakarları yak / çakarları kapat / çakarları söndür / çakarı aç / çakarı yak / çakarı kapat / çakarı söndür / çakar lambayı aç / çakar lambayı yak / çakar lambayı kapat / çakar lambayı söndür / çakar lambaları aç / çakar lambaları yak / çakar lambaları kapat / çakar lambaları söndür / çakar aç / çakar yak / çakar kapat / çakar söndür / çakar
+
+[Silecek]
+  Silecek - P · modlar arası: tus P (bas)
+  Silecek aç [sadece sesli]: tus P (bas)
+      komutlar: silecekleri aç / silecekleri çalıştır / sileceği aç / sileceği çalıştır / silecek aç / silecek çalıştır / silecek
+  Silecek kapat [sadece sesli]: tus P (bas)
+      komutlar: silecekleri kapat / silecekleri durdur / sileceği kapat / sileceği durdur / silecek kapat / silecek durdur
+
+[Güneşlik]
+  İndir - Sol güneşlik: tus , (basili tut) (*)
+      komutlar: sol güneşliği indir / sol güneşliği aşağı al / sol güneşliği aşağı indir / sol güneşlik indir / sol güneşlik aşağı al / sol güneşlik aşağı indir / soldaki güneşliği indir / soldaki güneşliği aşağı al / soldaki güneşliği aşağı indir / sürücü güneşliğini indir / sürücü güneşliğini aşağı al / sürücü güneşliğini aşağı indir / güneşlikleri indir / güneşliği indir / güneşlik indir / tüm güneşlikleri indir / iki güneşliği indir / güneşlikleri aşağı al / güneşlikleri aşağı indir
+  İndir - Sağ güneşlik: tus . (basili tut) (*)
+      komutlar: sağ güneşliği indir / sağ güneşliği aşağı al / sağ güneşliği aşağı indir / sağ güneşlik indir / sağ güneşlik aşağı al / sağ güneşlik aşağı indir / sağdaki güneşliği indir / sağdaki güneşliği aşağı al / sağdaki güneşliği aşağı indir / yolcu güneşliğini indir / yolcu güneşliğini aşağı al / yolcu güneşliğini aşağı indir / güneşlikleri indir / güneşliği indir / güneşlik indir / tüm güneşlikleri indir / iki güneşliği indir / güneşlikleri aşağı al / güneşlikleri aşağı indir
+  Kaldır - Sol güneşlik: tus ; (basili tut) (*)
+      komutlar: sol güneşliği kaldır / sol güneşliği yukarı al / sol güneşliği yukarı kaldır / sol güneşlik kaldır / sol güneşlik yukarı al / sol güneşlik yukarı kaldır / soldaki güneşliği kaldır / soldaki güneşliği yukarı al / soldaki güneşliği yukarı kaldır / sürücü güneşliğini kaldır / sürücü güneşliğini yukarı al / sürücü güneşliğini yukarı kaldır / güneşlikleri kaldır / güneşliği kaldır / güneşlik kaldır / tüm güneşlikleri kaldır / iki güneşliği kaldır / güneşlikleri yukarı al / güneşlikleri yukarı kaldır
+  Kaldır - Sağ güneşlik: tus ' (basili tut) (*)
+      komutlar: sağ güneşliği kaldır / sağ güneşliği yukarı al / sağ güneşliği yukarı kaldır / sağ güneşlik kaldır / sağ güneşlik yukarı al / sağ güneşlik yukarı kaldır / sağdaki güneşliği kaldır / sağdaki güneşliği yukarı al / sağdaki güneşliği yukarı kaldır / yolcu güneşliğini kaldır / yolcu güneşliğini yukarı al / yolcu güneşliğini yukarı kaldır / güneşlikleri kaldır / güneşliği kaldır / güneşlik kaldır / tüm güneşlikleri kaldır / iki güneşliği kaldır / güneşlikleri yukarı al / güneşlikleri yukarı kaldır
+
+[Servis]
+  Servise git - F7 → 1: tus F7 sonra 1 (makro) (bas)
+      komutlar: servise git / servise gidelim / servise gidiyoruz / tamire git / tamire gidelim / tamirhaneye git
+
+[Navigasyon sesi]
+  Nav sesi - F10: tus F10 (bas) (*)
+  Nav sesi aç [sadece sesli]: tus F10 (bas) (*)
+      komutlar: sesli navigasyonu aktif et / sesli navigasyonu aç / sesli navigasyon aç / sesli navigasyonu aktifleştir / navigasyon sesini aç / navigasyonu konuştur / navigasyon sesini aktif et
+  Nav sesi kapat [sadece sesli]: tus F10 (bas) (*)
+      komutlar: sesli navigasyonu kapat / sesli navigasyon kapat / sesli navigasyonu devre dışı bırak / navigasyon sesini kapat / navigasyonu sustur / navigasyon sesini sustur
+
+[Oyun onayı]
+  Evet / Onayla - Enter: tus Enter (bas)
+  İptal - Esc: tus Esc (bas)
+
+=== SAYFA 3 ===
+
+[Numpad]
+  Num Lock: tus Num Lock (bas)
+  7: tus Num 7 (basili tut)
+  4: tus Num 4 (basili tut)
+  1: tus Num 1 (basili tut)
+  0: tus Num 0 (basili tut)
+
+[Numpad]
+  /: tus Num / (basili tut)
+  8: tus Num 8 (basili tut)
+  5: tus Num 5 (basili tut)
+  2: tus Num 2 (basili tut)
+  .: tus Num . (basili tut)
+
+[Numpad]
+  *: tus Num * (basili tut)
+  9: tus Num 9 (basili tut)
+  6: tus Num 6 (basili tut)
+  3: tus Num 3 (basili tut)
+  Enter: tus Num Enter (basili tut)
+
+[Numpad]
+  -: tus Num - (basili tut)
+  +: tus Num + (basili tut)
+
+OYUNDA AYNI TUSU IKI EYLEME ATAMA
+Sayfa 3 numpad tuslari Sayfa 2'deki suspansiyon / kabin isigi tuslariyla (Num 0, 1, 2, 7, 8, +, -, *) aynidir. Ayni tusu iki eyleme atamayin; oyun cakisma uyarisi verir.
+Isik butonlari sesli komutta durum bilgisine gore calisir (kisa far, park, silecek kademeleri): bunlar tek tusa (L, P) birden fazla kez basar.
