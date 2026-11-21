@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     branches: [main]
-    paths: ["version.json"]
+    paths: ["version.json", "release-notes/**"]
   workflow_dispatch:
 permissions:
   contents: write
@@ -18,6 +18,14 @@ jobs:
         run: |
           VER=$(jq -r .version version.json)
           TAG="v$VER"
-          if gh release view "$TAG" >/dev/null 2>&1; then echo "$TAG exists"; exit 0; fi
-          NOTES=$(awk -v v="$VER" '$0=="## "v{f=1;next} /^## /{f=0} f' CHANGELOG.md)
-          gh release create "$TAG" dist/* --target "$GITHUB_SHA" --title "Krankmili Button Box $TAG" --notes "${NOTES:-See CHANGELOG.md}"
+          if [ -f "release-notes/$TAG.md" ]; then NOTES=$(cat "release-notes/$TAG.md"); else NOTES=$(awk -v v="$VER" '$0=="## "v{f=1;next} /^## /{f=0} f' CHANGELOG.md); fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --notes "$NOTES"
+            # make release assets match dist/: remove assets no longer there, upload the rest
+            for a in $(gh release view "$TAG" --json assets --jq '.assets[].name'); do
+              [ -f "dist/$a" ] || gh release delete-asset "$TAG" "$a" -y
+            done
+            gh release upload "$TAG" dist/* --clobber
+          else
+            gh release create "$TAG" dist/* --target "$GITHUB_SHA" --title "Krankmili Button Box $TAG" --notes "${NOTES:-See CHANGELOG.md}"
+          fi
