@@ -7,6 +7,7 @@
 - Status panel: the cargo box alternates every 3 s between cargo (name, weight) and destination city with remaining km. Fixed the status panel disappearing when hidden buttons were filtered.
 - Voice: lights and wipers are state-aware. Hidden voice-only buttons tap the key until the telemetry state matches (`until` in config.json: state, value, max, wait_ms), so "kısaları aç" ends on low beam and "silecekleri kapat" ends with the wipers off across all stages. Without telemetry they tap once.
 - Voice keeps listening in the background and with the screen off: the recognizer runs in a microphone-type foreground service (notification with state and a stop button; needs notification permission, MIUI battery set to no restrictions).
+- Sun visors: separate left/right buttons (lower `,` `.`, raise `;` `'`), held like windows (5 s by voice). "güneşlikleri indir/kaldır" moves both; ids are `sunvisor_left_down` etc. Replaces the single lower/raise pair.
 - Requires the RECORD_AUDIO permission. Several buttons may share one phrase (e.g. "camları aç" opens both windows).
 
 ## 1.7.0

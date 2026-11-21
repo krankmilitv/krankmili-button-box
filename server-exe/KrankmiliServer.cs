@@ -912,9 +912,9 @@ namespace Krankmili
             if (!cfg.Buttons.TryGetValue(id, out b)) return;
             bool hold = b.Mode == "hold";
             // Windows need the key held for their whole travel; "biraz" holds about 20% of it.
-            int holdMs = hold ? (id.StartsWith("window_") ? (phrase.Contains("biraz") ? 1000 : 5000) : 1500) : 80;
+            int holdMs = hold ? (id.StartsWith("window_") || id.StartsWith("sunvisor_") ? (phrase.Contains("biraz") ? 1000 : 5000) : 1500) : 80;
             string opposite = null;
-            if (id.StartsWith("window_"))
+            if (id.StartsWith("window_") || id.StartsWith("sunvisor_"))
             {
                 if (id.EndsWith("_up")) opposite = id.Substring(0, id.Length - 3) + "_down";
                 else if (id.EndsWith("_down")) opposite = id.Substring(0, id.Length - 5) + "_up";

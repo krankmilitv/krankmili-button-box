@@ -31,6 +31,10 @@ Suspansiyon sifirla     Num *
 Dorse dingili kaldir Num 9
 Dorse dingili indir  Num 3
 Kabin isigi         Num 0
+Sol guneslik indir  ,  (virgul, basili tut)
+Sag guneslik indir  .  (nokta, basili tut)
+Sol guneslik kaldir ;
+Sag guneslik kaldir '
 Otobus kapisi       F9
 
 NASIL ATANIR
