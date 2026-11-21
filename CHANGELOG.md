@@ -1,6 +1,9 @@
 # Changelog
 
 ## 1.9.1
+- New: `KrankmiliKontrolKurulum.exe` adds the button box keys to the game's `controls.sii` (ETS2 `profiles` and `steam_profiles`; ATS with `--ats`). Only adds `| keyboard.X?0` alternatives to the matching game actions, backs up each file first, refuses to run while the game is open, `--dry` previews, `--geri-al` restores the newest backup.
+- Changed: sun visor keys are now F8 / Shift+F8 / Ctrl+F8 / Alt+F8 (the old `;` `'` collided with the retarder defaults). Park camera uses V (the game default).
+- Removed: navigation voice button and "sesli navigasyonu aç/kapat" (the game has no key binding for it; F10 is the screenshot key).
 - New: when the truck first moves after connecting, the tablet says cargo, destination, km left and a rough ETA.
 - New: fuel warning at 30 %: "benzin bitiyor, en yakın benzin istasyonuna git" (15 % and 7 % warnings stay).
 - Better voice: uses Google's speech engine when installed (same voices as Google Maps), picks the highest-quality installed Turkish voice, network voices included.

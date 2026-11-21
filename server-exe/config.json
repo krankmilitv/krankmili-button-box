@@ -709,7 +709,7 @@
           "label": "Park modu",
           "sub": "Park kamerası",
           "icon": "parking",
-          "key": "\\",
+          "key": "v",
           "mode": "tap",
           "span": 2,
           "voice": [
@@ -1036,7 +1036,7 @@
           "label": "İndir",
           "sub": "Sol güneşlik",
           "icon": "susp_down",
-          "key": ",",
+          "key": "f8",
           "mode": "hold",
           "voice": [
             "sol güneşliği indir",
@@ -1065,7 +1065,7 @@
           "label": "İndir",
           "sub": "Sağ güneşlik",
           "icon": "susp_down",
-          "key": ".",
+          "key": "shift+f8",
           "mode": "hold",
           "voice": [
             "sağ güneşliği indir",
@@ -1094,7 +1094,7 @@
           "label": "Kaldır",
           "sub": "Sol güneşlik",
           "icon": "susp_up",
-          "key": ";",
+          "key": "ctrl+f8",
           "mode": "hold",
           "voice": [
             "sol güneşliği kaldır",
@@ -1123,7 +1123,7 @@
           "label": "Kaldır",
           "sub": "Sağ güneşlik",
           "icon": "susp_up",
-          "key": "'",
+          "key": "alt+f8",
           "mode": "hold",
           "voice": [
             "sağ güneşliği kaldır",
@@ -1179,59 +1179,6 @@
             "tamire git",
             "tamire gidelim",
             "tamirhaneye git"
-          ]
-        }
-      ]
-    },
-    {
-      "title": "Navigasyon sesi",
-      "page": 2,
-      "column": 4,
-      "columns": 1,
-      "weight": 1,
-      "buttons": [
-        {
-          "id": "nav_voice",
-          "label": "Nav sesi",
-          "sub": "F10",
-          "icon": "nav",
-          "key": "f10",
-          "mode": "tap",
-          "speak": "Sesli navigasyon değiştirildi"
-        },
-        {
-          "id": "nav_voice_on",
-          "label": "Nav sesi aç",
-          "icon": "nav",
-          "key": "f10",
-          "mode": "tap",
-          "hidden": true,
-          "speak": "Sesli navigasyon aktif edildi",
-          "voice": [
-            "sesli navigasyonu aktif et",
-            "sesli navigasyonu aç",
-            "sesli navigasyon aç",
-            "sesli navigasyonu aktifleştir",
-            "navigasyon sesini aç",
-            "navigasyonu konuştur",
-            "navigasyon sesini aktif et"
-          ]
-        },
-        {
-          "id": "nav_voice_off",
-          "label": "Nav sesi kapat",
-          "icon": "nav",
-          "key": "f10",
-          "mode": "tap",
-          "hidden": true,
-          "speak": "Sesli navigasyon kapatıldı",
-          "voice": [
-            "sesli navigasyonu kapat",
-            "sesli navigasyon kapat",
-            "sesli navigasyonu devre dışı bırak",
-            "navigasyon sesini kapat",
-            "navigasyonu sustur",
-            "navigasyon sesini sustur"
           ]
         }
       ]

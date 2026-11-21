@@ -17,6 +17,7 @@ Dorse      Dorse bagla/birak T
 Kamera     Ic/Takip/Dikey/Cati/Pencere/Tampon  1 2 3 4 5 6
 
 OYUNDA ATAMA GEREKENLER (ETS2'de varsayilan tus yok)
+Not: Sesli navigasyonu acip kapatmak icin oyunda klavye tusu yoktur; button box bunu yapamaz.
 Not: Silecek (P) ve cakar (O) ETS2 varsayilanidir; surumune gore farkliysa oyunda atamayi kontrol et.
 Buton             Gonderdigi tus
 Cam kapat (sol/sag) Insert / Page Up
@@ -31,14 +32,18 @@ Suspansiyon sifirla     Num *
 Dorse dingili kaldir Num 9
 Dorse dingili indir  Num 3
 Kabin isigi         Num 0
-Sesli navigasyon ac/kapat F10 (oyunda navigasyon sesi acma-kapama eylemine ata)
-Sol guneslik indir  ,  (virgul, basili tut)
-Sag guneslik indir  .  (nokta, basili tut)
-Sol guneslik kaldir ;
-Sag guneslik kaldir '
+Sol guneslik indir  F8 (basili tut)
+Sag guneslik indir  Shift+F8 (basili tut)
+Sol guneslik kaldir Ctrl+F8 (basili tut)
+Sag guneslik kaldir Alt+F8 (basili tut)
 Otobus kapisi       F9
 
-NASIL ATANIR
+OTOMATIK KURULUM (onerilen)
+3 - Yardim klasorundeki degil, 1 - PC Sunucu klasorundeki KrankmiliKontrolKurulum.exe oyunu kapatinca calistirilir:
+oyunun controls.sii dosyasina button box tuslarini otomatik ekler (once yedek alir, hicbir mevcut atamayi silmez).
+Birakmak icin: KrankmiliKontrolKurulum.exe --geri-al    Sadece gormek icin: --dry
+
+ELLE ATAMA
 ETS2 -> Ayarlar -> Klavye ve fare -> ilgili satiri sec -> telefondaki butona bas.
 (Oyun tusu algilar ve atar.) Ayni tus baska bir islevde kullaniliyorsa cakisma uyarisi verir.
 
@@ -60,8 +65,6 @@ Not: Sayfa 2'deki suspansiyon/kabin isigi tuslari da Num tuslaridir; ayni tusu i
 
 YENI TUSLAR (1.8.1) - oyunda atama gerekir
 Buton              Gonderdigi tus
-Park modu kamerasi \ (ters bolu)
-Gunesluk indir     ; (noktalivirgul)
-Gunesluk kaldir    ' (tek tirnak)
+Park modu kamerasi V (oyun varsayilani)
 Sesli komutla "servise git" dendiginde onay (Enter) otomatik gonderilir.
 Sesli komut: "sol cami biraz ac" camin yaklasik %20'sini acar (kapat icin de var).

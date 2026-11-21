@@ -9,4 +9,7 @@ echo exitcode server %ERRORLEVEL% >> build.log
 rem PC-only voice edition (separate exe, same source, VOICEPC symbol)
 "%CSC%" /nologo /target:winexe /optimize+ /define:VOICEPC /out:KrankmiliSesliKomut.exe /win32icon:icon.ico /resource:config.json,config.json /resource:voice.html,voice.html %REFS% KrankmiliServer.cs >> build.log 2>&1
 echo exitcode voice %ERRORLEVEL% >> build.log
+rem Control setup tool: adds the button box keys to the game's controls.sii
+"%CSC%" /nologo /target:exe /optimize+ /out:KrankmiliKontrolKurulum.exe /win32icon:icon.ico /resource:config.json,config.json %REFS% KrankmiliKontrolKurulum.cs >> build.log 2>&1
+echo exitcode setup %ERRORLEVEL% >> build.log
 exit /b 0
