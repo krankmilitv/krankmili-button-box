@@ -67,6 +67,9 @@ data class TruckStatus(
     val destination: String,
     val routeKm: Float,
     val states: Map<String, Int> = emptyMap(),   // wipers / parking / beam_low / beam_high: 1 = on
+    val busEvent: String = "",                 // last bus_job.* event right after a job ended
+    val busSatisfaction: Int = -1,
+    val bus: BusJob? = null,                     // active Coaches DLC job (needs krankmili-bus.dll in the game's plugins folder)
 )
 
 sealed interface ConnectionState {
@@ -208,6 +211,9 @@ class ButtonBoxClient(private val scope: CoroutineScope) {
                                 cargoKg = msg.optDouble("cargoKg", 0.0).toFloat(),
                                 destination = msg.optString("dest"),
                                 routeKm = (msg.optDouble("routeKm", 0.0) / 1000.0).toFloat(),   // server sends meters
+                                bus = BusJob.parse(msg.optJSONObject("bus")),
+                                busEvent = BusJob.eventId(msg.optJSONObject("bus")),
+                                busSatisfaction = BusJob.satisfaction(msg.optJSONObject("bus")),
                                 states = msg.optJSONObject("states")?.let { o -> o.keys().asSequence().associateWith { k -> o.optInt(k) } } ?: emptyMap(),
                             )
                             "error" -> throw IOException(msg.optString("msg", "sunucu hatası"))

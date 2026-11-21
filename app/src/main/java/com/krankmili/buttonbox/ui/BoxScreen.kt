@@ -710,24 +710,40 @@ private fun StatusPanel(t: TruckStatus?, compact: Boolean, modifier: Modifier = 
                 t.cargoLoaded && t.cargo.isNotBlank() -> "${t.cargo} · ${(t.cargoKg / 1000f).let { "%.1f".format(it) }} t"
                 else -> "Yük yok"
             }
-            val hasRoute = live && t != null && t.cargoLoaded && t.destination.isNotBlank()
-            // alternate cargo / destination every 3 s; only this small block recomposes
-            var showRoute by remember { mutableStateOf(false) }
-            LaunchedEffect(hasRoute) {
-                showRoute = false
-                while (hasRoute) {
+            // pages that take turns every 3 s: cargo/destination for trucks, stop/passengers/route for a bus job
+            val bus = if (live) t?.bus else null
+            val pages: List<Pair<String, String>> = when {
+                bus != null && bus.now != null -> {
+                    val n = bus.now!!
+                    val km = t?.routeKm?.toInt() ?: 0
+                    listOf(
+                        "SIRADAKİ DURAK" to (n.to + (if (km > 0) " · $km km kaldı" else "")),
+                        "YOLCU" to (bus.onBoard(bus.current).toString() + " yolcu araçta · " + n.leaving + " inecek"),
+                        "DURAKLAR" to ((bus.current + 1).toString() + "/" + bus.stops.size + " · " +
+                            (listOf(n.from) + bus.stops.drop(bus.current).map { it.to }).joinToString(" › ")),
+                    )
+                }
+                live && t != null && t.cargoLoaded && t.destination.isNotBlank() ->
+                    listOf("YÜK" to cargoText, "VARIŞ" to "${t.destination} · ${t.routeKm.toInt()} km kaldı")
+                else -> listOf("YÜK" to cargoText)
+            }
+            var page by remember { mutableStateOf(0) }
+            LaunchedEffect(pages.size) {
+                page = 0
+                while (pages.size > 1) {
                     delay(3000)
-                    showRoute = !showRoute
+                    page = (page + 1) % pages.size
                 }
             }
-            val routeShown = hasRoute && showRoute && t != null
-            Text(if (routeShown) "VARIŞ" else "YÜK", color = Palette.Muted, fontSize = 13.sp, letterSpacing = 2.sp)
+            val shown = pages[page.coerceIn(0, pages.size - 1)]
+            Text(shown.first, color = Palette.Muted, fontSize = 13.sp, letterSpacing = 2.sp)
             Text(
-                if (routeShown && t != null) "${t.destination} · ${t.routeKm.toInt()} km kaldı" else cargoText,
+                shown.second,
                 color = Palette.Text,
                 fontSize = if (compact) 15.sp else 20.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             )
         }
         if (!live) {

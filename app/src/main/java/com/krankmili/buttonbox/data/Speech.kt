@@ -135,6 +135,7 @@ class TruckAlerts {
     // Alerts stay silent until the truck rolls or the engine is started from the box: menus and parked state say nothing.
     private var armed = false
     private var engineOn = false
+    private val busAlerts = BusAlerts()
 
     // Trip tracking: a new job (destination or cargo changes) announces itself once the route is known,
     // then every 100 km of route is reported. Speeds feed a rough ETA and a "traffic is slow" guess.
@@ -221,15 +222,18 @@ class TruckAlerts {
         bands[0] = bandOf(t.wearEngine); bands[1] = bandOf(t.wearTransmission); bands[2] = bandOf(t.wearChassis); bands[3] = bandOf(t.wearWheels)
         near5 = t.routeKm in 0.1f..5f
         prevWear = maxOf(t.wearChassis, t.wearEngine, t.wearWheels)
+        busAlerts.sync(t)
     }
 
     private fun briefing(t: TruckStatus): String {
         val ton = "%.1f".format(Locale("tr", "TR"), t.cargoKg / 1000f)
         val pct = (fuelFraction(t) * 100).toInt()
         val sb = StringBuilder("Motor çalıştı. ")
-        val hasRoute = t.destination.isNotBlank() && t.routeKm > 1f
+        val bus = t.bus
+        val hasRoute = bus == null && t.destination.isNotBlank() && t.routeKm > 1f
+        if (bus != null) sb.append(busAlerts.briefing(bus)).append(' ')
         if (hasRoute) sb.append("Hedefimiz ${t.destination}, ${t.routeKm.toInt()} kilometre. ")
-        if (t.cargoLoaded && t.cargo.isNotBlank()) sb.append("Yükünüz ${t.cargo}, $ton ton ağırlığında. ") else sb.append("Yük taşımıyorsun. ")
+        if (bus == null) { if (t.cargoLoaded && t.cargo.isNotBlank()) sb.append("Yükünüz ${t.cargo}, $ton ton ağırlığında. ") else sb.append("Yük taşımıyorsun. ") }
         if (hasRoute) {
             val min = (t.routeKm / 60f * 60f).toInt()
             sb.append("Ortalama 60 kilometre hızla yaklaşık ${if (min / 60 > 0) "${min / 60} saat " else ""}${min % 60} dakika sürer. ")
@@ -249,11 +253,12 @@ class TruckAlerts {
         tripKey = t.destination + "|" + t.cargo
         if (t.routeKm > 1f) lastMarkKm = t.routeKm
         sync(t)
-        Speaker.inform(briefing(t))
+        busAlerts.sync(t, started = true)
+        // no spoken briefing here: the "info" voice command / button gives it on request
     }
 
     fun check(t: TruckStatus) {
-        if (!t.gameRunning) { init = false; armed = false; engineOn = false; return }
+        if (!t.gameRunning) { init = false; armed = false; engineOn = false; busAlerts.sync(t.copy(bus = null)); return }
         val wear = floatArrayOf(t.wearEngine, t.wearTransmission, t.wearChassis, t.wearWheels)
         val names = arrayOf("Motor", "Şanzıman", "Şasi", "Tekerlekler")
         val f = if (t.fuelCapacity > 0) t.fuelLiters / t.fuelCapacity else 1f
@@ -268,9 +273,11 @@ class TruckAlerts {
             lastMarkKm = t.routeKm
             briefPending = true
             prevWear = maxOf(t.wearChassis, t.wearEngine, t.wearWheels)
+            busAlerts.sync(t, started = true)
             return
         }
         if (!armed) { if (t.speedKmh > 5f) armed = true else { sync(t); return } }
+        busAlerts.check(t)
         if (Speaker.autoInfo) trip(t) else { tripKey = t.destination + "|" + t.cargo; prevWear = maxOf(t.wearChassis, t.wearEngine, t.wearWheels) }
         if (f > 0.35f) { fuel30 = false; fuel15 = false; fuel7 = false }
         if (f < 0.30f && !fuel30) { fuel30 = true; Speaker.alert("Yakıt yüzde 30'un altına düştü, benzin bitiyor. En yakın benzin istasyonuna git.") }
@@ -288,6 +295,8 @@ class TruckAlerts {
 
 /** Questions answered locally from the live truck status ("yol durumu", "yakıt durumu", …). */
 object InfoCommands {
+    private val busInfo = BusAlerts()
+
     val phrases: Map<String, List<String>> = mapOf(
         "info:road" to listOf("yol durumu", "yol durumunu söyle", "yol bilgisi", "ne kadar kaldı", "kaç kilometre kaldı", "varışa ne kadar kaldı", "rota durumu"),
         "info:fuel" to listOf("yakıt durumu", "yakıt durumunu söyle", "yakıt ne kadar", "yakıt ne durumda", "yakıt kaldı mı"),
@@ -295,6 +304,7 @@ object InfoCommands {
         "info:cargo" to listOf("yük bilgisi", "yük bilgisini söyle", "ne taşıyorum", "yük ne", "yük durumu"),
         "info:speed" to listOf("hızım ne", "hız kaç", "kaç kilometre hızla gidiyorum"),
         "info:all" to listOf("sesli bilgi ver", "bilgi ver", "bilgi ver bana", "genel durum", "genel durumu söyle", "durum bilgisi ver", "durumu söyle", "her şeyi söyle", "tüm bilgileri söyle", "sesli bilgilendirme yap"),
+        "info:bus" to listOf("sıradaki durak", "durak bilgisi", "durak bilgisi ver", "yolcu bilgisi", "kaç yolcu var", "yolcu sayısı", "otobüs bilgisi", "sefer bilgisi", "varış durağı", "hangi durak"),
         "info:weather" to listOf("hava durumu", "hava durumunu söyle", "hava nasıl"),
         "info:auto_off" to listOf("otomatik bilgiyi kapat", "otomatik bilgileri kapat", "otomatik bilgilendirmeyi kapat", "yol bilgisini kapat"),
         "info:auto_on" to listOf("otomatik bilgiyi aç", "otomatik bilgileri aç", "otomatik bilgilendirmeyi aç", "yol bilgisini aç"),
@@ -305,7 +315,11 @@ object InfoCommands {
         if (id == "info:auto_off") { Speaker.updateAutoInfo(false); return "Otomatik bilgilendirme kapatıldı." }
         if (id == "info:auto_on") { Speaker.updateAutoInfo(true); return "Otomatik bilgilendirme açıldı." }
         if (t == null || !t.gameRunning) return "Oyun bağlı değil, bilgi alınamıyor."
-        if (id == "info:all") return listOf("info:road", "info:fuel", "info:cargo", "info:damage").joinToString(" ") { answer(it, t) }
+        if (id == "info:bus") return if (t.bus != null) busInfo.describe(t.bus, t.routeKm) else "Aktif bir otobüs seferi yok."
+        if (id == "info:all") {
+            val parts = if (t.bus != null) listOf("info:bus", "info:fuel", "info:damage") else listOf("info:road", "info:fuel", "info:cargo", "info:damage")
+            return parts.joinToString(" ") { answer(it, t) }
+        }
         return when (id) {
             "info:road" ->
                 if (t.destination.isBlank() || t.routeKm <= 0f) "Aktif bir rota yok. Hızın ${t.speedKmh.toInt()} kilometre."

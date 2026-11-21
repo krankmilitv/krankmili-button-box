@@ -1,5 +1,5 @@
 {
-  "version": "1.9.5",
+  "version": "1.10.0",
   "url": "https://github.com/krankmilitv/krankmili-button-box/releases/latest",
-  "notes": "Motor çalışınca sesli bilgi, yanan butonlar, 'sesli bilgi ver' komutu, kontrol ayarlarını otomatik atayan kurulum ve sesli komut listesi."
+  "notes": "Otobüs (Coaches DLC) desteği: durak, varış yeri ve yolcu bilgisi sesli ve ekranda. Motor çalışınca konuşmaz, 'bilgi ver' deyince söyler."
 }

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.10.0
+- New: Coaches DLC bus jobs. `krankmili-bus.dll` (SCS Telemetry SDK 1.16 plugin, source in `server-exe/plugin/`) writes the game's `bus_job` configuration to `%TEMP%\krankmili_bus.json`; the server adds it to the status message and the tablet speaks: trip start (route, passengers, departure/arrival times), next stop and passengers leaving, approaching a stop (5 km / 1 km), end of the trip. New voice commands: "sıradaki durak", "durak bilgisi", "yolcu bilgisi", "kaç yolcu var". "sesli bilgi ver" includes the bus job.
+- The server offers to install the plugin once when `dlc_bus.scs` is found; tray menu: "Otobüs (Coaches) eklentisini kur / güncelle".
+- Verified with real jobs: single-stage (Prag -> Nürnberg) and a 3-stage job (Prag -> Brno -> B. Bystrica -> Košice): `bus.stages.current` steps 0 -> 1 on arrival at a stop and the actual arrival/departure times are filled in. The navigation distance is taken as the distance to the next stop.
+- The cargo box on the tablet cycles NEXT STOP / PASSENGERS / STOPS during a bus job.
+- Changed: pressing the engine button no longer speaks a briefing; "bilgi ver" gives it on request (includes stop and passenger info on a bus job).
+- Bus job end is announced as cancelled or completed (with passenger satisfaction when the completion event carries it). Fines and crashes are not announced.
+
 ## 1.9.5
 - Fix: fuel / damage / arrival warnings were spoken in menus. They are armed by the first movement or by the engine button; until then the current state is only remembered.
 - New: pressing the engine button (touch or "motoru çalıştır") says the start briefing: destination, km, cargo, ETA, fuel and range (with the 30 % fuel warning). The tablet guesses the engine state from the button presses (every second press while standing is a start); the game's real engine flag was not verified.

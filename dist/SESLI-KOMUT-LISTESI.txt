@@ -16,11 +16,13 @@ Tuslar config.json'daki 'key' degerleridir; orayi degistirirsen bu liste de degi
   Hasar: hasar durumu / hasar var mı / araç durumu / kamyon durumu
   Yük: yük bilgisi / ne taşıyorum / yük ne / yük durumu
   Hız: hızım ne / hız kaç
+  Otobüs (Coaches DLC): sıradaki durak / durak bilgisi / yolcu bilgisi / kaç yolcu var / yolcu sayısı / otobüs bilgisi / sefer bilgisi / varış durağı / hangi durak
   Otomatik bilgiyi kapat: otomatik bilgiyi kapat / otomatik bilgilendirmeyi kapat / yol bilgisini kapat
   Otomatik bilgiyi aç: otomatik bilgiyi aç / otomatik bilgilendirmeyi aç / yol bilgisini aç
 
   Not: Sesli komut için tablette mikrofon butonuna dokun; komutu söyle.
-  Motor çalışınca hedef, yük ve yakıt bilgisi kendiliğinden söylenir; yakıt %30'un altına inince uyarır.
+  Motor çalışınca bir şey söylenmez; 'bilgi ver' deyince genel durum söylenir (otobüs seferindeyse durak ve yolcu bilgisi dahil).
+  Yakıt %30'un altına inince uyarır. Otobüs seferinde sefer başı, her durak, durağa yaklaşma ve sefer sonu söylenir.
 
 === SAYFA 1 ===
 

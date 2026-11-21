@@ -730,6 +730,8 @@ namespace Krankmili
                         d["cargoLoaded"] = a.ReadBoolean(1564);                           // config_b.isCargoLoaded
                         d["cargo"] = Str(a, 2620, 64);                                    // config_s.cargo
                         d["dest"] = Str(a, 2748, 64);                                     // config_s.cityDst
+                        var bus = BusPlugin.Read();
+                        if (bus != null) d["bus"] = bus;
                         d["states"] = new Dictionary<string, object> {                    // bool states (offsets found by diff logging)
                             {"wipers", a.ReadBoolean(1577) ? 1 : 0}, {"parking", a.ReadBoolean(1582) ? 1 : 0},
                             {"beam_low", a.ReadBoolean(1583) ? 1 : 0}, {"beam_high", a.ReadBoolean(1584) ? 1 : 0} };
@@ -759,6 +761,98 @@ namespace Krankmili
                 catch (Exception) { }
                 Thread.Sleep(1000);
             }
+        }
+    }
+
+    // Coaches DLC bus job: krankmili-bus.dll (embedded, source in plugin/) writes the game's "bus_job" configuration to
+    // %TEMP%\krankmili_bus.json; the status message carries it to the tablet as "bus".
+    static class BusPlugin
+    {
+        const string DllName = "krankmili-bus.dll";
+        public static string FilePath { get { return Path.Combine(Path.GetTempPath(), "krankmili_bus.json"); } }
+
+        static byte[] EmbeddedDll()
+        {
+            using (Stream s = Assembly.GetExecutingAssembly().GetManifestResourceStream(DllName))
+            {
+                if (s == null) return null;
+                using (MemoryStream ms = new MemoryStream()) { s.CopyTo(ms); return ms.ToArray(); }
+            }
+        }
+
+        public static bool Available { get { return EmbeddedDll() != null; } }
+
+        public static bool CoachesOwned()
+        {
+            string g = PluginInstaller.FindGameDir();
+            return g != null && File.Exists(Path.Combine(g, "dlc_bus.scs"));
+        }
+
+        public static bool IsInstalled()
+        {
+            string g = PluginInstaller.FindGameDir();
+            return g != null && File.Exists(Path.Combine(PluginInstaller.PluginDir(g), DllName));
+        }
+
+        public static string Install(out bool ok)
+        {
+            ok = false;
+            byte[] dll = EmbeddedDll();
+            if (dll == null) return "Bu sürümde otobüs eklentisi yok.";
+            string game = PluginInstaller.FindGameDir();
+            if (game == null)
+            {
+                using (FolderBrowserDialog fb = new FolderBrowserDialog())
+                {
+                    fb.Description = "ETS2 klasörü otomatik bulunamadı. 'Euro Truck Simulator 2' klasörünü seç.";
+                    if (fb.ShowDialog() != DialogResult.OK) return "Kurulum iptal edildi.";
+                    game = fb.SelectedPath;
+                }
+                if (!File.Exists(Path.Combine(game, @"bin\win_x64\eurotrucks2.exe")))
+                    return "Seçilen klasörde bin\\win_x64\\eurotrucks2.exe yok. Doğru klasörü seç.";
+            }
+            try
+            {
+                string dir = PluginInstaller.PluginDir(game);
+                Directory.CreateDirectory(dir);
+                string target = Path.Combine(dir, DllName);
+                File.WriteAllBytes(target, dll);
+                Log.Info("bus plugin installed: {0}", target);
+                ok = true;
+                return "Otobüs eklentisi kuruldu:\n" + target + "\n\nETS2 açıksa kapatıp yeniden başlat. Oyun eklenti için onay isterse 'Evet/OK' de.";
+            }
+            catch (Exception ex)
+            {
+                Log.Info("bus plugin install failed: {0}", ex.ToString());
+                return "Kurulum başarısız (oyun açıksa kapat): " + ex.Message;
+            }
+        }
+
+        /// <summary>Bus job for the status message: the active job, or for a few seconds after it ended the last bus_job.* event
+        /// (cancelled / completed). Null when there is nothing to report (no plugin, stale file).</summary>
+        public static Dictionary<string, object> Read()
+        {
+            try
+            {
+                string f = FilePath;
+                if (!File.Exists(f)) return null;
+                double age = (DateTime.UtcNow - File.GetLastWriteTimeUtc(f)).TotalSeconds;
+                string txt;
+                using (FileStream fs = new FileStream(f, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+                using (StreamReader sr = new StreamReader(fs, new UTF8Encoding(false))) txt = sr.ReadToEnd();
+                var o = new JavaScriptSerializer().DeserializeObject(txt) as Dictionary<string, object>;
+                if (o == null) return null;
+                bool active = o.ContainsKey("active") && o["active"] is bool && (bool)o["active"];
+                var job = o.ContainsKey("job") ? o["job"] as Dictionary<string, object> : null;
+                var r = new Dictionary<string, object>();
+                r["gameTime"] = o.ContainsKey("gameTime") ? o["gameTime"] : -1;
+                var ev = o.ContainsKey("event") ? o["event"] as Dictionary<string, object> : null;
+                if (ev != null && ev.ContainsKey("id") && ev["id"] is string && ((string)ev["id"]).StartsWith("bus_job.")) r["event"] = ev;
+                if (active && job != null && job.Count > 0 && age <= 120) { r["job"] = job; return r; }
+                if (!active && r.ContainsKey("event") && age <= 30) return r;
+                return null;
+            }
+            catch (Exception) { return null; }
         }
     }
 
@@ -1220,6 +1314,13 @@ namespace Krankmili
                 bool ok; string msg = PluginInstaller.Install(out ok);
                 MessageBox.Show(msg, Const.AppName, MessageBoxButtons.OK, ok ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
             });
+#if !VOICEPC
+            menu.Items.Add("Otobüs (Coaches) eklentisini kur / güncelle", null, delegate
+            {
+                bool ok; string msg = BusPlugin.Install(out ok);
+                MessageBox.Show(msg, Const.AppName, MessageBoxButtons.OK, ok ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+            });
+#endif
             if (!Diag.SelfElevated())
                 menu.Items.Add("Yönetici olarak yeniden başlat", null, delegate
                 {
@@ -1306,6 +1407,28 @@ namespace Krankmili
             System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer(); timer.Interval = 2000;
             timer.Tick += delegate { refreshText(); }; timer.Start(); refreshText();
 
+#if !VOICEPC
+            // Coaches DLC owners: offer the bus plugin once (stops and passengers for the tablet).
+            string busChoice = Path.Combine(dir, "bus-plugin-choice.txt");
+            if (BusPlugin.Available && !File.Exists(busChoice) && !BusPlugin.IsInstalled() && BusPlugin.CoachesOwned())
+            {
+                System.Windows.Forms.Timer busOnce = new System.Windows.Forms.Timer(); busOnce.Interval = 4000;
+                busOnce.Tick += delegate
+                {
+                    busOnce.Stop();
+                    DialogResult r = MessageBox.Show(
+                        "Coaches (otobüs) DLC'si bulundu. Durak ve yolcu bilgisini tablete sesli söyletmek için küçük bir eklenti (krankmili-bus.dll) ETS2'nin plugins klasörüne kurulsun mu?",
+                        Const.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    try { File.WriteAllText(busChoice, r == DialogResult.Yes ? "yes" : "no"); } catch (Exception) { }
+                    if (r == DialogResult.Yes)
+                    {
+                        bool ok; string msg = BusPlugin.Install(out ok);
+                        MessageBox.Show(msg, Const.AppName, MessageBoxButtons.OK, ok ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+                    }
+                };
+                busOnce.Start();
+            }
+#endif
             // First run: offer to install the telemetry plugin (asked once).
             string choiceFile = Path.Combine(dir, "telemetry-choice.txt");
             if (!Telemetry.PluginInstalled && !File.Exists(choiceFile))
