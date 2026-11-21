@@ -171,6 +171,7 @@ private fun AppRoot(
     val state by vm.state.collectAsState()
     val layout by vm.layout.collectAsState()
     val truck by vm.truck.collectAsState()
+    val lit by vm.lit.collectAsState()
 
     var host by remember { mutableStateOf(initialHost) }
     var port by remember { mutableStateOf(initialPort) }
@@ -225,6 +226,7 @@ private fun AppRoot(
     // The button screen needs a layout from the PC; until the first one arrives, show the form.
     val showBox = layout.isNotEmpty() && state !is ConnectionState.Disconnected
     if (showBox) {
+        androidx.compose.runtime.CompositionLocalProvider(com.krankmili.buttonbox.ui.LocalLit provides lit) {
         BoxScreen(
             // voice-only buttons stay in the layout (their phrases are used) but are not drawn
             allGroups = layout.mapNotNull { g -> if (g.kind == "status") g else g.copy(buttons = g.buttons.filter { !it.hidden }).takeIf { it.buttons.isNotEmpty() } },
@@ -243,6 +245,7 @@ private fun AppRoot(
             profile = profile,
             onProfile = { vm.selectProfile(it) },
         )
+        }
     } else {
         ConnectScreen(
             host = host, port = port, token = token,

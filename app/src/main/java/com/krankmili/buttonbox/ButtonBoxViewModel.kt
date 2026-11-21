@@ -69,6 +69,56 @@ class ButtonBoxViewModel : ViewModel() {
 
     private val voiceJobs = HashMap<String, kotlinx.coroutines.Job>()
 
+    // ---- lit buttons: held keys, short pulses for taps, and the flashers (hazard / indicators).
+    // The game does not tell us the flasher state, so it is tracked here: a press toggles it.
+    private val holds = HashSet<String>()
+    private val pulses = HashSet<String>()
+    private val flashers = HashSet<String>()
+    private val _lit = MutableStateFlow<Set<String>>(emptySet())
+    val lit: StateFlow<Set<String>> = _lit
+    private var indicatorJob: kotlinx.coroutines.Job? = null
+
+    private fun publishLit() { synchronized(this) { _lit.value = (holds + pulses + flashers).toSet() } }
+
+    private fun setHold(id: String, on: Boolean) { synchronized(this) { if (on) holds.add(id) else holds.remove(id) }; publishLit() }
+
+    private fun pulse(id: String) {
+        synchronized(this) { pulses.add(id) }; publishLit()
+        scope.launch { kotlinx.coroutines.delay(500); synchronized(this@ButtonBoxViewModel) { pulses.remove(id) }; publishLit() }
+    }
+
+    private fun toggleFlasher(id: String) {
+        synchronized(this) {
+            when (id) {
+                "hazard" -> if (!flashers.remove("hazard")) flashers.add("hazard")
+                "indicator_l", "indicator_r" -> {
+                    val other = if (id == "indicator_l") "indicator_r" else "indicator_l"
+                    flashers.remove(other)
+                    if (!flashers.remove(id)) flashers.add(id)
+                }
+            }
+        }
+        publishLit()
+        // The game cancels an indicator after the turn; assume that within 20 s since it cannot be read.
+        if (id.startsWith("indicator_")) {
+            indicatorJob?.cancel()
+            if (id in flashers) indicatorJob = scope.launch {
+                kotlinx.coroutines.delay(20_000)
+                synchronized(this@ButtonBoxViewModel) { flashers.remove("indicator_l"); flashers.remove("indicator_r") }
+                publishLit()
+            }
+        }
+    }
+
+    private fun isFlasher(id: String) = id == "hazard" || id == "indicator_l" || id == "indicator_r"
+
+    // Any interaction lights its button; taps pulse, holds stay lit while the key is down.
+    private fun interact(id: String, hold: Boolean) { if (isFlasher(id)) toggleFlasher(id) else if (!hold) pulse(id) }
+
+    init {
+        scope.launch { client.truck.collect { t -> if (t == null || !t.gameRunning) { synchronized(this@ButtonBoxViewModel) { flashers.clear() }; publishLit() } } }
+    }
+
     val profiles: StateFlow<List<String>> get() = client.profiles
     val profile: StateFlow<String> get() = client.profile
     fun selectProfile(name: String) {
@@ -131,14 +181,17 @@ class ButtonBoxViewModel : ViewModel() {
                             client.release(pr.yesId)
                         }
                     }
+                    if (running == null) interact(id, hold)
                     voiceJobs[id] = scope.launch {
                         try {
                             if (running == null) client.press(id)
+                            if (hold) setHold(id, true)
                             kotlinx.coroutines.delay(holdMs)
                         } finally {
                             if (voiceJobs[id] === kotlinx.coroutines.currentCoroutineContext()[kotlinx.coroutines.Job]) {
                                 voiceJobs.remove(id)
                                 client.release(id)
+                                setHold(id, false)
                             }
                         }
                     }
@@ -156,8 +209,13 @@ class ButtonBoxViewModel : ViewModel() {
 
     fun connect(host: String, port: Int, token: String) = client.connect(host, port, token)
     fun disconnect() = client.disconnect()
-    fun press(id: String) { client.press(id); speakFor(id) }
-    fun release(id: String) = client.release(id)
+    fun press(id: String) {
+        client.press(id); speakFor(id)
+        val hold = layout.value.asSequence().flatMap { it.buttons.asSequence() }.firstOrNull { it.id == id }?.mode == "hold"
+        interact(id, hold)
+        if (hold) setHold(id, true)
+    }
+    fun release(id: String) { client.release(id); setHold(id, false) }
 
     override fun onCleared() {
         if (VoiceHub.onHeard === heardHook) VoiceHub.onHeard = null

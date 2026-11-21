@@ -49,6 +49,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
@@ -67,6 +69,9 @@ import com.krankmili.buttonbox.data.BoxButton
 import com.krankmili.buttonbox.data.BoxGroup
 import com.krankmili.buttonbox.data.BoxPrompt
 import com.krankmili.buttonbox.data.TruckStatus
+
+/** Ids of buttons the user is interacting with right now (held keys, flashers, short pulses); drawn lit. */
+val LocalLit = androidx.compose.runtime.compositionLocalOf<Set<String>> { emptySet() }
 
 object Palette {
     val Background = Color(0xFF0E1013)
@@ -550,11 +555,19 @@ private fun KeyButton(
     var pressed by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
     val shape = RoundedCornerShape(if (compact) 12.dp else 16.dp)
-    val background = if (pressed) Palette.Accent else Palette.Key
+    val glow = active || button.id in LocalLit.current
+    // Hazard blinks red, the indicators blink amber; every other lit key glows amber steadily.
+    val blinkColor = when (button.id) { "hazard" -> Palette.Bad; "indicator_l", "indicator_r" -> Palette.Accent; else -> null }
+    val tint = blinkColor ?: Palette.Accent
+    val background = when {
+        pressed -> Palette.Accent
+        glow && blinkColor == null -> Palette.Accent.copy(alpha = 0.30f).compositeOver(Palette.Key)
+        else -> Palette.Key
+    }
     val foreground = if (pressed) Palette.OnAccent else Palette.Text
     val iconColor = when {
         pressed -> Palette.OnAccent
-        active -> Palette.Accent
+        glow -> tint
         button.accent -> Palette.Accent
         else -> Palette.Text
     }
@@ -564,7 +577,7 @@ private fun KeyButton(
             .alpha(if (enabled) 1f else 0.45f)
             .clip(shape)
             .background(background)
-            .border(if (active) 2.dp else 1.dp, if (pressed || active) Palette.Accent else Palette.KeyBorder, shape)
+            .border(if (glow) 2.dp else 1.dp, if (pressed) Palette.Accent else if (glow) tint else Palette.KeyBorder, shape)
             // Re-keying on `enabled` cancels an in-flight press when the link drops.
             .pointerInput(button.id, enabled) {
                 if (!enabled) return@pointerInput
@@ -591,6 +604,16 @@ private fun KeyButton(
             },
         contentAlignment = Alignment.Center,
     ) {
+        if (glow && blinkColor != null && !pressed) {
+            // Only blinking keys run an animation; alpha is read in the draw layer so nothing recomposes per frame.
+            val t = androidx.compose.animation.core.rememberInfiniteTransition(label = "blink")
+            val a = t.animateFloat(
+                0.05f, 0.5f,
+                androidx.compose.animation.core.infiniteRepeatable(androidx.compose.animation.core.tween(450), androidx.compose.animation.core.RepeatMode.Reverse),
+                label = "a",
+            )
+            Box(Modifier.fillMaxSize().graphicsLayer { alpha = a.value }.background(blinkColor))
+        }
         val gapPx = with(LocalDensity.current) { (if (compact) 1.dp else 4.dp).roundToPx() }
         // Icon, label and sub-label are stacked and centred; whatever does not fit is dropped
         // (sub-label first, then icon) instead of being cut in half at the button edge.

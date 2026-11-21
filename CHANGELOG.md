@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.3
+- New: lit buttons. Held keys (windows, sun visors, selector) glow amber while they are held; taps pulse briefly; high/low beam and wipers keep following the game state.
+- New: hazard blinks red, left/right indicators blink amber. The game exposes no flasher state, so the tablet tracks it from its own presses (indicators clear after 20 s or when the other side is pressed); pressing the keys on the keyboard is not seen.
+- New: voice command "sesli bilgi ver" (also "genel durum", "bilgi ver"): says distance left, fuel, cargo and damage.
+
 ## 1.9.2
 - Fix: the route distance arrives from the server in meters; spoken info said e.g. "500000 kilometre". It is now converted to km once when the status is parsed (on-screen text unchanged).
 

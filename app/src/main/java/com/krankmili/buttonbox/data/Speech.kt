@@ -247,6 +247,7 @@ object InfoCommands {
         "info:damage" to listOf("hasar durumu", "hasar durumunu söyle", "hasar var mı", "araç durumu", "kamyon durumu"),
         "info:cargo" to listOf("yük bilgisi", "yük bilgisini söyle", "ne taşıyorum", "yük ne", "yük durumu"),
         "info:speed" to listOf("hızım ne", "hız kaç", "kaç kilometre hızla gidiyorum"),
+        "info:all" to listOf("sesli bilgi ver", "bilgi ver", "bilgi ver bana", "genel durum", "genel durumu söyle", "durum bilgisi ver", "durumu söyle", "her şeyi söyle", "tüm bilgileri söyle", "sesli bilgilendirme yap"),
         "info:weather" to listOf("hava durumu", "hava durumunu söyle", "hava nasıl"),
         "info:auto_off" to listOf("otomatik bilgiyi kapat", "otomatik bilgileri kapat", "otomatik bilgilendirmeyi kapat", "yol bilgisini kapat"),
         "info:auto_on" to listOf("otomatik bilgiyi aç", "otomatik bilgileri aç", "otomatik bilgilendirmeyi aç", "yol bilgisini aç"),
@@ -257,6 +258,7 @@ object InfoCommands {
         if (id == "info:auto_off") { Speaker.updateAutoInfo(false); return "Otomatik bilgilendirme kapatıldı." }
         if (id == "info:auto_on") { Speaker.updateAutoInfo(true); return "Otomatik bilgilendirme açıldı." }
         if (t == null || !t.gameRunning) return "Oyun bağlı değil, bilgi alınamıyor."
+        if (id == "info:all") return listOf("info:road", "info:fuel", "info:cargo", "info:damage").joinToString(" ") { answer(it, t) }
         return when (id) {
             "info:road" ->
                 if (t.destination.isBlank() || t.routeKm <= 0f) "Aktif bir rota yok. Hızın ${t.speedKmh.toInt()} kilometre."
