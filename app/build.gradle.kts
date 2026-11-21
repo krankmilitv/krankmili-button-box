@@ -13,8 +13,8 @@ android {
         applicationId = "com.krankmili.buttonbox"
         minSdk = 26
         targetSdk = 37
-        versionCode = 22
-        versionName = "1.9.3"
+        versionCode = 23
+        versionName = "1.9.4"
     }
 
     compileOptions {

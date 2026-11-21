@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.4
+- Fix: the trip start / "araç çalıştı" information was spoken in menus. It now waits for the first movement of the truck (> 5 km/h); the game exposes no reliable engine-on flag we could verify.
+
 ## 1.9.3
 - New: lit buttons. Held keys (windows, sun visors, selector) glow amber while they are held; taps pulse briefly; high/low beam and wipers keep following the game state.
 - New: hazard blinks red, left/right indicators blink amber. The game exposes no flasher state, so the tablet tracks it from its own presses (indicators clear after 20 s or when the other side is pressed); pressing the keys on the keyboard is not seen.

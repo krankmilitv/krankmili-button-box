@@ -160,28 +160,30 @@ class TruckAlerts {
         } else if (t.speedKmh < 3f) {
             fastSpeed += (t.speedKmh - fastSpeed) * 0.02f   // standing still slowly pulls the fast average down
         }
-        if (briefPending && t.speedKmh > 5f) {
-            briefPending = false
-            if (t.destination.isNotBlank() && t.routeKm > 1f && !startPending) {
-                val ton = "%.1f".format(Locale("tr", "TR"), t.cargoKg / 1000f)
-                val min = (t.routeKm / (if (avgSpeed >= 20f) avgSpeed else 60f) * 60f).toInt()
-                val eta = (if (min / 60 > 0) "${min / 60} saat " else "") + "${min % 60} dakika"
-                val cargo = if (t.cargoLoaded && t.cargo.isNotBlank()) "Yük ${t.cargo}, $ton ton. " else "Yük taşımıyorsun. "
-                Speaker.inform("Araç çalıştı. $cargo Varış ${t.destination}, ${t.routeKm.toInt()} kilometre kaldı, yaklaşık $eta sürer.")
-            }
-        }
         val key = t.destination + "|" + t.cargo
         if (key != tripKey) {
             tripKey = key
             startPending = t.destination.isNotBlank() && t.cargoLoaded
         }
-        if (startPending && t.routeKm > 1f) {
+        // Nothing is announced in menus or while parked: the first movement of the truck triggers it.
+        val rolling = t.speedKmh > 5f
+        val ton = "%.1f".format(Locale("tr", "TR"), t.cargoKg / 1000f)
+        if (startPending && rolling && t.routeKm > 1f) {
             startPending = false
+            briefPending = false
             lastMarkKm = t.routeKm
-            val ton = "%.1f".format(Locale("tr", "TR"), t.cargoKg / 1000f)
             val fuelNote = if (t.rangeKm in 1f..t.routeKm) " Dikkat, yakıt menzili rotaya yetmeyebilir, yolda yakıt almayı planla." else ""
             Speaker.inform("Sefer başladı. Hedefimiz ${t.destination}, ${t.routeKm.toInt()} kilometre. Yük ${t.cargo}, $ton ton. Yakıt menzili ${t.rangeKm.toInt()} kilometre.$fuelNote")
             return
+        }
+        if (briefPending && rolling) {
+            briefPending = false
+            if (t.destination.isNotBlank() && t.routeKm > 1f) {
+                val min = (t.routeKm / (if (avgSpeed >= 20f) avgSpeed else 60f) * 60f).toInt()
+                val eta = (if (min / 60 > 0) "${min / 60} saat " else "") + "${min % 60} dakika"
+                val cargo = if (t.cargoLoaded && t.cargo.isNotBlank()) "Yük ${t.cargo}, $ton ton. " else "Yük taşımıyorsun. "
+                Speaker.inform("Araç çalıştı. $cargo Varış ${t.destination}, ${t.routeKm.toInt()} kilometre kaldı, yaklaşık $eta sürer.")
+            }
         }
         if (t.routeKm > lastMarkKm + 20f) lastMarkKm = t.routeKm          // route got longer (detour): restart the count
         if (t.routeKm > 20f && lastMarkKm - t.routeKm >= 100f) {

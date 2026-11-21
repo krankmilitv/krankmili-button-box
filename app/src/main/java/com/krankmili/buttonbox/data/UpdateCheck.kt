@@ -11,7 +11,7 @@ data class UpdateInfo(val version: String, val url: String, val notes: String)
  * Only notifies; installing is always done by the user (Android asks for it anyway).
  */
 object UpdateCheck {
-    const val CURRENT = "1.9.3"
+    const val CURRENT = "1.9.4"
     private const val SOURCE = "https://raw.githubusercontent.com/krankmilitv/krankmili-button-box/main/version.json"
 
     /** Returns the newer release, or null when up to date / offline / anything fails. */
