@@ -27,12 +27,22 @@ object Speaker {
     @Volatile private var quietUntil = 0L
     private var lastAlertAt = 0L
 
+    /** Automatic trip information (trip start, every 100 km, traffic, collision). Alerts (fuel, damage) follow the voice mode only. */
+    var autoInfo by mutableStateOf(true)
+        private set
+
+    fun updateAutoInfo(on: Boolean) {
+        autoInfo = on
+        prefs?.edit()?.putBoolean("auto_info", on)?.apply()
+    }
+
     val label: String get() = when (mode) { "male" -> "Erkek ses"; "off" -> "Ses kapalı"; else -> "Kadın ses" }
 
     fun init(ctx: Context, p: android.content.SharedPreferences) {
         if (tts != null) return
         prefs = p
         mode = p.getString("tts_mode", "female") ?: "female"
+        autoInfo = p.getBoolean("auto_info", true)
         tts = TextToSpeech(ctx.applicationContext) { status ->
             val t = tts
             if (status != TextToSpeech.SUCCESS || t == null) return@TextToSpeech
@@ -96,6 +106,13 @@ object Speaker {
         say(text)
     }
 
+    /** For automatic trip information: queued after whatever is being said, never cuts it off. */
+    fun inform(text: String) {
+        if (mode == "off" || !autoInfo || text.isBlank()) return
+        if (!ready) { pending.addLast(text); return }
+        tts?.speak(text, TextToSpeech.QUEUE_ADD, Bundle(), "k${System.nanoTime()}")
+    }
+
     private fun speakNow(text: String) {
         val t = tts ?: return
         t.speak(text, TextToSpeech.QUEUE_FLUSH, Bundle(), "k${System.nanoTime()}")
@@ -110,6 +127,68 @@ class TruckAlerts {
     private val bands = IntArray(4)
     private var near5 = false
 
+    // Trip tracking: a new job (destination or cargo changes) announces itself once the route is known,
+    // then every 100 km of route is reported. Speeds feed a rough ETA and a "traffic is slow" guess.
+    private var tripKey = ""
+    private var startPending = false
+    private var lastMarkKm = 0f
+    private var prevWear = 0f
+    private var avgSpeed = 0f          // slow average of moving speed (km/h)
+    private var fastSpeed = 0f         // fast average, drops quickly when the flow stops
+    private var slowFlow = false
+    private var lastTrafficAt = 0L
+
+    private fun etaText(routeKm: Float): String {
+        if (avgSpeed < 20f) return ""
+        val minutes = (routeKm / avgSpeed * 60f).toInt()
+        val h = minutes / 60; val m = minutes % 60
+        return " Bu hızla yaklaşık " + (if (h > 0) "$h saat " else "") + "$m dakika sürer."
+    }
+
+    private fun trip(t: TruckStatus) {
+        val moving = t.speedKmh > 20f
+        if (moving) {
+            avgSpeed = if (avgSpeed == 0f) t.speedKmh else avgSpeed + (t.speedKmh - avgSpeed) * 0.004f
+            fastSpeed = if (fastSpeed == 0f) t.speedKmh else fastSpeed + (t.speedKmh - fastSpeed) * 0.05f
+        } else if (t.speedKmh < 3f) {
+            fastSpeed += (t.speedKmh - fastSpeed) * 0.02f   // standing still slowly pulls the fast average down
+        }
+        val key = t.destination + "|" + t.cargo
+        if (key != tripKey) {
+            tripKey = key
+            startPending = t.destination.isNotBlank() && t.cargoLoaded
+        }
+        if (startPending && t.routeKm > 1f) {
+            startPending = false
+            lastMarkKm = t.routeKm
+            val ton = "%.1f".format(Locale("tr", "TR"), t.cargoKg / 1000f)
+            val fuelNote = if (t.rangeKm in 1f..t.routeKm) " Dikkat, yakıt menzili rotaya yetmeyebilir, yolda yakıt almayı planla." else ""
+            Speaker.inform("Sefer başladı. Hedefimiz ${t.destination}, ${t.routeKm.toInt()} kilometre. Yük ${t.cargo}, $ton ton. Yakıt menzili ${t.rangeKm.toInt()} kilometre.$fuelNote")
+            return
+        }
+        if (t.routeKm > lastMarkKm + 20f) lastMarkKm = t.routeKm          // route got longer (detour): restart the count
+        if (t.routeKm > 20f && lastMarkKm - t.routeKm >= 100f) {
+            lastMarkKm = t.routeKm
+            val pct = if (t.fuelCapacity > 0) (t.fuelLiters / t.fuelCapacity * 100).toInt() else 0
+            val dmg = maxOf(t.wearEngine, t.wearTransmission, t.wearChassis, t.wearWheels)
+            val dmgNote = if (dmg >= 0.05f) " En yüksek hasar yüzde ${(dmg * 100).toInt()}." else " Araçta önemli hasar yok."
+            Speaker.inform("Yolun 100 kilometresi tamamlandı. ${t.destination} için ${t.routeKm.toInt()} kilometre kaldı.${etaText(t.routeKm)} Yakıt yüzde $pct. Yol akışı ${if (slowFlow) "yavaş" else "stabil"}.$dmgNote")
+        }
+        // Heuristic from the truck's own speed (the game exposes no traffic data): a sustained slowdown after fast driving.
+        val now = System.currentTimeMillis()
+        if (!slowFlow && avgSpeed > 55f && fastSpeed in 5f..28f && t.speedKmh > 3f && now - lastTrafficAt > 300_000L) {
+            slowFlow = true; lastTrafficAt = now
+            Speaker.inform("Trafik yoğun görünüyor, hızımız düştü.")
+        } else if (slowFlow && fastSpeed > 50f) {
+            slowFlow = false
+            Speaker.inform("Trafik açıldı.")
+        }
+        // A sudden chassis/body damage jump is a collision.
+        val w = maxOf(t.wearChassis, t.wearEngine, t.wearWheels)
+        if (w - prevWear >= 0.02f) Speaker.alert("Çarpma algılandı. Hasar yüzde ${(w * 100).toInt()}.")
+        prevWear = w
+    }
+
     fun check(t: TruckStatus) {
         if (!t.gameRunning) { init = false; return }
         val wear = floatArrayOf(t.wearEngine, t.wearTransmission, t.wearChassis, t.wearWheels)
@@ -122,8 +201,12 @@ class TruckAlerts {
             fuel15 = f < 0.15f; fuel7 = f < 0.07f
             for (i in 0..3) bands[i] = band(wear[i])
             near5 = t.routeKm in 0.1f..5f
+            tripKey = t.destination + "|" + t.cargo
+            lastMarkKm = t.routeKm
+            prevWear = maxOf(t.wearChassis, t.wearEngine, t.wearWheels)
             return
         }
+        if (Speaker.autoInfo) trip(t) else { tripKey = t.destination + "|" + t.cargo; prevWear = maxOf(t.wearChassis, t.wearEngine, t.wearWheels) }
         if (f > 0.30f) { fuel15 = false; fuel7 = false }
         if (f < 0.07f && !fuel7) { fuel7 = true; fuel15 = true; Speaker.alert("Dikkat, yakıt kritik seviyede.") }
         else if (f < 0.15f && !fuel15) { fuel15 = true; Speaker.alert("Yakıt azaldı. Yaklaşık ${t.rangeKm.toInt()} kilometre menzil kaldı.") }
@@ -146,10 +229,14 @@ object InfoCommands {
         "info:cargo" to listOf("yük bilgisi", "yük bilgisini söyle", "ne taşıyorum", "yük ne", "yük durumu"),
         "info:speed" to listOf("hızım ne", "hız kaç", "kaç kilometre hızla gidiyorum"),
         "info:weather" to listOf("hava durumu", "hava durumunu söyle", "hava nasıl"),
+        "info:auto_off" to listOf("otomatik bilgiyi kapat", "otomatik bilgileri kapat", "otomatik bilgilendirmeyi kapat", "yol bilgisini kapat"),
+        "info:auto_on" to listOf("otomatik bilgiyi aç", "otomatik bilgileri aç", "otomatik bilgilendirmeyi aç", "yol bilgisini aç"),
     )
 
     fun answer(id: String, t: TruckStatus?): String {
         if (id == "info:weather") return "Oyundan hava durumu bilgisi alınamıyor."
+        if (id == "info:auto_off") { Speaker.updateAutoInfo(false); return "Otomatik bilgilendirme kapatıldı." }
+        if (id == "info:auto_on") { Speaker.updateAutoInfo(true); return "Otomatik bilgilendirme açıldı." }
         if (t == null || !t.gameRunning) return "Oyun bağlı değil, bilgi alınamıyor."
         return when (id) {
             "info:road" ->

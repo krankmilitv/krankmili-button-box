@@ -8,6 +8,7 @@
 - New: automatic spoken alerts: low / critical fuel, damage crossing 25/50/75 %, 5 km to the destination.
 - New: live button state: buttons with `state` (high beam, wipers, low beam) light up from telemetry (`states` in the status message).
 - New: key-set profiles (`profiles` in config.json, chip in the header when two or more exist). Switching sends `{"t":"profile","name":...}`; the server remembers the choice in profile.txt.
+- New: automatic trip information without a command: trip start (destination, km, cargo, fuel range check), every 100 km (km left, rough ETA, fuel, damage, flow), a speed-based "traffic is slow" guess and "traffic cleared", collision on a sudden damage jump. "otomatik bilgiyi kapat/aç" toggles it. The game exposes no road works / accident / real traffic data.
 - Bus passenger satisfaction is not exposed by the telemetry plugin we read; not included.
 
 ## 1.8.0
