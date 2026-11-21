@@ -267,7 +267,8 @@
             "uzun far söndür",
             "uzun far",
             "uzunlar"
-          ]
+          ],
+          "state": "beam_high"
         },
         {
           "id": "light_mode",
@@ -275,7 +276,8 @@
           "icon": "headlight",
           "key": "l",
           "mode": "tap",
-          "span": 2
+          "span": 2,
+          "state": "beam_low"
         },
         {
           "id": "indicator_l",
@@ -972,7 +974,8 @@
           "sub": "P · modlar arası",
           "icon": "wiper",
           "key": "p",
-          "mode": "tap"
+          "mode": "tap",
+          "state": "wipers"
         },
         {
           "id": "wipers_on",
@@ -1181,6 +1184,59 @@
       ]
     },
     {
+      "title": "Navigasyon sesi",
+      "page": 2,
+      "column": 4,
+      "columns": 1,
+      "weight": 1,
+      "buttons": [
+        {
+          "id": "nav_voice",
+          "label": "Nav sesi",
+          "sub": "F10",
+          "icon": "nav",
+          "key": "f10",
+          "mode": "tap",
+          "speak": "Sesli navigasyon değiştirildi"
+        },
+        {
+          "id": "nav_voice_on",
+          "label": "Nav sesi aç",
+          "icon": "nav",
+          "key": "f10",
+          "mode": "tap",
+          "hidden": true,
+          "speak": "Sesli navigasyon aktif edildi",
+          "voice": [
+            "sesli navigasyonu aktif et",
+            "sesli navigasyonu aç",
+            "sesli navigasyon aç",
+            "sesli navigasyonu aktifleştir",
+            "navigasyon sesini aç",
+            "navigasyonu konuştur",
+            "navigasyon sesini aktif et"
+          ]
+        },
+        {
+          "id": "nav_voice_off",
+          "label": "Nav sesi kapat",
+          "icon": "nav",
+          "key": "f10",
+          "mode": "tap",
+          "hidden": true,
+          "speak": "Sesli navigasyon kapatıldı",
+          "voice": [
+            "sesli navigasyonu kapat",
+            "sesli navigasyon kapat",
+            "sesli navigasyonu devre dışı bırak",
+            "navigasyon sesini kapat",
+            "navigasyonu sustur",
+            "navigasyon sesini sustur"
+          ]
+        }
+      ]
+    },
+    {
       "title": "Oyun onayı",
       "page": 2,
       "column": 4,
@@ -1359,6 +1415,16 @@
           "mode": "hold"
         }
       ]
+    }
+  ],
+  "profiles": [
+    {
+      "name": "ETS2",
+      "keys": {}
+    },
+    {
+      "name": "ATS",
+      "keys": {}
     }
   ]
 }

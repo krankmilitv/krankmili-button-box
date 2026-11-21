@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.9.0
+- New: spoken feedback on the tablet (Android TTS, tr-TR). Header chip cycles female / male / off. Output uses the alarm stream because the recognizer mutes the media stream while listening; the tablet ignores the microphone while it speaks.
+- New: `speak` on a button in config.json: text said after the press (touch or voice).
+- New: navigation voice button (page 2, key F10) plus voice-only "sesli navigasyonu aktif et / kapat"; the tablet confirms "Sesli navigasyon aktif edildi / kapatıldı". The game has to bind F10 to its navigation voice toggle.
+- New: spoken answers from live telemetry: "yol durumu", "yakıt durumu", "hasar durumu", "yük bilgisi", "hızım ne". "hava durumu" answers that the game does not provide it (no weather channel in the telemetry).
+- New: automatic spoken alerts: low / critical fuel, damage crossing 25/50/75 %, 5 km to the destination.
+- New: live button state: buttons with `state` (high beam, wipers, low beam) light up from telemetry (`states` in the status message).
+- New: key-set profiles (`profiles` in config.json, chip in the header when two or more exist). Switching sends `{"t":"profile","name":...}`; the server remembers the choice in profile.txt.
+- Bus passenger satisfaction is not exposed by the telemetry plugin we read; not included.
+
 ## 1.8.0
 - New: voice control. Mic button in the header; while on, the tablet listens (Android SpeechRecognizer, tr-TR) and presses the matching buttons. No wake word: a phrase must be (nearly) the whole utterance, with a small edit-distance tolerance for recognizer spelling. Phrases come from the new optional `voice` list on each button in config.json (protocol: additive `voice` array in the layout). Voice commands skip the confirm prompt; the prompt stays for touch.
 - Voice answers the in-game confirmation itself ("servise git" also sends Enter); windows are held 5 s so they travel fully; the recognizer beep is hidden by muting the media/notification/system streams while listening.

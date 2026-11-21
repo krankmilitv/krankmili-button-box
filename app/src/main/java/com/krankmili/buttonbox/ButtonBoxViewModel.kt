@@ -69,9 +69,30 @@ class ButtonBoxViewModel : ViewModel() {
 
     private val voiceJobs = HashMap<String, kotlinx.coroutines.Job>()
 
+    val profiles: StateFlow<List<String>> get() = client.profiles
+    val profile: StateFlow<String> get() = client.profile
+    fun selectProfile(name: String) {
+        client.selectProfile(name)
+        com.krankmili.buttonbox.data.Speaker.say("Profil: $name")
+    }
+
+    private val alerts = com.krankmili.buttonbox.data.TruckAlerts()
+    init {
+        scope.launch { client.truck.collect { t -> if (t != null) alerts.check(t) } }
+    }
+
+    private fun speakFor(id: String) {
+        val text = layout.value.asSequence().flatMap { it.buttons.asSequence() }.firstOrNull { it.id == id }?.speak.orEmpty()
+        if (text.isNotEmpty()) com.krankmili.buttonbox.data.Speaker.say(text)
+    }
+
     fun onVoiceHeard(alternatives: List<String>) {
+        // Ignore what the microphone picked up while the tablet itself was speaking.
+        if (com.krankmili.buttonbox.data.Speaker.busy()) return
         val buttons = layout.value.flatMap { it.buttons }
         val phrases = HashMap<String, MutableList<String>>()
+        for ((iid, list) in com.krankmili.buttonbox.data.InfoCommands.phrases) for (v in list)
+            phrases.getOrPut(com.krankmili.buttonbox.data.VoiceMatcher.norm(v)) { mutableListOf() }.add(iid)
         for (b in buttons) for (v in b.voice) {
             val ids = phrases.getOrPut(com.krankmili.buttonbox.data.VoiceMatcher.norm(v)) { mutableListOf() }
             if (b.id !in ids) ids.add(b.id)
@@ -82,6 +103,11 @@ class ButtonBoxViewModel : ViewModel() {
                 armedUntil = 0
                 _voiceStatus.value = "✓ ${r.phrase}"
                 for (id in r.ids) {
+                    if (id.startsWith("info:")) {
+                        com.krankmili.buttonbox.data.Speaker.say(com.krankmili.buttonbox.data.InfoCommands.answer(id, truck.value))
+                        continue
+                    }
+                    speakFor(id)
                     val hold = buttons.firstOrNull { it.id == id }?.mode == "hold"
                     // Windows need the key held for their whole travel so they open/close fully.
                     // "biraz" (a little) holds a window about 20% of its travel.
@@ -130,7 +156,7 @@ class ButtonBoxViewModel : ViewModel() {
 
     fun connect(host: String, port: Int, token: String) = client.connect(host, port, token)
     fun disconnect() = client.disconnect()
-    fun press(id: String) = client.press(id)
+    fun press(id: String) { client.press(id); speakFor(id) }
     fun release(id: String) = client.release(id)
 
     override fun onCleared() {

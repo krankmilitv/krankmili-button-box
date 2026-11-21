@@ -31,6 +31,7 @@ Suspansiyon sifirla     Num *
 Dorse dingili kaldir Num 9
 Dorse dingili indir  Num 3
 Kabin isigi         Num 0
+Sesli navigasyon ac/kapat F10 (oyunda navigasyon sesi acma-kapama eylemine ata)
 Sol guneslik indir  ,  (virgul, basili tut)
 Sag guneslik indir  .  (nokta, basili tut)
 Sol guneslik kaldir ;

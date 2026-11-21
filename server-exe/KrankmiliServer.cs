@@ -33,8 +33,8 @@ using Microsoft.Win32;
 [assembly: AssemblyCompany("Krankmili TV")]
 [assembly: AssemblyProduct("Krankmili Button Box")]
 [assembly: AssemblyCopyright("Copyright (c) Krankmili TV")]
-[assembly: AssemblyVersion("1.8.0.0")]
-[assembly: AssemblyFileVersion("1.8.0.0")]
+[assembly: AssemblyVersion("1.9.0.0")]
+[assembly: AssemblyFileVersion("1.9.0.0")]
 
 namespace Krankmili
 {
@@ -50,7 +50,7 @@ namespace Krankmili
 #else
         public const string AppName = "Krankmili Button Box";
 #endif
-        public const string Version = "1.8.0";
+        public const string Version = "1.9.0";
         public const string UpdateSource = "https://raw.githubusercontent.com/krankmilitv/krankmili-button-box/main/version.json";
     }
 
@@ -298,6 +298,7 @@ namespace Krankmili
         public string Id, Label, Mode, Icon, Sub; public List<string> Keys; public List<string> Voice = new List<string>(); public int Span; public bool Accent, Hidden;   // Hidden: voice-only button (not drawn on the tablet)
         public List<List<string>> Steps; public int StepMs = 350;          // optional macro: key steps pressed one after another
         public string UntilState; public int UntilValue = 1, UntilMax = 6;   // optional: tap the key until a telemetry state reaches the value (cycling switches)
+        public string Speak, State; public List<string> OrigKeys;            // Speak: text the tablet says after the press; State: telemetry state that lights the button
         public string PromptText, PromptYes, PromptNo;                      // optional on-tablet confirm dialog shown after the press
     }
     class Grp
@@ -310,6 +311,24 @@ namespace Krankmili
         public int Port = 5555; public string Token = ""; public int TapMs = 60;
         public List<Grp> Groups = new List<Grp>();
         public Dictionary<string, Btn> Buttons = new Dictionary<string, Btn>();
+        public List<string> ProfileNames = new List<string>();
+        public Dictionary<string, Dictionary<string, string>> ProfileKeys = new Dictionary<string, Dictionary<string, string>>();
+        public string Profile = "";
+
+        // Switches the key set: every button goes back to its config key, then the profile's overrides are applied.
+        public bool ApplyProfile(string name)
+        {
+            if (!ProfileKeys.ContainsKey(name)) return false;
+            foreach (Btn b in Buttons.Values) if (b.OrigKeys != null) b.Keys = new List<string>(b.OrigKeys);
+            foreach (KeyValuePair<string, string> kv in ProfileKeys[name])
+            {
+                Btn b;
+                if (Buttons.TryGetValue(kv.Key, out b) && b.Steps == null)
+                    try { b.Keys = KeyTable.Parse(kv.Value); } catch (Exception ex) { Log.Info("profile '{0}' key for '{1}' ignored: {2}", name, kv.Key, ex.Message); }
+            }
+            Profile = name;
+            return true;
+        }
 
         static string S(IDictionary d, string k, string def) { return d.Contains(k) && d[k] != null ? Convert.ToString(d[k], CultureInfo.InvariantCulture) : def; }
         static int I(IDictionary d, string k, int def) { return d.Contains(k) && d[k] != null ? Convert.ToInt32(d[k], CultureInfo.InvariantCulture) : def; }
@@ -363,12 +382,25 @@ namespace Krankmili
                             }
                             btn.Label = S(b, "label", btn.Id); btn.Icon = S(b, "icon", ""); btn.Sub = S(b, "sub", "");
                             btn.Span = I(b, "span", 1); btn.Accent = B(b, "accent"); btn.Hidden = B(b, "hidden");
+                            btn.Speak = S(b, "speak", ""); btn.State = S(b, "state", "");
+                            btn.OrigKeys = new List<string>(btn.Keys);
                             if (b.Contains("voice") && b["voice"] is System.Collections.IEnumerable && !(b["voice"] is string))
                                 foreach (object v in (System.Collections.IEnumerable)b["voice"]) if (v != null) btn.Voice.Add(Convert.ToString(v, CultureInfo.InvariantCulture));
                             c.Buttons[btn.Id] = btn; grp.Buttons.Add(btn);
                         }
                     c.Groups.Add(grp);
                 }
+            if (raw.Contains("profiles") && raw["profiles"] is IEnumerable && !(raw["profiles"] is string))
+                foreach (object po in (IEnumerable)raw["profiles"])
+                {
+                    IDictionary pd = po as IDictionary; if (pd == null) continue;
+                    string pn = S(pd, "name", ""); if (pn.Length == 0 || c.ProfileKeys.ContainsKey(pn)) continue;
+                    var map = new Dictionary<string, string>();
+                    if (pd.Contains("keys") && pd["keys"] is IDictionary)
+                        foreach (DictionaryEntry de in (IDictionary)pd["keys"]) map[Convert.ToString(de.Key)] = Convert.ToString(de.Value, CultureInfo.InvariantCulture);
+                    c.ProfileNames.Add(pn); c.ProfileKeys[pn] = map;
+                }
+            if (c.ProfileNames.Count > 0) c.Profile = c.ProfileNames[0];
             foreach (Btn pb in c.Buttons.Values)
                 if (pb.PromptText != null && (!c.Buttons.ContainsKey(pb.PromptYes) || (pb.PromptNo.Length > 0 && !c.Buttons.ContainsKey(pb.PromptNo))))
                     throw new Exception("button '" + pb.Id + "': prompt yes/no must name existing button ids");
@@ -388,6 +420,8 @@ namespace Krankmili
                         {"sub", b.Sub}, {"span", b.Span}, {"accent", b.Accent} };
                     if (b.Voice.Count > 0) bd["voice"] = b.Voice;
                     if (b.Hidden) bd["hidden"] = true;
+                    if (!string.IsNullOrEmpty(b.Speak)) bd["speak"] = b.Speak;
+                    if (!string.IsNullOrEmpty(b.State)) bd["state"] = b.State;
                     if (b.PromptText != null)
                         bd["prompt"] = new Dictionary<string, object> { {"text", b.PromptText}, {"yes", b.PromptYes}, {"no", b.PromptNo} };
                     bl.Add(bd);
@@ -397,7 +431,8 @@ namespace Krankmili
                     {"weight", g.Weight}, {"buttons", bl} });
             }
             return new JavaScriptSerializer().Serialize(new Dictionary<string, object> {
-                {"t", "layout"}, {"v", Const.ProtocolVersion}, {"groups", groups} });
+                {"t", "layout"}, {"v", Const.ProtocolVersion}, {"groups", groups},
+                {"profiles", ProfileNames}, {"profile", Profile} });
         }
     }
 
@@ -481,6 +516,7 @@ namespace Krankmili
         TcpListener listener; UdpClient udp;
         public int Clients;
         public static readonly List<StreamWriter> Subs = new List<StreamWriter>();
+        public static readonly string ProfileFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "profile.txt");
         public Server(Config c, KeyState k) { cfg = c; keys = k; }
 
         public void Start()
@@ -598,6 +634,19 @@ namespace Krankmili
                     if (kind == "press") session.Press(id);
                     else if (kind == "release") session.Release(id);
                     else if (kind == "ping") Send(writer, "{\"t\":\"pong\"}");
+                    else if (kind == "profile")
+                    {
+                        string pname = m.Contains("name") ? Convert.ToString(m["name"]) : "";
+                        session.ReleaseAll();
+                        if (cfg.ApplyProfile(pname))
+                        {
+                            Log.Info("profile -> {0}", pname);
+                            try { File.WriteAllText(ProfileFile, pname, new UTF8Encoding(false)); } catch (Exception) { }
+                            string lj = cfg.LayoutJson();
+                            StreamWriter[] all; lock (Subs) { all = Subs.ToArray(); }
+                            foreach (StreamWriter w in all) try { Send(w, lj); } catch (Exception) { }
+                        }
+                    }
                 }
             }
             catch (Exception ex) { Log.Info("client {0} dropped: {1}", peer, ex.Message); }
@@ -681,6 +730,9 @@ namespace Krankmili
                         d["cargoLoaded"] = a.ReadBoolean(1564);                           // config_b.isCargoLoaded
                         d["cargo"] = Str(a, 2620, 64);                                    // config_s.cargo
                         d["dest"] = Str(a, 2748, 64);                                     // config_s.cityDst
+                        d["states"] = new Dictionary<string, object> {                    // bool states (offsets found by diff logging)
+                            {"wipers", a.ReadBoolean(1577) ? 1 : 0}, {"parking", a.ReadBoolean(1582) ? 1 : 0},
+                            {"beam_low", a.ReadBoolean(1583) ? 1 : 0}, {"beam_high", a.ReadBoolean(1584) ? 1 : 0} };
                     }
                 }
             }
@@ -1103,6 +1155,7 @@ namespace Krankmili
                 return;
             }
 
+            try { if (File.Exists(Server.ProfileFile)) cfg.ApplyProfile(File.ReadAllText(Server.ProfileFile, Encoding.UTF8).Trim()); } catch (Exception) { }
             KeyState keys = new KeyState();
             foreach (string a in args) if (a == "--dry-run") keys.DryRun = true;
             server = new Server(cfg, keys);

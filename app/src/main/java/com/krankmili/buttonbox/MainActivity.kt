@@ -87,6 +87,7 @@ class MainActivity : ComponentActivity() {
             if (checkSelfPermission(perm) != PackageManager.PERMISSION_GRANTED) ask.launch(perm)
         }
         prefs = getSharedPreferences("buttonbox", Context.MODE_PRIVATE)
+        com.krankmili.buttonbox.data.Speaker.init(this, prefs)
         voiceOn = prefs.getBoolean("voice_on", false) && micGranted()
         val askNotif = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
         val askMic = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -175,6 +176,8 @@ private fun AppRoot(
     var port by remember { mutableStateOf(initialPort) }
     var token by remember { mutableStateOf(initialToken) }
     val voiceStatus by vm.voiceStatus.collectAsState()
+    val profiles by vm.profiles.collectAsState()
+    val profile by vm.profile.collectAsState()
     val update by vm.update.collectAsState()
     var updateCheck by remember { mutableStateOf(initialUpdateCheck) }
     var updateDismissed by rememberSaveable { mutableStateOf(false) }
@@ -234,6 +237,11 @@ private fun AppRoot(
             voiceOn = voiceOn,
             voiceStatus = voiceStatus,
             onVoice = onVoice,
+            speechLabel = com.krankmili.buttonbox.data.Speaker.label,
+            onSpeech = { com.krankmili.buttonbox.data.Speaker.cycleMode() },
+            profiles = profiles,
+            profile = profile,
+            onProfile = { vm.selectProfile(it) },
         )
     } else {
         ConnectScreen(

@@ -35,6 +35,8 @@ data class BoxButton(
     val prompt: BoxPrompt? = null,
     val voice: List<String> = emptyList(),
     val hidden: Boolean = false,   // voice-only: not drawn
+    val speak: String = "",        // spoken by the tablet after the press (e.g. "Sesli navigasyon aktif edildi")
+    val state: String = "",        // telemetry state name that lights the button while the game reports it on
 )
 
 data class BoxGroup(
@@ -64,6 +66,7 @@ data class TruckStatus(
     val cargoKg: Float,
     val destination: String,
     val routeKm: Float,
+    val states: Map<String, Int> = emptyMap(),   // wipers / parking / beam_low / beam_high: 1 = on
 )
 
 sealed interface ConnectionState {
@@ -83,6 +86,12 @@ class ButtonBoxClient(private val scope: CoroutineScope) {
 
     private val _layout = MutableStateFlow<List<BoxGroup>>(emptyList())
     val layout: StateFlow<List<BoxGroup>> = _layout.asStateFlow()
+
+    /** Key-set profiles the PC offers (empty = none) and the active one. */
+    private val _profiles = MutableStateFlow<List<String>>(emptyList())
+    val profiles: StateFlow<List<String>> = _profiles.asStateFlow()
+    private val _profile = MutableStateFlow("")
+    val profile: StateFlow<String> = _profile.asStateFlow()
 
     private val _truck = MutableStateFlow<TruckStatus?>(null)
     val truck: StateFlow<TruckStatus?> = _truck.asStateFlow()
@@ -123,6 +132,10 @@ class ButtonBoxClient(private val scope: CoroutineScope) {
         outgoing = null
         _state.value = ConnectionState.Disconnected
         _truck.value = null
+    }
+
+    fun selectProfile(name: String) {
+        outgoing?.trySend(JSONObject().put("t", "profile").put("name", name).toString())
     }
 
     fun press(id: String) = send("press", id)
@@ -175,6 +188,8 @@ class ButtonBoxClient(private val scope: CoroutineScope) {
                         when (msg.optString("t")) {
                             "layout" -> {
                                 _layout.value = parseLayout(msg)
+                                _profiles.value = msg.optJSONArray("profiles")?.let { a -> List(a.length()) { a.getString(it) } } ?: emptyList()
+                                _profile.value = msg.optString("profile")
                                 _state.value = ConnectionState.Connected
                             }
                             "status" -> _truck.value = TruckStatus(
@@ -193,6 +208,7 @@ class ButtonBoxClient(private val scope: CoroutineScope) {
                                 cargoKg = msg.optDouble("cargoKg", 0.0).toFloat(),
                                 destination = msg.optString("dest"),
                                 routeKm = msg.optDouble("routeKm", 0.0).toFloat(),
+                                states = msg.optJSONObject("states")?.let { o -> o.keys().asSequence().associateWith { k -> o.optInt(k) } } ?: emptyMap(),
                             )
                             "error" -> throw IOException(msg.optString("msg", "sunucu hatası"))
                             // "pong": nothing to do, receiving it resets the read timeout
@@ -234,6 +250,8 @@ class ButtonBoxClient(private val scope: CoroutineScope) {
                         span = b.optInt("span", 1).coerceAtLeast(1),
                         accent = b.optBoolean("accent", false),
                         hidden = b.optBoolean("hidden", false),
+                        speak = b.optString("speak"),
+                        state = b.optString("state"),
                         voice = b.optJSONArray("voice")?.let { a -> List(a.length()) { a.getString(it) } } ?: emptyList(),
                         prompt = b.optJSONObject("prompt")?.let {
                             BoxPrompt(it.optString("text"), it.optString("yes"), it.optString("no"))
