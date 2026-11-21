@@ -1,5 +1,5 @@
 {
-  "version": "1.8.0",
+  "version": "1.9.5",
   "url": "https://github.com/krankmilitv/krankmili-button-box/releases/latest",
-  "notes": "Sesli komut: butonlara dokunmadan komut söyle. Park kamerası ve güneşlik butonları eklendi."
+  "notes": "Motor çalışınca sesli bilgi, yanan butonlar, 'sesli bilgi ver' komutu, kontrol ayarlarını otomatik atayan kurulum ve sesli komut listesi."
 }

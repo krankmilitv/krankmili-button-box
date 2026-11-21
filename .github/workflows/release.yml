@@ -1,7 +1,10 @@
 name: Release
+# Runs when version.json changes on main (or manually): publishes dist/* as release v<version>.
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
+    paths: ["version.json"]
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
@@ -13,6 +16,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="${GITHUB_REF_NAME}"
-          NOTES=$(awk -v v="${TAG#v}" '$0=="## "v{f=1;next} /^## /{f=0} f' CHANGELOG.md)
-          gh release create "$TAG" dist/* --title "Krankmili Button Box $TAG" --notes "${NOTES:-See CHANGELOG.md}"
+          VER=$(jq -r .version version.json)
+          TAG="v$VER"
+          if gh release view "$TAG" >/dev/null 2>&1; then echo "$TAG exists"; exit 0; fi
+          NOTES=$(awk -v v="$VER" '$0=="## "v{f=1;next} /^## /{f=0} f' CHANGELOG.md)
+          gh release create "$TAG" dist/* --target "$GITHUB_SHA" --title "Krankmili Button Box $TAG" --notes "${NOTES:-See CHANGELOG.md}"
